@@ -2,7 +2,7 @@
 
 export const API_BASE_URL =
   (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) ||
-  'http://localhost:8000';
+  (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
 
 export const ROUTES = {
   HOME: '/',
