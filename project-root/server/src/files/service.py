@@ -469,6 +469,7 @@ def get_file_path(
     owner_id: int,
     ip_address: str | None = None,
     notification_user_id: int | None = None,
+    record_download: bool = True,
 ) -> tuple[bytes, str, str]:
     file = db.query(File).filter(File.id == file_id, File.is_deleted == False).first()
 
@@ -500,14 +501,11 @@ def get_file_path(
     else:
         decrypted_bytes = encrypted_bytes
 
-    # ── DECOUPLED TRACKING ────────────────────────────────────────────────
-    # Logs DB audits, increments stats, and records analytics on access,
-    # but strictly delegates in-app notification triggers to the routers
-    # (shares, shared_with_me) to prevent double/triple delivery bugs.
-    is_teammate_access = notification_user_id is not None and notification_user_id != owner_id
-
-    if is_teammate_access:
-        file.download_count += 1
+    # Record only explicit downloads. Preview/stream callers opt out so opening a
+    # file cannot inflate the download metrics. Notifications remain delegated to
+    # the relevant routers to avoid duplicate delivery.
+    if record_download:
+        file.download_count = (file.download_count or 0) + 1
         file.last_downloaded_at = datetime.now(timezone.utc)
 
         _audit(
@@ -525,7 +523,11 @@ def get_file_path(
             file_id=file.id,
             status=AnalyticsEventStatus.SUCCESS,
             ip_address=ip_address,
-            event_metadata={"target": file.original_name, "size_bytes": file.size},
+            event_metadata={
+                "target": file.original_name,
+                "size_bytes": file.size,
+                "downloaded_by_user_id": notification_user_id or owner_id,
+            },
         )
         db.commit()
 

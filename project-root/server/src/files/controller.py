@@ -145,6 +145,7 @@ def stream_file(
         file_id,
         current_user.id,
         ip_address=ip,
+        record_download=False,
     )
 
     return StreamingResponse(

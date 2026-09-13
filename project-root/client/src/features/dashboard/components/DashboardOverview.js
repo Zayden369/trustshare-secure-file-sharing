@@ -111,10 +111,10 @@ export default function DashboardOverview({ dashboardData = {}, user }) {
     },
     {
       icon: Download,
-      label: 'Share views',
-      meta: 'All-time link access',
+      label: 'Downloads',
+      meta: 'All-time file downloads',
       tone: 'green',
-      value: analytics.total_share_views,
+      value: analytics.total_downloads,
     },
     {
       icon: Bell,

@@ -83,6 +83,12 @@ def get_dashboard_data(
         .filter(*file_filter, File.encrypted.is_(True))
         .count()
     )
+    total_downloads = (
+        db.query(func.coalesce(func.sum(File.download_count), 0))
+        .filter(*file_filter)
+        .scalar()
+        or 0
+    )
     recent_files = (
         db.query(File)
         .filter(*file_filter)
@@ -125,6 +131,7 @@ def get_dashboard_data(
     analytics = models.DashboardAnalytics(
         total_files=total_files,
         encrypted_files=encrypted_files,
+        total_downloads=int(total_downloads),
         total_share_links=len(shares),
         active_share_links=active_share_links,
         total_share_views=total_share_views,

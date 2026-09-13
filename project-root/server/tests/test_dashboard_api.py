@@ -50,6 +50,7 @@ def test_authenticated_dashboard_returns_current_user_data_only(client, db):
     current_user = create_user(db, "Current")
     other_user = create_user(db, "Other")
     current_file = create_file(db, current_user, "current.pdf", size=1_500)
+    current_file.download_count = 6
     other_file = create_file(db, other_user, "other.pdf", size=9_999)
     db.add_all(
         [
@@ -97,6 +98,7 @@ def test_authenticated_dashboard_returns_current_user_data_only(client, db):
     data = response.json()
     assert data["analytics"]["total_files"] == 1
     assert data["analytics"]["encrypted_files"] == 1
+    assert data["analytics"]["total_downloads"] == 6
     assert data["analytics"]["total_share_links"] == 1
     assert data["analytics"]["active_share_links"] == 1
     assert data["analytics"]["total_share_views"] == 4

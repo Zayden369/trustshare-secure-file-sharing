@@ -41,6 +41,7 @@ def test_dashboard_data_is_aggregated_from_database(db):
         mimetype="application/pdf",
         size=1_000,
         encrypted=True,
+        download_count=5,
         owner_id=user.id,
     )
     db.add(file)
@@ -72,6 +73,7 @@ def test_dashboard_data_is_aggregated_from_database(db):
 
     assert result.analytics.total_files == 1
     assert result.analytics.encrypted_files == 1
+    assert result.analytics.total_downloads == 5
     assert result.analytics.total_share_links == 1
     assert result.analytics.active_share_links == 1
     assert result.analytics.total_share_views == 3
@@ -180,6 +182,7 @@ def test_dashboard_ignores_other_users_deleted_files_and_notifications(db):
     db.flush()
 
     own_file = _create_file(db, user, "own.pdf", size=400)
+    own_file.download_count = 3
     _create_file(db, user, "deleted.pdf", deleted=True)
     other_file = _create_file(db, other_user, "other.pdf", size=9_999)
     db.add_all(
@@ -221,6 +224,7 @@ def test_dashboard_ignores_other_users_deleted_files_and_notifications(db):
     result = get_dashboard_data(db, user)
 
     assert result.analytics.total_files == 1
+    assert result.analytics.total_downloads == 3
     assert result.analytics.total_share_links == 1
     assert result.analytics.total_share_views == 2
     assert result.analytics.total_notifications == 1

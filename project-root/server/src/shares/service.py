@@ -264,6 +264,7 @@ def get_public_file_path(
         file.owner_id,
         ip_address=ip_address,
         notification_user_id=-1,
+        record_download=share_out.permission == "download",
     )
     return decrypted_bytes, original_name, mimetype, share_out.permission
 

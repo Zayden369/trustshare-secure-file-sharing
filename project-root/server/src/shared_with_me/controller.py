@@ -189,6 +189,7 @@ def view_shared_file(
         file.id,
         file.owner_id,
         notification_user_id=current_user.id,
+        record_download=False,
     )
 
     return StreamingResponse(

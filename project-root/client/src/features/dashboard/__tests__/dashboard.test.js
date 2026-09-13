@@ -26,6 +26,7 @@ const dashboardData = {
   analytics: {
     total_files: 7,
     encrypted_files: 7,
+    total_downloads: 9,
     total_share_links: 3,
     active_share_links: 2,
     total_share_views: 12,
@@ -93,7 +94,8 @@ describe('DashboardFeature', () => {
 
     await waitFor(() => expect(screen.getByText('Total files')).toBeInTheDocument());
     expect(screen.getAllByText('Active links').length).toBeGreaterThan(0);
-    expect(screen.getByText('Share views')).toBeInTheDocument();
+    expect(screen.getByText('Downloads')).toBeInTheDocument();
+    expect(screen.getByText('Downloads').closest('article')).toHaveTextContent('9');
     expect(screen.getByText('Unread alerts')).toBeInTheDocument();
     expect(screen.getByText('1.5 GB used')).toBeInTheDocument();
     expect(screen.getByLabelText('30% storage used')).toBeInTheDocument();
@@ -167,8 +169,8 @@ describe('DashboardFeature', () => {
     userEvent.click(within(quickActions).getByRole('button', { name: 'Create share' }));
     userEvent.click(within(quickActions).getByRole('button', { name: 'Security' }));
 
-    expect(mockNavigate).toHaveBeenNthCalledWith(1, '/files');
-    expect(mockNavigate).toHaveBeenNthCalledWith(2, '/files');
+    expect(mockNavigate).toHaveBeenNthCalledWith(1, '/my-files');
+    expect(mockNavigate).toHaveBeenNthCalledWith(2, '/my-files');
     expect(mockNavigate).toHaveBeenNthCalledWith(3, '/sharing');
     expect(mockNavigate).toHaveBeenNthCalledWith(4, '/settings?tab=security');
     expect(mockNavigate).not.toHaveBeenCalledWith('/admin');
