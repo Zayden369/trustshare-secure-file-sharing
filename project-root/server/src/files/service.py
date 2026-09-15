@@ -529,6 +529,18 @@ def get_file_path(
                 "downloaded_by_user_id": notification_user_id or owner_id,
             },
         )
+        if notification_user_id is None:
+            create_notification(
+                db,
+                user_id=owner_id,
+                type="download",
+                category="downloads",
+                title="File downloaded",
+                message=f'"{file.original_name}" was downloaded.',
+                icon="download",
+                resource_id=file.id,
+                resource_type="file",
+            )
         db.commit()
 
     return (
