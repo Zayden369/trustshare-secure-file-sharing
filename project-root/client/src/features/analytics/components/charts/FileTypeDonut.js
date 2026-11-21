@@ -10,12 +10,15 @@ import Card from "../shared/Card";
 import ChartTooltip from "./ChartTooltip";
 import { DonutSkeleton } from "../shared/Skeleton";
 import EmptyState from "../shared/EmptyState";
+import useChartTheme from '../../hooks/useChartTheme';
 
 export default function FileTypeDonut({
-  fileTypes = [],
+  fileTypes: sourceFileTypes = [],
   loading = false,
   config = {},
 }) {
+  const ct = useChartTheme();
+  const fileTypes = sourceFileTypes.map((item,index)=>({...item,color:ct.series[index%ct.series.length]}));
   const title = config.title || "File Type Distribution";
   const subtitle = config.subtitle || "Breakdown by file format";
 

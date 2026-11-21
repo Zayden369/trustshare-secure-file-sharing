@@ -12,12 +12,15 @@ import Card from "../shared/Card";
 import ChartTooltip from "./ChartTooltip";
 import { DonutSkeleton } from "../shared/Skeleton";
 import EmptyState from "../shared/EmptyState";
+import useChartTheme from '../../hooks/useChartTheme';
 
 export default function DepartmentDonut({
-  byDepartment = [],
+  byDepartment: sourceDepartments = [],
   loading = false,
   config = {},
 }) {
+  const ct = useChartTheme();
+  const byDepartment = sourceDepartments.map((item,index)=>({...item,color:ct.series[index%ct.series.length]}));
   const title = config.title || "Sharing by Department";
   const [activeIndex, setActiveIndex] = useState(null);
 

@@ -130,6 +130,7 @@ export default function LoginLineChart({
                 type="monotone"
                 dataKey="failed"
                 name={failedLabel}
+                strokeDasharray="5 4"
                 stroke={ct.failedStroke}
                 strokeWidth={2}
                 dot={{ fill: ct.failedDotFill, r: 3 }}

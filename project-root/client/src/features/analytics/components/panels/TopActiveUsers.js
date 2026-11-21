@@ -8,17 +8,17 @@ import { TopUsersSkeleton } from "../shared/Skeleton";
 import EmptyState from "../shared/EmptyState";
 
 const RANK_COLORS = {
-  1: { color: "#F59E0B", bg: "rgba(245, 158, 11, 0.12)", icon: Trophy },  
-  2: { color: "#94A3B8", bg: "rgba(148, 163, 184, 0.15)", icon: Medal },  
-  3: { color: "#D97706", bg: "rgba(217, 119, 6, 0.12)", icon: Award },   
+  1: { color: "#a0a0a0", bg: "rgba(160, 160, 160, 0.12)", icon: Trophy },
+  2: { color: "#a0a0a0", bg: "rgba(160, 160, 160, 0.15)", icon: Medal },
+  3: { color: "#808080", bg: "rgba(128, 128, 128, 0.12)", icon: Award },
 };
 
 const AVATAR_COLORS = [
-  "linear-gradient(135deg, #3B82F6, #6366F1)",
-  "linear-gradient(135deg, #EC4899, #8B5CF6)",
-  "linear-gradient(135deg, #10B981, #06B6D4)",
-  "linear-gradient(135deg, #F59E0B, #EF4444)",
-  "linear-gradient(135deg, #8B5CF6, #EC4899)",
+  "linear-gradient(135deg, #808080, #606060)",
+  "linear-gradient(135deg, #808080, #808080)",
+  "linear-gradient(135deg, #a0a0a0, #a0a0a0)",
+  "linear-gradient(135deg, #a0a0a0, #606060)",
+  "linear-gradient(135deg, #808080, #808080)",
 ];
 
 export default function TopActiveUsers({

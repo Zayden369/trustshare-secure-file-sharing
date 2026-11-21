@@ -8,7 +8,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(24, 24, 24, 0.5);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 99999;
@@ -27,16 +27,16 @@
   max-width: calc(100vw - 40px);
   text-align: center;
   box-shadow:
-    0 8px 24px rgba(15, 23, 42, 0.12),
-    0 32px 64px rgba(15, 23, 42, 0.18);
+    0 8px 24px rgba(24, 24, 24, 0.12),
+    0 32px 64px rgba(24, 24, 24, 0.18);
 }
 
 .session-modal-icon {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: rgba(160, 160, 160, 0.12);
+  color: #a0a0a0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,14 +46,14 @@
 .session-modal-title {
   font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #181818;
   margin: 0 0 8px;
   letter-spacing: -0.3px;
 }
 
 .session-modal-text {
   font-size: 13px;
-  color: #64748b;
+  color: #808080;
   margin: 0 0 4px;
   line-height: 1.5;
 }
@@ -61,14 +61,14 @@
 .session-modal-timer {
   font-size: 20px;
   font-weight: 700;
-  color: #f59e0b;
+  color: #a0a0a0;
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 .session-modal-hint {
   font-size: 12px;
-  color: #94a3b8;
+  color: #a0a0a0;
   margin: 0 0 20px;
 }
 
@@ -94,13 +94,13 @@
 }
 
 .session-btn--extend {
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: linear-gradient(135deg, #808080, #606060);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.30);
+  box-shadow: 0 4px 12px rgba(96, 96, 96, 0.30);
 }
 
 .session-btn--extend:hover {
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.40);
+  box-shadow: 0 8px 20px rgba(96, 96, 96, 0.40);
 }
 
 .session-btn--extend:disabled {
@@ -109,14 +109,14 @@
 }
 
 .session-btn--logout {
-  background: #f1f5f9;
-  color: #64748b;
+  background: #f8f8f8;
+  color: #808080;
 }
 
 .session-btn--logout:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  background: #f8f8f8;
+  color: #404040;
+  box-shadow: 0 4px 12px rgba(96, 96, 96, 0.15);
 }
 
 .session-spin {
@@ -134,41 +134,41 @@ body.dark .session-overlay {
 }
 
 body.dark .session-modal {
-  background: #131c2e;
+  background: #181818;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
     0 32px 64px rgba(0, 0, 0, 0.5);
 }
 
 body.dark .session-modal-icon {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  background: rgba(160, 160, 160, 0.15);
+  color: #c0c0c0;
 }
 
 body.dark .session-modal-title {
-  color: #f8fafc;
+  color: #f8f8f8;
 }
 
 body.dark .session-modal-text {
-  color: #94a3b8;
+  color: #a0a0a0;
 }
 
 body.dark .session-modal-timer {
-  color: #fbbf24;
+  color: #c0c0c0;
 }
 
 body.dark .session-modal-hint {
-  color: #64748b;
+  color: #808080;
 }
 
 body.dark .session-btn--logout {
   background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  color: #a0a0a0;
 }
 
 body.dark .session-btn--logout:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  background: rgba(96, 96, 96, 0.15);
+  color: #808080;
 }
 
 /* ── Reduced Motion ─────────────────────────────────────────────── */

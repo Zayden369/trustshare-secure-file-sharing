@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
@@ -6,58 +6,7 @@ import { authAPI } from '../utils/api';
 import { Mail, Check, ArrowLeft, KeyRound, Lock, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
 
-const BgEnvironment = ({ mouseX, mouseY }) => (
-  <>
-    <div className="ap-parallax-orb" style={{ left: mouseX, top: mouseY }} />
-    <div className="ap-grain" />
-    <div className="ap-env">
-      <div className="ap-aurora">
-        <div className="ap-ab" />
-        <div className="ap-ab" />
-        <div className="ap-ab" />
-        <div className="ap-ab" />
-      </div>
-      <div className="ap-beams">
-        <div className="ap-beam" />
-        <div className="ap-beam" />
-        <div className="ap-beam" />
-      </div>
-      <div className="ap-mesh">
-        <div className="ap-mesh-grid" />
-        <div className="ap-mesh-dots" />
-      </div>
-      <div className="ap-orbits">
-        <div className="ap-orbit"><div className="ap-orbit-dot" /></div>
-        <div className="ap-orbit"><div className="ap-orbit-dot" /></div>
-      </div>
-      <div className="ap-shapes">
-        <div className="ap-shape"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none" stroke="rgba(0,113,227,0.3)" strokeWidth="1" /></svg></div>
-        <div className="ap-shape"><svg viewBox="0 0 40 40"><polygon points="20,2 38,20 20,38 2,20" fill="none" stroke="rgba(175,82,222,0.3)" strokeWidth="1" /></svg></div>
-        <div className="ap-shape"><svg viewBox="0 0 80 80"><polygon points="40,4 74,22 74,58 40,76 6,58 6,22" fill="none" stroke="rgba(255,55,95,0.25)" strokeWidth="1" /></svg></div>
-      </div>
-      <div className="ap-particles">
-        {Array.from({ length: 25 }).map((_, i) => (
-          <div key={i} className="ap-p" style={{
-            left: `${(i * 13 + 7) % 100}%`,
-            animationDuration: `${8 + (i % 10)}s`,
-            animationDelay: `${(i * 1.1) % 12}s`,
-            width: `${2 + (i % 4)}px`,
-            height: `${2 + (i % 4)}px`,
-          }} />
-        ))}
-      </div>
-      <div className="ap-sparkles">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div key={i} className="ap-sparkle" style={{
-            left: `${(i * 17 + 11) % 100}%`,
-            top: `${(i * 23 + 9) % 100}%`,
-            animationDelay: `${(i * 0.4) % 3}s`,
-          }} />
-        ))}
-      </div>
-    </div>
-  </>
-);
+const BgEnvironment = () => null;
 
 export default function ForgotPassword() {
   const { theme, toggleTheme } = useTheme();
@@ -66,14 +15,10 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
+  const mouseX = 0;
+  const mouseY = 0;
 
-  useEffect(() => {
-    const fn = (e) => { setMouseX(e.clientX); setMouseY(e.clientY); };
-    window.addEventListener('mousemove', fn);
-    return () => window.removeEventListener('mousemove', fn);
-  }, []);
+
 
   const submit = async (e) => {
     e.preventDefault();
@@ -104,10 +49,10 @@ export default function ForgotPassword() {
           <Link to="/login" className="ap-nav-a">Sign In</Link>
           <Link to="/signup" className="ap-nav-a ap-nav-cta">Create Account</Link>
           <div className="ap-nav-divider" />
-          <button 
-            type="button" 
-            className="ap-theme-btn" 
-            onClick={toggleTheme} 
+          <button
+            type="button"
+            className="ap-theme-btn"
+            onClick={toggleTheme}
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle Theme"
           >
@@ -118,14 +63,14 @@ export default function ForgotPassword() {
 
       <div className="ap-auth-split-wrapper">
         <div className="ap-auth-inner-split">
-          
-          <motion.div 
+
+          <motion.div
             className="ap-auth-side-narrative"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }}
           >
-            <span className="ap-narrative-eyebrow" style={{ color: 'var(--pink)', background: 'var(--pink-g)', borderColor: 'rgba(255,55,95,0.15)' }}>Access Recovery</span>
+            <span className="ap-narrative-eyebrow">Access recovery</span>
             <h1 className="ap-narrative-h1">
               Reset Your<br /><span className="italic-gradient">Security Key.</span>
             </h1>
@@ -138,7 +83,7 @@ export default function ForgotPassword() {
                 { t: 'Automatic previous session invalidation', i: Lock }
               ].map((f, i) => (
                 <div key={i} className="ap-narrative-feat">
-                  <div className="ap-narrative-feat-circle" style={{ background: 'rgba(255,55,95,0.08)', color: 'var(--pink)' }}><f.i size={12} /></div>
+                  <div className="ap-narrative-feat-circle"><f.i size={12} /></div>
                   <span>{f.t}</span>
                 </div>
               ))}
@@ -149,7 +94,7 @@ export default function ForgotPassword() {
             <motion.div className="ap-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               {success ? (
                 <div style={{ textAlign: 'center' }}>
-                  <div className="ap-card-ic" style={{ background: 'rgba(52,199,89,0.1)', color: 'var(--ok)' }}><Check size={24} /></div>
+                  <div className="ap-card-ic"><Check size={24} /></div>
                   <h2 className="ap-card-t">Check your email</h2>
                   <p className="ap-card-s">A reset link has been sent to <strong>{email}</strong></p>
                   <Link to="/login" className="ap-btn" style={{ marginTop: 20, textDecoration: 'none' }}><ArrowLeft size={14} /> Back to sign in</Link>
@@ -168,7 +113,7 @@ export default function ForgotPassword() {
                       <input
                         className="ap-in"
                         type="email"
-                        placeholder="Email address"
+                        aria-label="Email address" placeholder="Email address"
                         value={email}
                         onChange={e => { setEmail(e.target.value); setError(''); }}
                         required

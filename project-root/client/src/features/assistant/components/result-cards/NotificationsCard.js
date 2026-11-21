@@ -10,7 +10,7 @@ const NotificationsCard = ({ result }) => {
         return (
             <div className="asst-card">
                 <div className="asst-card-empty">
-                    <CheckCircle size={32} style={{ color: '#10b981', marginBottom: 8 }} />
+                    <CheckCircle size={32} style={{ color: '#a0a0a0', marginBottom: 8 }} />
                     <div className="asst-card-empty-title">All caught up!</div>
                     <div className="asst-card-empty-subtitle">
                         No {result?.unread_only ? 'unread ' : ''}notifications

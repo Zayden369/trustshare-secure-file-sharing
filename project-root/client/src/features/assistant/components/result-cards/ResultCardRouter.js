@@ -10,8 +10,8 @@ import NotificationsCard from './NotificationsCard';
 const ResultCardRouter = ({ functionName, result }) => {
     if (result?.error) {
         return (
-            <div className="asst-msg-bubble assistant" style={{ borderColor: 'rgba(239,68,68,0.3)' }}>
-                <div style={{ color: '#ef4444', fontWeight: 600, marginBottom: 6 }}>
+            <div className="asst-msg-bubble assistant" style={{ borderColor: 'rgba(96, 96, 96,0.3)' }}>
+                <div style={{ color: '#606060', fontWeight: 600, marginBottom: 6 }}>
                     ⚠️ {functionName}
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--asst-text-secondary)' }}>

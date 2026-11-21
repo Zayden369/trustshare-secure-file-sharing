@@ -56,8 +56,8 @@ function Toggle({ on, onToggle, disabled = false }) {
         opacity: disabled ? 0.6 : 1,
         border: 'none',
         outline: 'none',
-        background: on ? 'linear-gradient(135deg, #3B82F6, #6366F1)' : 'var(--bg-hover)',
-        boxShadow: on ? '0 2px 6px rgba(59, 130, 246, 0.3)' : 'inset 0 1px 3px rgba(0,0,0,0.15)',
+        background: on ? 'linear-gradient(135deg, #808080, #606060)' : 'var(--bg-hover)',
+        boxShadow: on ? '0 2px 6px rgba(128, 128, 128, 0.3)' : 'inset 0 1px 3px rgba(0,0,0,0.15)',
         transition: 'all 0.25s cubic-bezier(0.32, 0.72, 0, 1)',
         flexShrink: 0,
       }}
@@ -90,9 +90,9 @@ function PasswordStrengthMeter({ password }) {
     if (/[0-9]/.test(pwd)) score++;
     if (/[^A-Za-z0-9]/.test(pwd)) score++;
 
-    if (score <= 2) return { score, label: 'Weak', color: '#EF4444', textClass: 'text-danger' };
-    if (score <= 4) return { score, label: 'Medium', color: '#F59E0B', textClass: 'text-warning' };
-    return { score, label: 'Strong security', color: '#10B981', textClass: 'text-success' };
+    if (score <= 2) return { score, label: 'Weak', color: '#606060', textClass: 'text-danger' };
+    if (score <= 4) return { score, label: 'Medium', color: '#a0a0a0', textClass: 'text-warning' };
+    return { score, label: 'Strong security', color: '#a0a0a0', textClass: 'text-success' };
   };
 
   const strength = evaluateStrength(password);
@@ -452,7 +452,7 @@ const Settings = () => {
               <div
                 className="avatar-preview-container"
                 style={{
-                  background: !avatarUrl ? 'linear-gradient(135deg, #3B82F6, #6366F1)' : 'var(--bg-input)',
+                  background: !avatarUrl ? 'linear-gradient(135deg, #808080, #606060)' : 'var(--bg-input)',
                 }}
               >
                 {avatarUrl ? (

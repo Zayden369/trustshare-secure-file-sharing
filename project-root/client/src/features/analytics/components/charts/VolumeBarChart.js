@@ -1,6 +1,6 @@
 // client/src/features/analytics/components/charts/VolumeBarChart.js
 
-import React from "react";
+import React, { useId } from "react";
 import {
   BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
@@ -18,6 +18,7 @@ export default function VolumeBarChart({
   config = {},
 }) {
   const ct = useChartTheme();
+  const patternId = `downloads-${useId().replace(/:/g,'')}`;
 
   const title = config.title || "Upload / Download Volume";
   const uploadLabel = config.upload_label || "Uploads";
@@ -59,6 +60,7 @@ export default function VolumeBarChart({
               barGap={3}
               margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
             >
+              <defs><pattern id={patternId} width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill={ct.downloadFill}/><path d="M0 6L6 0" stroke={ct.tooltipBg} strokeWidth="1"/></pattern></defs>
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke={ct.gridStroke}
@@ -88,7 +90,7 @@ export default function VolumeBarChart({
               <Bar
                 dataKey="downloads"
                 name={downloadLabel}
-                fill={ct.downloadFill}
+                fill={`url(#${patternId})`}
                 radius={[4, 4, 0, 0]}
                 maxBarSize={22}
                 animationDuration={1400}

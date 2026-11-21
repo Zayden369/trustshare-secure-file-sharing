@@ -10,12 +10,12 @@ import { events, EVENTS } from '../utils/events';
 import './Notifications.css';
 
 const TYPE_STYLE = {
-  share: { bg: 'rgba(59,130,246,.12)', color: 'var(--blue-400)', Icon: Share2 },
-  security: { bg: 'rgba(244,63,94,.12)', color: 'var(--rose-400)', Icon: ShieldAlert },
-  upload: { bg: 'rgba(16,185,129,.12)', color: 'var(--emerald-400)', Icon: Upload },
-  access: { bg: 'rgba(245,158,11,.12)', color: 'var(--amber-400)', Icon: Eye },
-  download: { bg: 'rgba(139,92,246,.12)', color: 'var(--purple-400)', Icon: Download },
-  summary: { bg: 'rgba(6,182,212,.12)', color: 'var(--cyan-400)', Icon: Sparkles },
+  share: { bg: 'rgba(128, 128, 128,.12)', color: 'var(--blue-400)', Icon: Share2 },
+  security: { bg: 'rgba(96, 96, 96,.12)', color: 'var(--rose-400)', Icon: ShieldAlert },
+  upload: { bg: 'rgba(160, 160, 160,.12)', color: 'var(--emerald-400)', Icon: Upload },
+  access: { bg: 'rgba(160, 160, 160,.12)', color: 'var(--amber-400)', Icon: Eye },
+  download: { bg: 'rgba(128, 128, 128,.12)', color: 'var(--purple-400)', Icon: Download },
+  summary: { bg: 'rgba(160, 160, 160,.12)', color: 'var(--cyan-400)', Icon: Sparkles },
 };
 
 const timeAgo = (dateStr) => {
@@ -260,9 +260,9 @@ export default function Notifications() {
             gap: '10px',
             fontSize: '13px',
             fontWeight: 500,
-            background: deleteFeedback.success ? 'rgba(16,185,129,.12)' : 'rgba(244,63,94,.12)',
+            background: deleteFeedback.success ? 'rgba(160, 160, 160,.12)' : 'rgba(96, 96, 96,.12)',
             color: deleteFeedback.success ? 'var(--emerald-400)' : 'var(--rose-400)',
-            border: `1px solid ${deleteFeedback.success ? 'rgba(16,185,129,.3)' : 'rgba(244,63,94,.3)'}`,
+            border: `1px solid ${deleteFeedback.success ? 'rgba(160, 160, 160,.3)' : 'rgba(96, 96, 96,.3)'}`,
           }}
         >
           {deleteFeedback.success ? <CheckCheck size={16} /> : <AlertTriangle size={16} />}
@@ -286,7 +286,7 @@ export default function Notifications() {
           </div>
         </div>
         <div className="sharing-stat-card">
-          <div className="sharing-stat-icon" style={{ background: 'rgba(244,63,94,.12)', color: 'var(--rose-400)' }}><Shield size={20} /></div>
+          <div className="sharing-stat-icon" style={{ background: 'rgba(96, 96, 96,.12)', color: 'var(--rose-400)' }}><Shield size={20} /></div>
           <div className="sharing-stat-info">
             <span className="sharing-stat-value">{kpiStats.security}</span>
             <span className="sharing-stat-label">Security Warnings</span>
@@ -425,7 +425,7 @@ export default function Notifications() {
                   width: 44,
                   height: 44,
                   borderRadius: '50%',
-                  background: 'rgba(244,63,94,.12)',
+                  background: 'rgba(96, 96, 96,.12)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -458,9 +458,9 @@ export default function Notifications() {
                     borderRadius: '6px',
                     marginBottom: '16px',
                     fontSize: '12px',
-                    background: 'rgba(244,63,94,.12)',
+                    background: 'rgba(96, 96, 96,.12)',
                     color: 'var(--rose-400)',
-                    border: '1px solid rgba(244,63,94,.3)',
+                    border: '1px solid rgba(96, 96, 96,.3)',
                   }}
                 >
                   {deleteFeedback.message}

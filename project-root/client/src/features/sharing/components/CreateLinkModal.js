@@ -93,7 +93,7 @@ export default function CreateLinkModal({
             gap: 8,
             padding: '10px 14px',
             borderRadius: 10,
-            background: 'rgba(244, 63, 94, 0.1)',
+            background: 'rgba(96, 96, 96, 0.1)',
             color: 'var(--rose-400)',
             fontSize: 13,
             marginBottom: 16,
@@ -209,7 +209,7 @@ export default function CreateLinkModal({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20, fontSize: 12, color: 'var(--text-muted)' }}>
             <ShieldCheck size={16} color="var(--emerald-400)" />
-            <span>Decryption keys are generated per-session and never transmitted over the wire.</span>
+            <span>Recipients can access this file according to the permissions and expiry you choose.</span>
           </div>
 
           <div className="my-files-modal-actions">

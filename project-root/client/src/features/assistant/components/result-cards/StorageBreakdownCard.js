@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { PieChart } from 'lucide-react';
 
 const COLOR_MAP = {
-    documents: '#3b82f6',
-    media: '#8b5cf6',
-    archives: '#f59e0b',
-    other: '#94a3b8',
+    documents: '#808080',
+    media: '#808080',
+    archives: '#a0a0a0',
+    other: '#a0a0a0',
 };
 
 const StorageBreakdownCard = ({ result }) => {
@@ -41,7 +41,7 @@ const StorageBreakdownCard = ({ result }) => {
                 {/* Category bars */}
                 <div className="asst-breakdown-list">
                     {categories.map((cat, idx) => {
-                        const color = COLOR_MAP[cat.name.toLowerCase()] || '#94a3b8';
+                        const color = COLOR_MAP[cat.name.toLowerCase()] || '#a0a0a0';
                         return (
                             <div key={cat.name}>
                                 <div className="asst-breakdown-item-header">

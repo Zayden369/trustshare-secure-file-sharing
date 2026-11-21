@@ -117,7 +117,7 @@ export default function PerformancePanel({
                 value={active_now}
                 label="Active Now"
                 sub="last 5 minutes"
-                color="#10B981"
+                color="#a0a0a0"
                 delay={0.1}
               />
             )}
@@ -127,7 +127,7 @@ export default function PerformancePanel({
                 value={peak_concurrent_users}
                 label="Peak Today"
                 sub={peak_hour !== null ? `at ${formatPeakHour(peak_hour)}` : ""}
-                color="#3B82F6"
+                color="#808080"
                 delay={0.15}
               />
             )}
@@ -136,7 +136,7 @@ export default function PerformancePanel({
               value={concurrent_uploads}
               label="Uploads/hr"
               sub="last hour"
-              color="#8B5CF6"
+              color="#808080"
               delay={0.2}
             />
             <PerfStat
@@ -144,7 +144,7 @@ export default function PerformancePanel({
               value={concurrent_downloads}
               label="Downloads/hr"
               sub="last hour"
-              color="#06B6D4"
+              color="#a0a0a0"
               delay={0.25}
             />
           </div>
@@ -163,7 +163,7 @@ export default function PerformancePanel({
               unit="ms"
               label="Avg Processing"
               sub="per file"
-              color="#F59E0B"
+              color="#a0a0a0"
               delay={0.3}
             />
             <PerfStat
@@ -171,7 +171,7 @@ export default function PerformancePanel({
               value={files_processed}
               label="Files Processed"
               sub={`${total_processed_mb.toFixed(1)} MB total`}
-              color="#10B981"
+              color="#a0a0a0"
               delay={0.35}
             />
             <PerfStat
@@ -180,7 +180,7 @@ export default function PerformancePanel({
               unit="MB"
               label="Avg Size"
               sub={`max ${max_file_size_mb.toFixed(1)} MB`}
-              color="#EC4899"
+              color="#808080"
               delay={0.4}
             />
             <PerfStat
@@ -189,7 +189,7 @@ export default function PerformancePanel({
               unit="MB/s"
               label="Encryption Speed"
               sub="AES-256"
-              color="#EF4444"
+              color="#606060"
               delay={0.45}
             />
           </div>
@@ -218,7 +218,7 @@ export default function PerformancePanel({
                 value={events_per_minute}
                 label="Events/min"
                 sub="throughput"
-                color="#3B82F6"
+                color="#808080"
                 delay={0.55}
               />
             )}
@@ -227,7 +227,7 @@ export default function PerformancePanel({
               value={concurrent_shares}
               label="Shares/hr"
               sub="last hour"
-              color="#8B5CF6"
+              color="#808080"
               delay={0.6}
             />
             {!isHidden(peak_hour_events) && (
@@ -236,7 +236,7 @@ export default function PerformancePanel({
                 value={peak_hour_events}
                 label="Peak Events"
                 sub="busiest hour"
-                color="#F59E0B"
+                color="#a0a0a0"
                 delay={0.65}
               />
             )}

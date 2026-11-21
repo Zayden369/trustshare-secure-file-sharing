@@ -14,7 +14,7 @@
 
 /* ── Custom Metric Box Accents ────────────────────────────── */
 .sharing-stat-icon.rose-icon {
-  background: rgba(244, 63, 94, 0.12);
+  background: rgba(96, 96, 96, 0.12);
   color: var(--rose-400);
 }
 
@@ -42,8 +42,8 @@
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   overflow: hidden;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: all 0.28s cubic-bezier(0.32, 0.72, 0, 1);
   padding: 16px;
   gap: 14px;
@@ -51,15 +51,14 @@
 
 .notif-timeline-item:hover {
   border-color: var(--border-medium);
-  transform: translateY(-1px);
+  transform: none;
   box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.04),
-    0 12px 32px rgba(0, 0, 0, 0.05);
+    none;
 }
 
 body.dark .notif-timeline-item:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  border-color: rgba(96, 165, 250, 0.15);
+  box-shadow: none;
+  border-color: rgba(160, 160, 160, 0.15);
 }
 
 /* Left Accent Borders per category category */
@@ -203,7 +202,7 @@ body.dark .notif-timeline-cta-btn:hover {
   height: 7px;
   border-radius: 50%;
   background: var(--blue-500);
-  box-shadow: 0 0 8px var(--blue-500);
+  box-shadow: none;
   margin-top: 4px;
 }
 
@@ -229,9 +228,9 @@ body.dark .notif-timeline-cta-btn:hover {
 }
 
 .notif-timeline-delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(96, 96, 96, 0.1);
   color: var(--rose-500);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(96, 96, 96, 0.2);
 }
 
 body.dark .notif-timeline-delete-btn:hover {

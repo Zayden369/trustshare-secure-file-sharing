@@ -200,7 +200,7 @@ export default function Admin() {
           </div>
         </div>
         <div className="sharing-stat-card">
-          <div className="sharing-stat-icon" style={{ background: 'rgba(244,63,94,.12)', color: 'var(--rose-400)' }}><ShieldAlert size={20} /></div>
+          <div className="sharing-stat-icon" style={{ background: 'rgba(96, 96, 96,.12)', color: 'var(--rose-400)' }}><ShieldAlert size={20} /></div>
           <div className="sharing-stat-info">
             <span className="sharing-stat-value">{stats?.flagged_events || 0}</span>
             <span className="sharing-stat-label">Flagged Events</span>
@@ -267,14 +267,14 @@ export default function Admin() {
                     gridTemplateColumns: '40px 1.5fr 1fr 1fr 1fr 1fr 140px',
                     padding: '12px 20px',
                     alignItems: 'center',
-                    background: isHighlighted ? 'rgba(59, 130, 246, 0.05)' : '',
+                    background: isHighlighted ? 'rgba(128, 128, 128, 0.05)' : '',
                     borderColor: isHighlighted ? 'var(--blue-500)' : '',
                   }}
                 >
                   <div />
                   {/* Identity */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                    <div className="avatar av-sm" style={{ background: 'linear-gradient(135deg,#3b82f6,#8b5cf6)', flexShrink: 0 }}>
+                    <div className="avatar av-sm" style={{ background: 'linear-gradient(135deg,#808080,#808080)', flexShrink: 0 }}>
                       {u.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </div>
                     <div style={{ minWidth: 0 }}>
@@ -419,7 +419,7 @@ export default function Admin() {
                           width: 28,
                           height: 28,
                           borderRadius: 8,
-                          background: isFlagged ? 'rgba(244,63,94,.12)' : 'rgba(59,130,246,.12)',
+                          background: isFlagged ? 'rgba(96, 96, 96,.12)' : 'rgba(128, 128, 128,.12)',
                           color: isFlagged ? 'var(--rose-400)' : 'var(--blue-400)',
                           display: 'flex',
                           alignItems: 'center',
@@ -530,10 +530,10 @@ export default function Admin() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { label: "External shares active", value: stats?.active_shares || 0, denominator: stats?.total_shares || 1, color: "linear-gradient(90deg, #3B82F6, #6366F1)" },
-                { label: "Password protected shares", value: stats?.password_protected_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #10B981, #059669)" },
-                { label: "Links expiring in 48h", value: stats?.expiring_soon_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #F59E0B, #D97706)" },
-                { label: "Shares without expiry", value: stats?.no_expiry_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #EF4444, #DC2626)" },
+                { label: "External shares active", value: stats?.active_shares || 0, denominator: stats?.total_shares || 1, color: "linear-gradient(90deg, #808080, #606060)" },
+                { label: "Password protected shares", value: stats?.password_protected_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #a0a0a0, #808080)" },
+                { label: "Links expiring in 48h", value: stats?.expiring_soon_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #a0a0a0, #808080)" },
+                { label: "Shares without expiry", value: stats?.no_expiry_shares || 0, denominator: stats?.active_shares || 1, color: "linear-gradient(90deg, #606060, #404040)" },
               ].map((row) => {
                 const percentage = Math.round((row.value / row.denominator) * 100) || 0;
                 return (
@@ -553,8 +553,8 @@ export default function Admin() {
                 <div style={{
                   marginTop: 4,
                   padding: '10px 14px',
-                  background: 'rgba(245, 158, 11, 0.06)',
-                  border: '1px dashed rgba(245, 158, 11, 0.3)',
+                  background: 'rgba(160, 160, 160, 0.06)',
+                  border: '1px dashed rgba(160, 160, 160, 0.3)',
                   borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'flex-start',

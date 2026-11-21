@@ -382,7 +382,7 @@ export default function SharingHub() {
           <div className="sharing-stat-icon amber"><ShieldCheck size={20} /></div>
           <div className="sharing-stat-info">
             <span className="sharing-stat-value">AES-256</span>
-            <span className="sharing-stat-label">Zero-Knowledge Guard</span>
+            <span className="sharing-stat-label">Encrypted file storage</span>
           </div>
         </div>
       </section>
@@ -644,7 +644,7 @@ export default function SharingHub() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                       <div
                         className="avatar av-md"
-                        style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff' }}
+                        style={{ background: 'linear-gradient(135deg, #808080, #808080)', color: '#fff' }}
                       >
                         {ds.recipient_name?.slice(0, 2).toUpperCase() || 'TM'}
                       </div>

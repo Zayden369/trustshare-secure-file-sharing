@@ -206,7 +206,7 @@ export default function Sidebar({
               style={{
                 background: user?.avatar_url
                   ? "transparent"
-                  : (user?.avatar_color || "linear-gradient(135deg, #3b82f6, #6366f1)"),
+                  : (user?.avatar_color || "linear-gradient(135deg, #808080, #606060)"),
                 overflow: "hidden",
                 display: "flex",
                 alignItems: "center",

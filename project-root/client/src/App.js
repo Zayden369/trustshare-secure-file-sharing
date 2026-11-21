@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -34,6 +34,8 @@ import Assistant from './pages/Assistant';
 import { notificationsAPI } from './utils/api';
 import { events, EVENTS } from './utils/events';
 import './assets/global.css';
+import './styles/experience.css';
+const Landing = lazy(() => import('./features/landing/Landing'));
 
 function AppShell() {
   const { user } = useAuth();
@@ -108,6 +110,7 @@ export default function App() {
             <ScrollToTop />
             <PageTitle />
             <Routes>
+              <Route path="/" element={<Suspense fallback={<div className="landing-loading" role="status">Opening TrustShare…</div>}><Landing /></Suspense>} />
               {/* Public auth routes */}
               <Route path="/login"           element={<Login />} />
               <Route path="/signup"          element={<Signup />} />
@@ -117,7 +120,7 @@ export default function App() {
               <Route path="/oauth-callback"  element={<OAuthCallback />} />
               <Route path="/s/:token"        element={<PublicShare />} />
 
-              {/* Protected routes — root "/" redirects to /dashboard if logged in, or /login if not */}
+              {/* Existing application pages remain behind the authentication boundary. */}
               <Route
                 path="/*"
                 element={

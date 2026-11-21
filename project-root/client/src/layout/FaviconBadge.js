@@ -39,7 +39,7 @@ export default function FaviconBadge({ count = 0 }) {
 
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = "#ef4444";
+        ctx.fillStyle = "#606060";
         ctx.fill();
 
         // Draw white border

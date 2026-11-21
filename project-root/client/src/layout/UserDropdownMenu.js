@@ -137,10 +137,10 @@ export default function UserDropdownMenu({
   );
 
   const getStorageStatus = () => {
-    if (storagePct >= 95) return { level: "critical", color: "#ef4444", label: "Critical" };
-    if (storagePct >= 80) return { level: "warning", color: "#f59e0b", label: "Warning" };
-    if (storagePct >= 60) return { level: "caution", color: "#eab308", label: "Caution" };
-    return { level: "healthy", color: "#10b981", label: "Healthy" };
+    if (storagePct >= 95) return { level: "critical", color: "#606060", label: "Critical" };
+    if (storagePct >= 80) return { level: "warning", color: "#a0a0a0", label: "Warning" };
+    if (storagePct >= 60) return { level: "caution", color: "#c0c0c0", label: "Caution" };
+    return { level: "healthy", color: "#a0a0a0", label: "Healthy" };
   };
   const storageStatus = getStorageStatus();
   const showWarning = storagePct >= 80;
@@ -211,7 +211,7 @@ export default function UserDropdownMenu({
               style={{
                 background: displayUser?.avatar_url
                   ? "transparent"
-                  : (displayUser?.avatar_color || "linear-gradient(135deg, #3b82f6, #6366f1)"),
+                  : (displayUser?.avatar_color || "linear-gradient(135deg, #808080, #606060)"),
                 overflow: "hidden",
                 display: "flex",
                 alignItems: "center",
@@ -267,12 +267,12 @@ export default function UserDropdownMenu({
                 style={{
                   background:
                     storagePct >= 95
-                      ? "linear-gradient(90deg, #ef4444, #dc2626)"
+                      ? "linear-gradient(90deg, #606060, #404040)"
                       : storagePct >= 80
-                      ? "linear-gradient(90deg, #f59e0b, #d97706)"
+                      ? "linear-gradient(90deg, #a0a0a0, #808080)"
                       : storagePct >= 60
-                      ? "linear-gradient(90deg, #eab308, #ca8a04)"
-                      : "linear-gradient(90deg, #3b82f6, #6366f1)",
+                      ? "linear-gradient(90deg, #c0c0c0, #808080)"
+                      : "linear-gradient(90deg, #808080, #606060)",
                 }}
               />
             </div>

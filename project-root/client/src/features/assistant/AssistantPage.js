@@ -170,7 +170,7 @@ const AssistantPage = () => {
           width: 72,
           height: 72,
           borderRadius: 20,
-          background: 'linear-gradient(135deg, #94a3b8, #64748b)',
+          background: 'linear-gradient(135deg, #a0a0a0, #808080)',
           color: 'white',
           display: 'inline-flex',
           alignItems: 'center',

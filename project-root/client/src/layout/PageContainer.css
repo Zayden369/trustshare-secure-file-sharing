@@ -4,7 +4,7 @@
 
 .page-wrapper {
   flex: 1;
-  background: #f8fafc;
+  background: var(--bg-primary);
   padding-top: 60px;
   transition: background 0.3s ease;
 }

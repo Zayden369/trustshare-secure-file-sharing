@@ -76,7 +76,7 @@ export default function CustomFileSelect({
               </div>
             </>
           ) : (
-            <span style={{ fontSize: 13.5, color: '#94a3b8' }}>{placeholder}</span>
+            <span style={{ fontSize: 13.5, color: '#a0a0a0' }}>{placeholder}</span>
           )}
         </div>
 
@@ -164,7 +164,7 @@ export default function CustomFileSelect({
                         justifyContent: 'space-between',
                         padding: '8px 10px',
                         borderRadius: 8,
-                        background: isSelected ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                        background: isSelected ? 'rgba(128, 128, 128, 0.12)' : 'transparent',
                         cursor: 'pointer',
                         transition: 'background 0.15s ease',
                       }}

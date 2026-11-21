@@ -176,7 +176,7 @@ export default function ActivityPage() {
           </div>
         </div>
         <div className="sharing-stat-card">
-          <div className="sharing-stat-icon" style={{ background: "rgba(244,63,94,.12)", color: "var(--rose-400)" }}><ShieldAlert size={20} /></div>
+          <div className="sharing-stat-icon" style={{ background: "rgba(96, 96, 96,.12)", color: "var(--rose-400)" }}><ShieldAlert size={20} /></div>
           <div className="sharing-stat-info">
             <span className="sharing-stat-value">{stats.flagged}</span>
             <span className="sharing-stat-label">Security Flags</span>
