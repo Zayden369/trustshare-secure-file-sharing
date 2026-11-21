@@ -249,7 +249,7 @@ body.dark .ap-narrative-eyebrow { color: var(--blue); background: var(--blue-g);
   transition: all .3s ease; flex-shrink: 0;
 }
 .ap-step.on .ap-step-d { border-color: var(--blue); background: var(--blue); color: var(--accent-contrast); box-shadow: 0 0 12px var(--blue-g); }
-.ap-step.done .ap-step-d { border-color: var(--ok); background: var(--ok); color: #fff; }
+.ap-step.done .ap-step-d { border-color: var(--ok); background: var(--ok); color: var(--accent-contrast); }
 .ap-step-l { font-size: 11px; color: var(--t3); }
 .ap-step.on .ap-step-l { color: var(--t1); font-weight: 600; }
 .ap-step-line { flex: 1; height: 1px; background: var(--border); margin: 0 6px; }
