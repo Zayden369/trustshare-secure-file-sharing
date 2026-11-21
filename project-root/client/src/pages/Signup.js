@@ -154,7 +154,7 @@ export default function Signup() {
               </AnimatePresence>
 
               <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-                {step > 1 && <button className="ap-btn" type="button" onClick={() => setStep(step - 1)} style={{ width: 46, minWidth: 46, padding: 0, background: 'var(--input)', color: 'var(--t1)' }}><ArrowLeft size={16} /></button>}
+                {step > 1 && <button className="ap-btn" type="button" aria-label="Previous step" onClick={() => setStep(step - 1)} style={{ width: 46, minWidth: 46, padding: 0, background: 'var(--input)', color: 'var(--t1)' }}><ArrowLeft size={16} /></button>}
                 <button className="ap-btn" type="button" onClick={next} disabled={loading}>
                   {loading ? <><span className="ap-spin" /></> : step < 3 ? <>Continue <ArrowRight size={14} /></> : 'Create Account'}
                 </button>
