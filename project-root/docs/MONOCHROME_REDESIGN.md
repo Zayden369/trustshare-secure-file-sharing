@@ -22,7 +22,7 @@ Source: `client/src/styles/tokens.css`. Inter/system sans serves the interface; 
 | `--text-primary` | `#f5f5f5` | `#111111` | Main text |
 | `--text-secondary` | `#a6a6a6` | `#5f5f5f` | Supporting text |
 | `--text-muted` | `#858585` | `#707070` | Metadata |
-| `--accent` | white | `#111111` | Primary actions |
+| `--accent` | `#f5f5f5` | `#111111` | Primary actions |
 | `--accent-contrast` | `#080808` | white | Action foreground |
 
 Controls use small radii and restrained 120–220ms interactions. Dialogs retain modest depth. Focus outlines are visible. Status icons and explicit labels remain; meaning does not depend on hue. Analytics uses labeled grayscale series, a dashed failed-login line, and hatched download bars. API chart values are unchanged.
@@ -67,7 +67,12 @@ Public screenshots below contain no account records. Authenticated dashboard/adm
 | Formation | ![Particle torus](design/formation-dark.jpg) |
 | Formation progress | ![Particle progress](design/formation-progress-dark.jpg) |
 | Actual dashboard component | ![Empty-state dashboard preview](design/product-dark.jpg) |
+| Product preview, light | ![Light product preview](design/product-light.jpg) |
 | Closing | ![Closing](design/closing-dark.jpg) |
+| Login, dark | ![Dark login](design/login-dark.jpg) |
+| Login, light | ![Light login](design/login-light.jpg) |
+
+Mobile authentication: [dark](design/login-390-dark.jpg) and [light](design/login-390-light.jpg). The narrative is hidden on narrow screens, the form is centered, and inputs/password toggles have accessible names. Selected controls use readable foregrounds in both themes.
 
 Responsive entrance screenshots: [390px](design/home-390-light.jpg), [768px](design/home-768-light.jpg), [1024px](design/home-1024-light.jpg), [1920px](design/home-1920-light.jpg). A 1440px dark/light entrance was also inspected. All five representative widths had document scroll width equal to client width. These are representative visual checks, not an exhaustive accessibility certification.
 
@@ -84,6 +89,8 @@ npm run build
 The final working-tree frontend run (including earlier local functional fixes outside this PR) has 9 suites passing and 6 failing; 58 tests pass and 12 fail. The final focused landing and layout/authorization run passes all 21 tests across two suites. Thirteen staged auth handlers also match their original committed implementations. The original committed frontend was separately extracted and tested without modifying the working tree: 6 suites passed and 6 failed; 36 tests passed and 12 failed. The same six failing suites occur in both trees: FileDragDrop, Notifications, PublicShare, ActivityPage, Sharing, and NavbarNotifications. They involve stale control/class expectations, a missing Sharing export, and Jest parsing of an ESM dependency. These unrelated functional/test problems were left untouched.
 
 Browser review uses the ChatGPT in-app browser only. It checks visual rendering and navigation, not a complete new end-to-end exercise of email delivery, OAuth providers, destructive admin actions, upload encryption, or public downloads. The dashboard shows an em dash when an existing API metric is absent; no fabricated zero is inserted. A native walkthrough recording was unavailable, so the scene captures and review instructions are supplied instead.
+
+The existing admin session was used to inspect Dashboard, My Files (grid/list), Sharing, Shared with Me, Activity, Notifications, Analytics, Admin, Settings, and the assistant's configuration-required state. Folder and sharing dialogs were opened and dismissed without creating records. Login theme switching and password visibility were checked. Dashboard and My Files also fit at 390px. A real mobile Analytics overflow was corrected with shrinkable grid tracks/cards and wrapping headers, then rechecked at 390px: scroll width equals client width. Member-only visibility and role guards were covered by the passing layout tests; a separate member browser session was not used. The local AI assistant still requires its existing API-key configuration.
 
 ## Changed areas
 
