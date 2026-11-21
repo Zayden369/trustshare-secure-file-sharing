@@ -7,9 +7,7 @@ Secure file sharing, encrypted storage, controlled collaboration, and audit-read
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
-**Live demo:** [trustshare.13.61.15.139.nip.io](https://trustshare.13.61.15.139.nip.io/login)
 
-> The hosted demo currently supports email/password authentication and Google OAuth. Microsoft authentication is intentionally hidden until an Entra application is configured.
 
 ## Screenshots
 
