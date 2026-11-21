@@ -100,5 +100,6 @@ The existing admin session was used to inspect Dashboard, My Files (grid/list), 
 - Auth presentation and obsolete-style cleanup: Login, Signup, ForgotPassword, ResetPassword, VerifyOtp, and `styles/apple-auth.css`. Existing auth request handlers are preserved.
 - Shared shell, dashboard, file manager, sharing, activity, notifications, settings, assistant, public-share presentation, and analytics feature styles/inline colors.
 - Analytics view colors and line/bar encodings; underlying metrics and calculations are preserved.
+- `client/nginx.conf`: application entry pages revalidate so cached route HTML cannot keep loading an older visual bundle; hashed static assets retain their immutable cache policy. The local response header was checked directly.
 
-Earlier uncommitted backend, SMTP, upload, OAuth callback, and deployment work is excluded from this visual review branch. The VerifyOtp resend-error behavior is also excluded from this change, while its decorative cleanup is included.
+Earlier uncommitted backend, SMTP, upload, OAuth callback, and container-infrastructure work is excluded from this visual review branch. The frontend HTML cache correction is included; upload proxy limits/timeouts are excluded. The VerifyOtp resend-error behavior is also excluded from this change, while its decorative cleanup is included.
