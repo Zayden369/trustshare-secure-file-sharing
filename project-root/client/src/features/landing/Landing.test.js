@@ -17,7 +17,9 @@ jest.mock('framer-motion', () => {
     path: ({ style, ...props }) => <path {...props}/>,
     g: ({ children, style, ...props }) => <g {...props}>{children}</g>,
   },
-  useScroll: () => ({ scrollYProgress: { on: () => () => {} } }),
+  useScroll: () => ({ scrollYProgress: { get: () => 0, on: () => () => {} } }),
+  useMotionValue: () => ({ set: () => {} }),
+  useSpring: () => 0,
   useTransform: () => 0,
   useReducedMotion: () => true,
   useInView: () => true,
@@ -45,5 +47,6 @@ test('every local navigation anchor resolves to a scene', () => {
 test('illustrations do not claim live metrics or an autonomous swarm', () => {
   show();
   expect(screen.getByText(/does not represent an autonomous AI swarm/i)).toBeInTheDocument();
-  expect(screen.getByText(/Actual dashboard component, shown in its empty state/i)).toBeInTheDocument();
+  expect(screen.getByText(/Live file-list and file-card components, with illustrative documents/i)).toBeInTheDocument();
+  expect(screen.queryByText(/Actual dashboard component, shown in its empty state/i)).not.toBeInTheDocument();
 });

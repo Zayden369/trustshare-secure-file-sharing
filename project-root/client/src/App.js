@@ -1,4 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
+import { MotionConfig } from 'framer-motion';
+import BootScreen from './components/BootScreen';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -103,14 +105,14 @@ function AppShell() {
 
 export default function App() {
   return (
-    <ThemeProvider>
+    <MotionConfig reducedMotion="user"><ThemeProvider>
       <AuthProvider>
         <ToastProvider>
           <Router>
             <ScrollToTop />
             <PageTitle />
             <Routes>
-              <Route path="/" element={<Suspense fallback={<div className="landing-loading" role="status">Opening TrustShare…</div>}><Landing /></Suspense>} />
+              <Route path="/" element={<Suspense fallback={<BootScreen message="Opening the archive"/>}><Landing /></Suspense>} />
               {/* Public auth routes */}
               <Route path="/login"           element={<Login />} />
               <Route path="/signup"          element={<Signup />} />
@@ -133,6 +135,6 @@ export default function App() {
           </Router>
         </ToastProvider>
       </AuthProvider>
-    </ThemeProvider>
+    </ThemeProvider></MotionConfig>
   );
 }

@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -26,6 +26,8 @@
 
 /* ── Tabs ──────────────────────────────────────────────────── */
 .activity-tabs {
+  overflow-x: auto;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -37,10 +39,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
   background: transparent;
   border: 1px solid transparent;
@@ -54,9 +56,9 @@
 }
 
 .activity-tab-btn.is-active {
-  color: #fff;
-  background: linear-gradient(135deg, #808080, #606060);
-  box-shadow: 0 2px 8px rgba(128, 128, 128, 0.3);
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  box-shadow: none;
 }
 
 .activity-tab-badge {
@@ -134,10 +136,10 @@
 .activity-date-select {
   padding: 8px 32px 8px 12px;
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 2px;
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 12.5px;
+  font-size: 11px;
   font-weight: 500;
   outline: none;
   cursor: pointer;
@@ -192,20 +194,22 @@
 .activity-timeline {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  border-top: 1px solid var(--border);
 }
 
 .activity-timeline-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  padding: 18px 12px;
+  background: none;
+  border: 0;
+  border-radius: 0;
   transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid var(--border);
 }
 
 .activity-timeline-item:hover {
@@ -399,12 +403,12 @@ body.dark .activity-timeline-item:hover {
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .activity-page { padding: 16px; }
+  .activity-page { padding: 0; }
   .activity-tabs { overflow-x: auto; flex-wrap: nowrap; }
-  .activity-tab-btn { flex: 0 0 auto; }
+  .activity-tab-btn { flex: 0 0 auto; font-size: 12px; font-weight: 500; border-radius: 2px; padding: 9px 14px; }
   .activity-toolbar { flex-direction: column; align-items: stretch; }
   .activity-search-wrap { max-width: 100%; }
-  .activity-timeline-item { flex-wrap: wrap; }
+  .activity-timeline-item { flex-wrap: wrap; background: none; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 18px 12px; }
   .activity-timeline-right { flex-direction: row; width: 100%; justify-content: flex-start; margin-top: 6px; }
 }
 

@@ -1,0 +1,30 @@
+.archive-aperture {
+  width: 100%;
+  height: 100%;
+  color: var(--text-primary);
+  overflow: visible;
+}
+.archive-construction {
+  opacity: .15;
+}
+.archive-paper {
+  fill: var(--surface-secondary);
+  stroke: var(--text-secondary);
+  stroke-width: .9;
+}
+.archive-rule {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: .65;
+  opacity: .6;
+}
+.archive-doc-title {
+  fill: currentColor;
+  font: 10px var(--font-sans);
+  letter-spacing: -.3px;
+}
+.archive-doc-code {
+  fill: var(--text-muted);
+  font: 5px monospace;
+  letter-spacing: .8px;
+}

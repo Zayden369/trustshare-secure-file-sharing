@@ -406,7 +406,7 @@ const Settings = () => {
   return (
     <div className="settings-container fade-in">
       <div className="page-header-left">
-        <h1 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Settings</h1>
+        <h1 className="settings-page-title">Settings</h1>
         <p className="settings-subtitle">Manage your account, security and preferences.</p>
       </div>
 

@@ -145,51 +145,7 @@ export default function DashboardOverview({ dashboardData = {}, user }) {
 
       <div className="dashboard-content-grid">
         <div className="dashboard-primary-column">
-          <section className="card dashboard-panel">
-            <PanelHeader
-              action="View all"
-              onAction={() => navigate('/my-files')}
-              title="Recent files"
-            />
-            {recentFiles.length === 0 ? (
-              <div className="dashboard-empty-state">
-                <FolderOpen aria-hidden="true" size={28} />
-                <p>No files have been uploaded yet.</p>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => navigate('/my-files')}
-                  type="button"
-                >
-                  Upload your first file
-                </button>
-              </div>
-            ) : (
-              <div className="dashboard-file-list">
-                {recentFiles.map((file) => {
-                  const FileIcon = getFileIcon(file.mimetype);
-                  return (
-                    <article className="dashboard-file-row" key={file.id}>
-                      <span className="dashboard-file-icon">
-                        <FileIcon aria-hidden="true" size={20} />
-                      </span>
-                      <div className="dashboard-file-copy">
-                        <strong title={file.original_name}>{file.original_name}</strong>
-                        <span>
-                          {formatBytes(file.size)} · {formatDate(file.created_at)}
-                        </span>
-                      </div>
-                      {file.encrypted && (
-                        <span className="dashboard-secure-badge">
-                          <LockKeyhole aria-hidden="true" size={12} />
-                          Encrypted
-                        </span>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <RecentFilesPanel files={recentFiles} onViewAll={() => navigate('/my-files')} onUpload={() => navigate('/my-files')} />
 
           <section className="card dashboard-panel">
             <PanelHeader title="Quick actions" />
@@ -343,5 +299,56 @@ export default function DashboardOverview({ dashboardData = {}, user }) {
         </aside>
       </div>
     </div>
+  );
+}
+
+// Shared by the live dashboard and the clearly labeled public interface preview.
+export function RecentFilesPanel({files = [], onViewAll, onUpload}) {
+  return (
+          <section className="card dashboard-panel">
+            <PanelHeader
+              action="View all"
+              onAction={onViewAll}
+              title="Recent files"
+            />
+            {files.length === 0 ? (
+              <div className="dashboard-empty-state">
+                <FolderOpen aria-hidden="true" size={28} />
+                <p>No files have been uploaded yet.</p>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={onUpload}
+                  type="button"
+                >
+                  Upload your first file
+                </button>
+              </div>
+            ) : (
+              <div className="dashboard-file-list">
+                {files.map((file) => {
+                  const FileIcon = getFileIcon(file.mimetype);
+                  return (
+                    <article className="dashboard-file-row" key={file.id}>
+                      <span className="dashboard-file-icon">
+                        <FileIcon aria-hidden="true" size={20} />
+                      </span>
+                      <div className="dashboard-file-copy">
+                        <strong title={file.original_name}>{file.original_name}</strong>
+                        <span>
+                          {formatBytes(file.size)} · {formatDate(file.created_at)}
+                        </span>
+                      </div>
+                      {file.encrypted && (
+                        <span className="dashboard-secure-badge">
+                          <LockKeyhole aria-hidden="true" size={12} />
+                          Encrypted
+                        </span>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
   );
 }

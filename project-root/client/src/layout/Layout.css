@@ -11,8 +11,9 @@
 .app-shell {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: var(--background);
   transition: background 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  font-variant-numeric: tabular-nums;
 }
 
 .main-area {
@@ -41,7 +42,7 @@
 /* ── Dark Mode ─────────────────────────────────────────────────────────── */
 
 body.dark .app-shell {
-  background: var(--bg-secondary);
+  background: var(--background);
 }
 
 body.dark .main-area {
@@ -67,4 +68,6 @@ html {
 .main-area {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  background: var(--background);
+  font-variant-numeric: tabular-nums;
 }

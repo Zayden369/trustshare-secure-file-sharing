@@ -5,8 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { authAPI } from '../utils/api';
 import { Mail, Check, ArrowLeft, KeyRound, Lock, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
-
-const BgEnvironment = () => null;
+import AuthArtwork from '../components/AuthArtwork';
 
 export default function ForgotPassword() {
   const { theme, toggleTheme } = useTheme();
@@ -15,8 +14,6 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const mouseX = 0;
-  const mouseY = 0;
 
 
 
@@ -38,7 +35,6 @@ export default function ForgotPassword() {
 
   return (
     <div className="ap">
-      <BgEnvironment mouseX={mouseX} mouseY={mouseY} />
 
       <nav className="ap-nav">
         <Link to="/" className="ap-logo">
@@ -70,17 +66,18 @@ export default function ForgotPassword() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }}
           >
+            <AuthArtwork/>
             <span className="ap-narrative-eyebrow">Access recovery</span>
             <h1 className="ap-narrative-h1">
-              Reset Your<br /><span className="italic-gradient">Security Key.</span>
+              Find your way<br /><span className="italic-gradient">back in.</span>
             </h1>
             <p className="ap-narrative-p">
-              If your account credentials have compromised or forgotten, submit your work email address. We'll issue a dynamic, single-use login recovery link.
+              Request a password reset link using the email address associated with your account.
             </p>
             <div className="ap-narrative-features">
               {[
-                { t: 'Dynamic single-use reset link dispatches', i: KeyRound },
-                { t: 'Automatic previous session invalidation', i: Lock }
+                { t: 'Email-based account recovery', i: KeyRound },
+                { t: 'Return to your workspace', i: Lock }
               ].map((f, i) => (
                 <div key={i} className="ap-narrative-feat">
                   <div className="ap-narrative-feat-circle"><f.i size={12} /></div>

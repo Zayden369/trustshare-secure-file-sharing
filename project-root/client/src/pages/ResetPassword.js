@@ -5,8 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { authAPI } from '../utils/api';
 import { Lock, Eye, EyeOff, Check, ShieldCheck, Key, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
-
-const BgEnvironment = () => null;
+import AuthArtwork from '../components/AuthArtwork';
 
 export default function ResetPassword() {
   const { theme, toggleTheme } = useTheme();
@@ -20,8 +19,6 @@ export default function ResetPassword() {
   const [fe, setFe] = useState({});
   const [showPw, setShowPw] = useState(false);
   const [showCPw, setShowCPw] = useState(false);
-  const mouseX = 0;
-  const mouseY = 0;
   const token = new URLSearchParams(location.search).get('token') || '';
 
 
@@ -70,7 +67,6 @@ export default function ResetPassword() {
 
   return (
     <div className="ap">
-      <BgEnvironment mouseX={mouseX} mouseY={mouseY} />
 
       <nav className="ap-nav">
         <Link to="/login" className="ap-logo">
@@ -102,17 +98,18 @@ export default function ResetPassword() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
+            <AuthArtwork/>
             <span className="ap-narrative-eyebrow">A fresh start</span>
             <h1 className="ap-narrative-h1">
-              Configure New<br /><span className="italic-gradient">Vault Master Key.</span>
+              A fresh start.<br /><span className="italic-gradient">The same workspace.</span>
             </h1>
             <p className="ap-narrative-p">
-              Confirm your new account password. Our backend enforces strict entropy checks and automatically purges all active session tokens on submit.
+              Choose a new password for your TrustShare account. Follow the password requirements shown in the form.
             </p>
             <div className="ap-narrative-features">
               {[
-                { t: 'Multi-device session token invalidation', i: ShieldCheck },
-                { t: 'Bcrypt-based hashing with dynamic salt rounds', i: Key }
+                { t: 'A new password for your account', i: ShieldCheck },
+                { t: 'Your files stay in your workspace', i: Key }
               ].map((f, i) => (
                 <div key={i} className="ap-narrative-feat">
                   <div className="ap-narrative-feat-circle"><f.i size={12} /></div>

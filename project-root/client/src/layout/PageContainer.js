@@ -17,7 +17,7 @@ export default function PageContainer({ children }) {
       <motion.div
         key={location.pathname}
         className="page-container"
-        initial={{ opacity: 0, y: 8 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{
           duration: 0.35,

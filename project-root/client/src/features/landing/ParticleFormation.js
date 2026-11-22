@@ -34,15 +34,15 @@ export default function ParticleFormation(){
   const reduced=useReducedMotion();
   const {theme}=useTheme();
   const {scrollYProgress}=useScroll({target:section,offset:['start 85%','end 25%']});
-  useEffect(()=>scrollYProgress.on('change',v=>{progress.current=v;}),[scrollYProgress]);
+  useEffect(()=>{progress.current=scrollYProgress.get();return scrollYProgress.on('change',v=>{progress.current=v;});},[scrollYProgress]);
   useEffect(()=>{
     const node=canvas.current;
     if(!node||typeof ResizeObserver==='undefined'||typeof IntersectionObserver==='undefined')return;
     const ctx=node.getContext('2d');
     if(!ctx)return;
     let width=0,height=0,raf=0,visible=false,disposed=false;
-    const mobile=window.matchMedia('(max-width:700px)').matches;
-    const count=mobile?450:((navigator.hardwareConcurrency||4)<4?800:1800);
+    const desktopCount=(navigator.hardwareConcurrency||4)<4?800:1800;
+    let count=window.matchMedia('(max-width:700px)').matches?450:desktopCount;
     const dpr=Math.min(window.devicePixelRatio||1,1.5);
     let ink='245,245,245';
     const paint=time=>{
@@ -60,6 +60,7 @@ export default function ParticleFormation(){
       if(!reduced&&visible)raf=requestAnimationFrame(paint);
     };
     const resize=()=>{
+      count=window.matchMedia('(max-width:700px)').matches?450:desktopCount;
       const rect=node.getBoundingClientRect();width=rect.width;height=rect.height;
       node.width=Math.round(width*dpr);node.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
       ink=theme==='light'?'20,20,20':'245,245,245';
@@ -74,5 +75,5 @@ export default function ParticleFormation(){
     observer.observe(node);
     return()=>{disposed=true;observer.disconnect();resizeObserver.disconnect();cancelAnimationFrame(raf);};
   },[reduced,theme]);
-  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">06 / Order, from possibility</span><h2>Many individual files.<br/><em>One considered whole.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:220},(_,i)=>{const p=formationPoint(i,220,1);return <circle key={i} cx={p.x} cy={p.y} r=".006" fill="currentColor"/>;})}</svg><canvas ref={canvas} role="img" aria-label="Monochrome particles coordinate from a dispersed field into a ring and a shield formation"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
+  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">Order, from possibility</span><h2>Many individual files.<br/><em>One considered whole.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:220},(_,i)=>{const p=formationPoint(i,220,1);return <circle key={i} cx={p.x} cy={p.y} r=".006" fill="currentColor"/>;})}</svg><canvas ref={canvas} role="img" aria-label="Monochrome particles coordinate from a dispersed field into a ring and a shield formation"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
 }
