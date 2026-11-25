@@ -463,7 +463,7 @@
     padding: 0 20px;
   }
   .m-nav-actions {
-    gap: 16px;
+    gap: 10px;
     font-size: 12px;
   }
   .m-nav-start {
@@ -471,14 +471,17 @@
     gap: 10px;
   }
   .m-nav-actions>button {
-    display: none;
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    padding: 0;
   }
   .m-wordmark {
     font-size: 16px;
   }
   .m-hero {
     margin: 0 20px;
-    height: 800px;
+    height: 980px;
     min-height: 0;
   }
   .m-hero-topline {
@@ -490,19 +493,22 @@
   }
   .m-hero-copy {
     padding-top: 58px;
+    color: var(--text-primary);
+    mix-blend-mode: normal;
   }
   .m-hero-copy .m-kicker {
     font-size: 10px;
     margin-bottom: 26px;
+    color: var(--text-secondary);
   }
   .m-hero-copy h1 {
     font-size: 80px;
   }
   .m-hero-architecture {
     width: 120%;
-    height: 550px;
+    height: 400px;
     right: -26%;
-    top: 215px;
+    top: 365px;
     opacity: .8;
   }
   .m-hero-aside {

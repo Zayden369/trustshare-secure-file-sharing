@@ -52,7 +52,7 @@
   font-weight: 550;
   letter-spacing: -.6px;
 }
-.ap-logo img {
+.ap-logo .trustshare-mark {
   width: 24px;
   height: 24px;
   filter: grayscale(1);
@@ -236,6 +236,7 @@
   position: relative;
 }
 .ap-in {
+  color-scheme: inherit;
   width: 100%;
   min-height: 52px;
   padding: 0 40px;

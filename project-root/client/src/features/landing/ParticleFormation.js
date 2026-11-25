@@ -16,10 +16,14 @@ export function formationPoint(i,count,progress,time=0,pointer={x:0,y:0}){
   const sy=u*1.8-.9;
   const halfWidth=sy<.15?.73:(.95-sy)*.91;
   const shield=[(v*2-1)*halfWidth,sy,Math.sin(phi)*.12];
-  const t1=smooth(progress/.45),t2=smooth((progress-.45)/.55);
-  let x=mix(mix(cloud[0],ring[0],t1),shield[0],t2);
-  let y=mix(mix(cloud[1],ring[1],t1),shield[1],t2);
-  const z=mix(mix(cloud[2],ring[2],t1),shield[2],t2);
+  const document=[(v*2-1)*.57,sy*.85,Math.sin(phi)*.07];
+  const archive=[(v*2-1)*.7,Math.round(sy*5)/5,Math.cos(phi)*.22];
+  const shapes=[cloud,document,shield,archive,ring];
+  const position=Math.min(.999999,Math.max(0,progress))*4;
+  const index=Math.floor(position),t=smooth(position-index);
+  let x=mix(shapes[index][0],shapes[index+1][0],t);
+  let y=mix(shapes[index][1],shapes[index+1][1],t);
+  const z=mix(shapes[index][2],shapes[index+1][2],t);
   const turn=Math.sin(time*.16)*.16+pointer.x*.12;
   const rx=x*Math.cos(turn)+z*Math.sin(turn);
   const rz=-x*Math.sin(turn)+z*Math.cos(turn);
@@ -33,7 +37,7 @@ export default function ParticleFormation(){
   const [ready,setReady]=useState(false);
   const reduced=useReducedMotion();
   const {theme}=useTheme();
-  const {scrollYProgress}=useScroll({target:section,offset:['start 85%','end 25%']});
+  const {scrollYProgress}=useScroll({target:section,offset:['start 70%','end 20%']});
   useEffect(()=>{progress.current=scrollYProgress.get();return scrollYProgress.on('change',v=>{progress.current=v;});},[scrollYProgress]);
   useEffect(()=>{
     const node=canvas.current;
@@ -75,5 +79,5 @@ export default function ParticleFormation(){
     observer.observe(node);
     return()=>{disposed=true;observer.disconnect();resizeObserver.disconnect();cancelAnimationFrame(raf);};
   },[reduced,theme]);
-  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">Order, from possibility</span><h2>Many individual files.<br/><em>One considered whole.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:220},(_,i)=>{const p=formationPoint(i,220,1);return <circle key={i} cx={p.x} cy={p.y} r=".006" fill="currentColor"/>;})}</svg><canvas ref={canvas} role="img" aria-label="Monochrome particles coordinate from a dispersed field into a ring and a shield formation"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
+  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">Order, from possibility</span><h2>Many individual files.<br/><em>One considered whole.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:220},(_,i)=>{const p=formationPoint(i,220,1);return <circle key={i} cx={p.x} cy={p.y} r=".006" fill="currentColor"/>;})}</svg><canvas ref={canvas} role="img" aria-label="Monochrome particles coordinate from a dispersed field into a document, shield, archive, and connected ring"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
 }

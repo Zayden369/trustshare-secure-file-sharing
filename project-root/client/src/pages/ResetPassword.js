@@ -1,3 +1,4 @@
+import BrandMark from '../components/BrandMark';
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -70,7 +71,7 @@ export default function ResetPassword() {
 
       <nav className="ap-nav">
         <Link to="/login" className="ap-logo">
-          <img src="/logo.png" alt="" onError={e => e.target.style.display = 'none'} />
+          <BrandMark/>
           TrustShare
         </Link>
         <div className="ap-nav-r">

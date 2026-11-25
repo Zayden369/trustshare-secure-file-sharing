@@ -238,7 +238,7 @@ export default function ActivityPage() {
                 <div className="activity-timeline-content">
                   <div className="activity-timeline-title">
                     {formatAction(item.action)}
-                    <span className="my-files-type-chip" style={{ fontSize: 10 }}>{meta.label}</span>
+                    {formatAction(item.action).toLowerCase() !== meta.label.toLowerCase() && <span className="my-files-type-chip" style={{ fontSize: 10 }}>{meta.label}</span>}
                   </div>
                   <p className="activity-timeline-desc">{item.resource_name || `${item.resource_type || "Account"} activity`}</p>
                   <div className="activity-timeline-meta">

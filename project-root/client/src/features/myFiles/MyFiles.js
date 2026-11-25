@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Upload, FolderPlus, FolderOpen, CheckCircle2, XCircle, Trash2, LayoutGrid, List } from 'lucide-react';
+import { Upload, FolderPlus, CheckCircle2, XCircle, Trash2, LayoutGrid, List } from 'lucide-react';
+import ArchiveEmpty from '../../components/ArchiveEmpty';
 import FolderCard from './components/FolderCard';
 import FileCard from './components/FileCard';
 import FilterChips from './components/FilterChips';
@@ -433,21 +434,14 @@ export default function MyFiles() {
           ))}
         </section>
       ) : (
-        <div className="my-files-empty">
-          <div className="my-files-empty-icon"><FolderOpen size={40} strokeWidth={1.5} /></div>
-          <h3 className="my-files-empty-title">
-            {searchQuery ? `No files matching "${searchQuery}"` : 'No files here yet'}
-          </h3>
-          <p className="my-files-empty-subtitle">
-            {searchQuery ? 'Try a different term or clear filters.' : 'Upload a file here to securely store and share documents.'}
-          </p>
-          {!searchQuery && (
+        <ArchiveEmpty title={searchQuery ? `No files matching "${searchQuery}"` : 'Your archive starts here'} action={!searchQuery && (
             <button type="button" onClick={() => fileInputRef.current?.click()}
               className="my-files-btn my-files-btn--primary" style={{ marginTop: 20 }}>
               <Upload size={15} strokeWidth={2.2} /> Upload File
             </button>
-          )}
-        </div>
+          )}>
+          {searchQuery ? 'Try a different term or clear filters.' : 'Upload your first document. Keep it private, or share it on your terms.'}
+        </ArchiveEmpty>
       )}
 
       {/* Modals */}

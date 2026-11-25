@@ -46,12 +46,15 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   transition: all 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-  padding: 20px 16px;
+  padding: 15px 16px;
   gap: 18px;
   border-bottom: 1px solid var(--border);
 }
 
+.notif-timeline-item.is-unread { background: var(--surface-primary); border-left: 2px solid var(--text-primary); }
+.notif-timeline-item.is-unread .notif-timeline-title { font-weight: 650; }
 .notif-timeline-item:hover {
+  background: var(--surface-secondary);
   border-color: var(--border-medium);
   transform: none;
   box-shadow:
@@ -123,7 +126,7 @@ body.dark .notif-timeline-item:hover {
 
 .notif-timeline-title {
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -0.2px;
   margin: 0;

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, X, Maximize2, MessageSquarePlus } from 'lucide-react';
+import { X, Maximize2, MessageSquarePlus } from 'lucide-react';
+import BrandMark from '../../components/BrandMark';
 import { Link } from 'react-router-dom';
 import ChatWindow from './components/ChatWindow';
 import { emitAssistantEvent } from './utils/assistantEvents';
@@ -39,7 +40,7 @@ const AssistantBubbleWindow = ({
             {/* Header */}
             <div className="asst-bubble-header">
                 <div className="asst-bubble-title">
-                    <Sparkles size={18} />
+                    <BrandMark/>
                     <span>{status?.bot_name || 'AI Assistant'}</span>
                 </div>
                 <div className="asst-bubble-actions">

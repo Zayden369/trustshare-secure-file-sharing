@@ -202,7 +202,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 12px;
+  padding: 13px 14px;
   background: none;
   border: 0;
   border-radius: 0;
@@ -214,12 +214,13 @@
 
 .activity-timeline-item:hover {
   border-color: var(--border-medium);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transform: none;
+  background: var(--surface-secondary);
+  box-shadow: none;
 }
 
 body.dark .activity-timeline-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .activity-timeline-accent {
@@ -274,7 +275,8 @@ body.dark .activity-timeline-item:hover {
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .activity-timeline-meta {

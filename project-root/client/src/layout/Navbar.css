@@ -58,6 +58,7 @@
 
 .navbar-search {
   flex: 1;
+  min-width: 0;
   max-width: 520px;
   height: 38px;
   position: relative;
@@ -1210,8 +1211,8 @@ body.dark .nav-admin-badge:hover {
     height: 32px;
   }
 
-  /* Hide connection status icon on small devices */
-  .navbar-actions > *:nth-child(3) {
+  /* Connection telemetry yields space; authentication controls stay reachable. */
+  .navbar-actions .connection-dot {
     display: none !important;
   }
 
@@ -1236,11 +1237,6 @@ body.dark .nav-admin-badge:hover {
     backdrop-filter: none;
   }
 
-  /* Hide theme toggle entirely on extremely narrow screens to stay within boundaries */
-  .nav-icon-btn:has(svg[class*="Sun"]),
-  .nav-icon-btn:has(svg[class*="Moon"]) {
-    display: none !important;
-  }
 }
 
 .avatar {
