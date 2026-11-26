@@ -34,6 +34,7 @@ from src.entities.assistant_prompt import AssistantPrompt  # noqa
 from src.entities.assistant_suggested_query import AssistantSuggestedQuery  # noqa
 from src.entities.chat_conversation import ChatConversation  # noqa
 from src.entities.chat_message import ChatMessage  # noqa
+from src.entities.chat_turn import ChatTurn  # noqa
 
 # Import analytics seeds
 from src.analytics.seed import (

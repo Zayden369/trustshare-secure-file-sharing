@@ -81,6 +81,7 @@ class AssistantStatusOut(BaseModel):
     show_bubble: bool
     max_message_length: int
     message: Optional[str] = None
+    data_queries_available: bool = False
 
 
 class SuggestedQueryOut(BaseModel):
@@ -91,14 +92,19 @@ class SuggestedQueryOut(BaseModel):
     category: str
     icon_name: Optional[str] = None
     display_order: int
+    intent_id: Optional[str] = None
 
 
 # CHAT SCHEMAS
 
 
 class ChatRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     message: str = Field(min_length=1, max_length=5000)
     conversation_id: Optional[int] = None
+    intent_id: Optional[str] = Field(default=None, max_length=64)
+    suggestion_id: Optional[int] = Field(default=None, ge=1)
+    request_id: Optional[str] = Field(default=None, min_length=16, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")
 
 
 class FunctionCallOut(BaseModel):
@@ -115,6 +121,9 @@ class ChatResponse(BaseModel):
     tokens_used: Optional[int] = None
     model_used: Optional[str] = None
     error: bool = False
+    request_id: Optional[str] = None
+    route: Optional[str] = None
+    performance: Optional[dict] = None
 
 
 class ConversationOut(BaseModel):

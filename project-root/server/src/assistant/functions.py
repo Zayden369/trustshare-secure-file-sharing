@@ -17,12 +17,14 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, case
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from typing import Literal, Optional
 from sqlalchemy.orm import Session
 
 from src.entities.file import File
 from src.entities.file_permission import FilePermission
-from src.entities.share_link import ShareLink
+from src.entities.share_link import ShareLink, ShareLinkArchive
 from src.entities.notification import Notification
 from src.entities.login_session import LoginSession
 from src.entities.user import User
@@ -107,6 +109,11 @@ def list_files(db: Session, user: User, args: dict) -> dict:
         File.owner_id == user.id,
         File.is_deleted == False,
     )
+    if args.get("calendar_month"):
+        now = datetime.now(timezone.utc)
+        first = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        next_month = (first.replace(day=28) + timedelta(days=4)).replace(day=1)
+        query = query.filter(File.created_at >= first, File.created_at < next_month)
 
     if days_back and days_back > 0:
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -121,14 +128,12 @@ def list_files(db: Session, user: User, args: dict) -> dict:
     if encrypted_only:
         query = query.filter(File.encrypted == True)
 
-    query = query.order_by(File.created_at.desc())
-    all_files = query.all()
-
     if file_type and file_type != "all":
-        all_files = [f for f in all_files if _classify_file(f.mimetype) == file_type]
-
-    total_matched = len(all_files)
-    files_shown = all_files[:limit]
+        query = query.filter(_category_sql() == file_type)
+    total_matched = query.count()
+    column = File.size if args.get("sort_by") == "size" else File.created_at
+    order = column.asc() if args.get("sort_order") == "asc" else column.desc()
+    files_shown = query.order_by(order, File.id.desc()).limit(limit).all()
 
     return {
         "total_matched": total_matched,
@@ -139,6 +144,8 @@ def list_files(db: Session, user: User, args: dict) -> dict:
             "min_size_mb": min_size_mb,
             "max_size_mb": max_size_mb,
             "encrypted_only": encrypted_only,  # NEW
+            "calendar_month": args.get("calendar_month", False),
+            "sort_by": args.get("sort_by", "created_at"),
         },
         "files": [
             {
@@ -172,20 +179,19 @@ def search_files(db: Session, user: User, args: dict) -> dict:
 
     like_pattern = f"%{query_text}%"
 
-    results = (
+    query = (
         db.query(File)
         .filter(
             File.owner_id == user.id,
             File.is_deleted == False,
             func.lower(File.original_name).like(func.lower(like_pattern)),
         )
-        .order_by(File.created_at.desc())
-        .limit(limit)
-        .all()
     )
+    total = query.count()
+    results = query.order_by(File.created_at.desc(), File.id.desc()).limit(limit).all()
 
     return {
-        "total_matched": len(results),
+        "total_matched": total,
         "shown": len(results),
         "query": query_text,
         "files": [
@@ -224,8 +230,9 @@ def get_storage_info(db: Session, user: User, args: dict) -> dict:
 def get_storage_breakdown(db: Session, user: User, args: dict) -> dict:
     """Get storage usage by category."""
     files = (
-        db.query(File.mimetype, File.size)
+        db.query(File.mimetype, func.coalesce(func.sum(File.size), 0), func.count(File.id))
         .filter(File.owner_id == user.id, File.is_deleted == False)
+        .group_by(File.mimetype)
         .all()
     )
 
@@ -236,7 +243,7 @@ def get_storage_breakdown(db: Session, user: User, args: dict) -> dict:
         "other": {"size": 0, "count": 0},
     }
 
-    for mimetype, size in files:
+    for mimetype, size, count in files:
         size = size or 0
         cat_key = _classify_file(mimetype)
         if cat_key in ("pdf", "document"):
@@ -248,7 +255,7 @@ def get_storage_breakdown(db: Session, user: User, args: dict) -> dict:
         else:
             cat = "other"
         categories[cat]["size"] += size
-        categories[cat]["count"] += 1
+        categories[cat]["count"] += count
 
     total = sum(c["size"] for c in categories.values())
 
@@ -283,6 +290,7 @@ def find_shares(db: Session, user: User, args: dict) -> dict:
         .join(User, FilePermission.user_id == User.id)
         .filter(
             FilePermission.granted_by == user.id,
+            File.owner_id == user.id,
             File.is_deleted == False,
         )
     )
@@ -303,14 +311,16 @@ def find_shares(db: Session, user: User, args: dict) -> dict:
         if hasattr(FilePermission, "created_at"):
             perm_query = perm_query.filter(FilePermission.created_at >= cutoff)
 
-    perm_shares = perm_query.limit(50).all()
+    perm_shares = [] if args.get("links_only") else perm_query.limit(50).all()
 
     link_query = (
         db.query(ShareLink, File)
         .join(File, ShareLink.file_id == File.id)
         .filter(
             ShareLink.created_by == user.id,
+            File.owner_id == user.id,
             File.is_deleted == False,
+            ~ShareLink.id.in_(db.query(ShareLinkArchive.share_id)),
         )
     )
 
@@ -319,6 +329,7 @@ def find_shares(db: Session, user: User, args: dict) -> dict:
         link_query = link_query.filter(
             ShareLink.is_active == True,
             or_(ShareLink.expires_at == None, ShareLink.expires_at > now),
+            or_(ShareLink.max_views == None, ShareLink.access_count < ShareLink.max_views),
         )
 
     if file_name:
@@ -389,7 +400,8 @@ def list_active_sessions(db: Session, user: User, args: dict) -> dict:
     """Return user's active login sessions."""
     sessions = (
         db.query(LoginSession)
-        .filter(LoginSession.user_id == user.id)
+        .filter(LoginSession.user_id == user.id, LoginSession.is_current == True,
+                LoginSession.refresh_token != None)
         .order_by(
             LoginSession.is_current.desc(),
             LoginSession.created_at.desc(),
@@ -397,6 +409,17 @@ def list_active_sessions(db: Session, user: User, args: dict) -> dict:
         .limit(20)
         .all()
     )
+    from src.auth.dependencies import decode_token
+    from fastapi import HTTPException
+    valid = []
+    for session in sessions:
+        try:
+            payload = decode_token(session.refresh_token)
+            if payload.get("type") == "refresh" and str(payload.get("sub")) == str(user.id):
+                valid.append(session)
+        except HTTPException:
+            continue
+    sessions = valid
 
     return {
         "total_sessions": len(sessions),
@@ -484,15 +507,76 @@ def execute_function(
         }
 
     try:
-        result = handler(db, user, args)
+        from src.entities.assistant_function import AssistantFunction
+        policy = db.query(AssistantFunction).filter(AssistantFunction.function_name == function_name).first()
+        if not user.is_active or not policy or not policy.is_active or (policy.requires_admin and user.role != "admin"):
+            return {"error": True, "message": "This operation is not available for your account."}
+        validated = ARGUMENT_MODELS[function_name].model_validate(args).model_dump(exclude_none=True)
+        result = handler(db, user, validated)
         logger.debug(f"Function {function_name} executed successfully")
         return result
+    except ValidationError:
+        return {"error": True, "message": "The operation arguments are invalid."}
     except Exception as e:
         logger.error(
-            f"Function {function_name} raised exception: {type(e).__name__}: {e}",
-            exc_info=True,
+            "Assistant operation failed: %s %s", function_name, type(e).__name__,
         )
         return {
             "error": True,
             "message": "The function encountered an error. Please try rephrasing.",
         }
+
+
+def _category_sql():
+    mt = func.lower(func.coalesce(File.mimetype, ""))
+    return case(
+        (mt.contains("pdf"), "pdf"),
+        (or_(mt.contains("presentation"), mt.contains("powerpoint")), "presentation"),
+        (or_(mt.contains("spreadsheet"), mt.contains("excel")), "spreadsheet"),
+        (mt.contains("image"), "image"), (mt.contains("video"), "video"), (mt.contains("audio"), "audio"),
+        (or_(*[mt.contains(x) for x in ["word", "document", "text"]]), "document"),
+        (or_(*[mt.contains(x) for x in ["zip", "rar", "7z", "tar", "gzip", "archive", "compressed"]]), "archive"),
+        else_="other",
+    )
+
+
+class EmptyArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class LimitArgs(EmptyArgs):
+    limit: Optional[int] = Field(default=None, ge=1, le=50)
+
+
+class FileArgs(LimitArgs):
+    file_type: Literal["all", "pdf", "document", "image", "video", "audio", "archive", "presentation", "spreadsheet", "other"] = "all"
+    days_back: Optional[int] = Field(default=None, ge=1, le=3650)
+    min_size_mb: Optional[float] = Field(default=None, ge=0, le=1e6)
+    max_size_mb: Optional[float] = Field(default=None, ge=0, le=1e6)
+    encrypted_only: bool = False
+    calendar_month: bool = False
+    sort_by: Literal["created_at", "size"] = "created_at"
+    sort_order: Literal["asc", "desc"] = "desc"
+
+
+class SearchArgs(LimitArgs):
+    query: str = Field(min_length=1, max_length=255)
+
+
+class ShareArgs(EmptyArgs):
+    recipient_email: str = Field(default="", max_length=254)
+    file_name: str = Field(default="", max_length=255)
+    active_only: bool = True
+    links_only: bool = False
+    days_back: Optional[int] = Field(default=None, ge=1, le=3650)
+
+
+class NotificationArgs(LimitArgs):
+    unread_only: bool = True
+
+
+ARGUMENT_MODELS = {
+    "list_files": FileArgs, "search_files": SearchArgs, "find_shares": ShareArgs,
+    "get_notifications": NotificationArgs, "get_storage_info": EmptyArgs,
+    "get_storage_breakdown": EmptyArgs, "get_user_profile": EmptyArgs, "list_active_sessions": EmptyArgs,
+}

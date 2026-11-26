@@ -46,11 +46,12 @@ def traced(operation):
         current_trace.reset(token)
 
 
-def record_inference(data, elapsed_ms):
+def record_inference(data, elapsed_ms, count_call=True):
     trace = current_trace.get()
     if not trace:
         return
-    trace.counters["llm_calls"] += 1
+    if count_call:
+        trace.counters["llm_calls"] += 1
     for source, target in [("prompt_eval_count", "input_tokens"), ("eval_count", "output_tokens")]:
         if isinstance(data.get(source), (int, float)):
             trace.counters[target] = trace.counters.get(target, 0) + data[source]

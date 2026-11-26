@@ -266,7 +266,7 @@ const AssistantPage = () => {
         {/* Chat window */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${activeConvId || 'new'}-${chatRefreshKey}`}
+            key={chatRefreshKey}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

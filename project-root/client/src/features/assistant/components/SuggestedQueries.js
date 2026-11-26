@@ -42,7 +42,7 @@ const SuggestedQueries = ({ onPick, compact = false }) => {
                             key={q.id}
                             className="asst-suggestion-btn"
                             whileHover={{ y: -2 }}
-                            onClick={() => onPick(q.query_text)}
+                            onClick={() => onPick(q.query_text, { intent_id: q.intent_id, suggestion_id: q.id })}
                         >
                             <span className="asst-suggestion-icon">{Icon(q.icon_name)}</span>
                             <span>{q.query_text}</span>
@@ -67,7 +67,7 @@ const SuggestedQueries = ({ onPick, compact = false }) => {
                                 key={q.id}
                                 className="asst-suggestion-btn"
                                 whileHover={{ y: -2 }}
-                                onClick={() => onPick(q.query_text)}
+                                onClick={() => onPick(q.query_text, { intent_id: q.intent_id, suggestion_id: q.id })}
                             >
                                 <span className="asst-suggestion-icon">{Icon(q.icon_name)}</span>
                                 <span>{q.query_text}</span>

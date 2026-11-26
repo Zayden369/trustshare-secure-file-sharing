@@ -27,6 +27,7 @@ const ChatWindow = ({
         stopGenerating,
         canRegenerate,
         conversationId: currentConvId,
+        stage,
     } = useChat(conversationId);
 
     useEffect(() => {
@@ -59,16 +60,16 @@ const ChatWindow = ({
     }, [error, onConversationNotFound]);
 
     const sendMessage = useCallback(
-        (text) => originalSendMessage(text),
+        (text, metadata) => originalSendMessage(text, metadata),
         [originalSendMessage]
     );
 
     const handlePickSuggestion = useCallback(
-        (text) => sendMessage(text),
+        (text, metadata) => sendMessage(text, metadata),
         [sendMessage]
     );
 
-    if (status && !status.is_configured) {
+    if (status && !status.is_configured && !status.data_queries_available) {
         return <NotConfiguredState status={status} onGoToAdmin={onGoToAdmin} />;
     }
 
@@ -111,6 +112,7 @@ const ChatWindow = ({
             {/* Stop generating button */}
             {sending && (
                 <div className="asst-stop-wrapper">
+                    <span role="status" style={{ fontSize: 12, color: 'var(--asst-text-muted)', marginRight: 8 }}>{stage}</span>
                     <motion.button
                         className="asst-stop-btn"
                         onClick={stopGenerating}

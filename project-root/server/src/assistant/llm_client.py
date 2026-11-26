@@ -11,6 +11,8 @@ Multi-provider wrapper supporting:
 import json
 import logging
 import time
+import os
+import atexit
 from typing import Any, Optional
 
 import httpx
@@ -19,6 +21,8 @@ from sqlalchemy.orm import Session
 from src.assistant import config_service
 
 logger = logging.getLogger(__name__)
+_http_client = httpx.Client(limits=httpx.Limits(max_connections=4, max_keepalive_connections=2))
+atexit.register(_http_client.close)
 
 
 class LLMError(Exception):
@@ -112,24 +116,18 @@ class LLMClient:
 
         headers = self._get_headers()
 
-        start = time.time()
+        start = time.perf_counter()
         try:
-            response = httpx.post(
+            response = _http_client.post(
                 f"{self.base_url}/chat/completions",
                 json=payload,
                 headers=headers,
                 timeout=self.timeout,
             )
-            elapsed_ms = int((time.time() - start) * 1000)
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
 
             if response.status_code != 200:
-                error_body = response.text[:500]
-                logger.error(
-                    f"LLM API error {response.status_code} from {self.provider}: {error_body}"
-                )
-                raise LLMAPIError(
-                    f"LLM API returned {response.status_code}: {error_body}"
-                )
+                raise LLMAPIError(f"LLM API returned {response.status_code}")
 
             data = response.json()
             choice = data["choices"][0]
@@ -171,6 +169,106 @@ class LLMClient:
                 exc_info=True,
             )
             raise LLMAPIError(f"Unexpected error: {type(e).__name__}")
+
+    async def stream_chat(self, http_client, messages, tools=None, max_tokens=None):
+        """Yield upstream tokens, never a typewriter replay of a complete reply."""
+        from src.ai_metrics import record_inference, current_trace
+        if not self.is_configured():
+            raise LLMNotConfiguredError("AI is not configured.")
+        native = self.provider == "ollama"
+        budget = max(32, min(int(max_tokens or self.max_tokens), 2048))
+        if native:
+            url = self.base_url.rstrip('/').removesuffix('/v1') + '/api/chat'
+            options = {"num_predict": budget, "temperature": self.temperature}
+            try:
+                threads = int(os.getenv('ASSISTANT_OLLAMA_THREADS', '0'))
+            except ValueError:
+                threads = 0
+            if 1 <= threads <= 64:
+                options['num_thread'] = threads
+            payload = {"model": self.model, "messages": messages, "stream": True,
+                       "keep_alive": "5m", "options": options}
+        else:
+            url = self.base_url.rstrip('/') + '/chat/completions'
+            payload = {"model": self.model, "messages": messages, "stream": True,
+                       "temperature": self.temperature, "max_tokens": budget,
+                       "stream_options": {"include_usage": True}}
+        if tools:
+            payload['tools'] = tools
+        started = time.perf_counter()
+        trace = current_trace.get()
+        if trace:
+            trace.counters['llm_calls'] += 1
+        first = True
+        openai_tools = {}
+        tokens = 0
+        try:
+            async with http_client.stream('POST', url, json=payload, headers=self._get_headers(),
+                                          timeout=httpx.Timeout(self.timeout, connect=5)) as response:
+                if response.status_code != 200:
+                    raise LLMAPIError(f"LLM API returned {response.status_code}")
+                async for line in response.aiter_lines():
+                    if not line or line.startswith(':'):
+                        continue
+                    if not native:
+                        if not line.startswith('data:'):
+                            continue
+                        line = line[5:].strip()
+                        if line == '[DONE]':
+                            break
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError as exc:
+                        raise LLMAPIError("AI returned an invalid stream.") from exc
+                    if data.get('error'):
+                        raise LLMAPIError("AI provider could not complete the request.")
+                    if native:
+                        message = data.get('message', {})
+                        content = message.get('content') or ''
+                        if content:
+                            if first:
+                                trace = current_trace.get()
+                                if trace:
+                                    trace.stages['first_token'] = (time.perf_counter()-started)*1000
+                                    trace.stages.setdefault('first_meaningful', (time.perf_counter()-trace.started)*1000)
+                                first = False
+                            yield {"type": "delta", "text": content}
+                        if message.get('tool_calls'):
+                            yield {"type": "tools", "calls": message['tool_calls']}
+                        if data.get('done'):
+                            record_inference(data, (time.perf_counter()-started)*1000, count_call=False)
+                            tokens = data.get('eval_count', 0) + data.get('prompt_eval_count', 0)
+                            yield {"type": "round_done", "tokens": tokens, "finish_reason": data.get('done_reason')}
+                            return
+                    else:
+                        usage = data.get('usage') or {}
+                        tokens = usage.get('total_tokens', tokens)
+                        choices = data.get('choices') or []
+                        if not choices:
+                            continue
+                        delta = choices[0].get('delta') or {}
+                        if delta.get('content'):
+                            if first:
+                                trace = current_trace.get()
+                                if trace:
+                                    trace.stages['first_token'] = (time.perf_counter()-started)*1000
+                                    trace.stages.setdefault('first_meaningful', (time.perf_counter()-trace.started)*1000)
+                                first = False
+                            yield {"type": "delta", "text": delta['content']}
+                        for part in delta.get('tool_calls') or []:
+                            item = openai_tools.setdefault(part.get('index', 0), {'id':'', 'type':'function','function':{'name':'','arguments':''}})
+                            item['id'] += part.get('id') or ''
+                            item['function']['name'] += part.get('function', {}).get('name') or ''
+                            item['function']['arguments'] += part.get('function', {}).get('arguments') or ''
+                if not native:
+                    if openai_tools:
+                        yield {"type": "tools", "calls": list(openai_tools.values())}
+                    record_inference({}, (time.perf_counter()-started)*1000, count_call=False)
+                    yield {"type": "round_done", "tokens": tokens}
+                    return
+                raise LLMAPIError("AI stream ended before completion.")
+        except httpx.HTTPError as exc:
+            raise LLMAPIError("AI connection interrupted or timed out. Please retry.") from exc
 
     def generate_conversation_title(self, first_user_message: str) -> str:
 
