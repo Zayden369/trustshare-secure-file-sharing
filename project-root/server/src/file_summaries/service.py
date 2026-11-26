@@ -22,7 +22,7 @@ from src.file_summaries.providers import (
     ExtractiveFallbackProvider, HuggingFaceProvider, MockSummaryProvider,
     OllamaProvider, ProviderUnavailable,
 )
-from src.file_summaries.text_extraction import chunk_text, extract_text
+from src.file_summaries.text_extraction import extract_text
 
 READ_PERMISSIONS = {"view", "download", "edit", "admin"}
 
@@ -49,7 +49,10 @@ def authorize_file(db: Session, file_id: int, user_id: int) -> File:
 
 
 def _load_plaintext(file: File) -> bytes:
-    encrypted = load_encrypted_file(file.stored_name)
+    try:
+        encrypted = load_encrypted_file(file.stored_name)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="The stored document is missing. Upload the file again before generating a summary.") from exc
     data = decrypt_bytes(encrypted, load_key(file.stored_name)) if file.encrypted else encrypted
     checksum = hashlib.sha256(data).hexdigest()
     if file.hash_sha256 and checksum != file.hash_sha256:
@@ -75,15 +78,32 @@ def _provider():
     return OllamaProvider(os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"), os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b"), timeout)
 
 
-def _run_provider(text: str, options: dict):
-    provider = _provider()
+def _run_provider(text: str, options: dict, fallback_text: str | None = None):
+    provider = None
     try:
+        provider = _provider()
         return provider.generate_summary(text, options), provider, None
     except ProviderUnavailable:
-        if os.getenv("ENABLE_SUMMARY_FALLBACK", "true").lower() != "true" or provider.name == "extractive_fallback":
+        if os.getenv("ENABLE_SUMMARY_FALLBACK", "true").lower() != "true" or (provider and provider.name == "extractive_fallback"):
             raise
         fallback = ExtractiveFallbackProvider()
-        return fallback.generate_summary(text, options), fallback, "Configured AI provider was unavailable; an extractive fallback was used."
+        return fallback.generate_summary(fallback_text if fallback_text is not None else text, options), fallback, "Configured AI provider was unavailable; an extractive fallback was used."
+
+
+def _source_for_model(text: str) -> tuple[str, str | None]:
+    """Bound CPU inference to one request while covering the document's span."""
+    limit = min(9000, max(3000, _int_env("SUMMARY_MODEL_INPUT_CHARACTERS", 7000)))
+    if len(text) <= limit:
+        return text, None
+    first = int(limit * 0.36)
+    middle = int(limit * 0.34)
+    last = limit - first - middle
+    midpoint = len(text) // 2
+    excerpt = "\n[Middle excerpt]\n".join((
+        text[:first].rstrip(),
+        text[midpoint - middle // 2:midpoint + (middle - middle // 2)].strip(),
+    )) + "\n[Final excerpt]\n" + text[-last:].lstrip()
+    return excerpt, "The summary uses excerpts from the start, middle, and end of this long document."
 
 
 def create_summary(db: Session, file_id: int, user_id: int, data: SummaryCreate) -> tuple[FileSummary, bool]:
@@ -104,7 +124,15 @@ def create_summary(db: Session, file_id: int, user_id: int, data: SummaryCreate)
         if existing.status in {"pending", "processing"}:
             raise HTTPException(status_code=409, detail="An identical summary is already being generated.")
         if existing.status == "completed":
-            return existing, True
+            should_refresh_fallback = False
+            if existing.provider == "extractive_fallback":
+                try:
+                    provider = _provider()
+                    should_refresh_fallback = provider.name != "extractive_fallback" and provider.health_check()
+                except ProviderUnavailable:
+                    pass
+            if not should_refresh_fallback:
+                return existing, True
     if existing:
         existing.status, existing.error_message, existing.warning_message = "pending", None, None
         existing.requested_by_user_id = user_id
@@ -147,18 +175,8 @@ def process_summary(summary_id: int, variation: int = 0) -> None:
             "output_format": summary.output_format,
             "variation": variation,
         }
-        chunks = chunk_text(text, _int_env("SUMMARY_CHUNK_SIZE", 12000), _int_env("SUMMARY_CHUNK_OVERLAP", 500))
-        chunk_results, used_provider, provider_warning = [], None, None
-        for chunk in chunks:
-            result, used_provider, current_warning = _run_provider(chunk, options)
-            chunk_results.append(result)
-            provider_warning = provider_warning or current_warning
-        if len(chunk_results) > 1:
-            combined = "\n".join(item["summary"] for item in chunk_results)
-            result, used_provider, current_warning = _run_provider(combined, options)
-            provider_warning = provider_warning or current_warning
-        else:
-            result = chunk_results[0]
+        source, excerpt_warning = _source_for_model(text)
+        result, used_provider, provider_warning = _run_provider(source, options, fallback_text=text)
         summary.title = result.get("title") or f"Summary of {file.original_name}"
         summary.summary_text = result["summary"]
         summary.key_points = result.get("key_points", [])
@@ -166,7 +184,7 @@ def process_summary(summary_id: int, variation: int = 0) -> None:
         summary.provider, summary.model_name = used_provider.name, used_provider.model_name
         summary.extracted_character_count = len(text)
         summary.processing_time_ms = int((time.perf_counter() - started) * 1000)
-        summary.warning_message = warning or provider_warning
+        summary.warning_message = " ".join(filter(None, (warning, excerpt_warning if used_provider.name != "extractive_fallback" else None, provider_warning))) or None
         summary.status = "completed"
         summary.generated_at = datetime.now(timezone.utc)
         create_activity(db, ActivityCreate(user_id=summary.requested_by_user_id, action="AI_SUMMARY_GENERATED", file_name=file.original_name, description=f"Generated an AI summary for {file.original_name}"))

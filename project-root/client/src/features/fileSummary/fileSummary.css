@@ -17,3 +17,6 @@ body.light .summary-options select option {
   background-color: #ffffff;
   color: #181818;
 }
+
+.summary-main-bullets { margin-top: 0; line-height: 1.7; }
+.summary-actions { flex-wrap: wrap; }

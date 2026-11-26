@@ -57,6 +57,13 @@ export default function useFileSummary(fileId) {
     }
   }, [fileId, poll, stop, summary]);
 
+  const changeOptions = useCallback(() => {
+    stop();
+    setSummary(null);
+    setError('');
+    setLoading(false);
+  }, [stop]);
+
   useEffect(() => () => stop(), [stop]);
   useEffect(() => {
     if (retryAfter <= 0) return undefined;
@@ -64,5 +71,5 @@ export default function useFileSummary(fileId) {
     return () => clearTimeout(countdown);
   }, [retryAfter]);
 
-  return { summary, loading, error, retryAfter, generate, regenerate };
+  return { summary, loading, error, retryAfter, generate, regenerate, changeOptions };
 }
