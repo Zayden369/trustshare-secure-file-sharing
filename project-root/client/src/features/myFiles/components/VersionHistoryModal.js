@@ -103,7 +103,10 @@ export default function VersionHistoryModal({
   return (
     <div className="my-files-modal-overlay">
       <motion.div
-        className="my-files-modal"
+        className="my-files-modal version-history-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="version-history-title"
         style={{ maxWidth: 540, textAlign: 'left' }}
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -114,19 +117,19 @@ export default function VersionHistoryModal({
         </button>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="version-history-header">
+          <div className="version-history-heading">
             <div className="sharing-stat-icon blue">
               <History size={20} />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h2 className="my-files-modal-title" style={{ margin: 0 }}>Version History</h2>
+            <div className="version-history-copy">
+              <div className="version-history-title-line">
+                <h2 id="version-history-title" className="my-files-modal-title" style={{ margin: 0 }}>Version History</h2>
                 <span className="badge badge-blue" style={{ fontSize: 10, padding: '2px 7px' }}>
                   {versionsList.length} {versionsList.length === 1 ? 'Version' : 'Versions'}
                 </span>
               </div>
-              <p className="my-files-modal-message" style={{ margin: 0, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p className="my-files-modal-message version-history-filename" title={file.original_name || file.name}>
                 {file.original_name || file.name}
               </p>
             </div>
@@ -168,12 +171,13 @@ export default function VersionHistoryModal({
             versionsList.map((v) => (
               <div
                 key={`ver-item-${v.version_number}-${v.id}`}
+                className="version-history-row"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '12px 14px',
-                  borderRadius: '12px',
+                  borderRadius: '3px',
                   background: v.is_current ? 'rgba(128, 128, 128, 0.08)' : 'var(--bg-input)',
                   border: v.is_current ? '1.5px solid var(--blue-500)' : '1px solid var(--border-subtle)',
                 }}
@@ -182,9 +186,9 @@ export default function VersionHistoryModal({
                   <div style={{
                     width: 34,
                     height: 34,
-                    borderRadius: 10,
-                    background: v.is_current ? 'var(--blue-500)' : 'var(--bg-hover)',
-                    color: v.is_current ? '#fff' : 'var(--text-primary)',
+                    borderRadius: 2,
+                    background: v.is_current ? 'var(--accent)' : 'var(--bg-hover)',
+                    color: v.is_current ? 'var(--accent-contrast)' : 'var(--text-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

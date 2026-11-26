@@ -15,6 +15,7 @@ import VersionHistoryModal from './components/VersionHistoryModal';
 import FileSummaryPanel from '../fileSummary/components/FileSummaryPanel';
 import { useMyFilesData } from './hooks/useMyFilesData';
 import { useLocation } from 'react-router-dom';
+import './my-files.css';
 
 export default function MyFiles() {
   const {
@@ -297,6 +298,7 @@ export default function MyFiles() {
       {/* Flat Typography Header */}
       <div className="flat-page-header">
         <div className="flat-header-left">
+          <span className="my-files-eyebrow">Workspace / Private archive</span>
           <h1 className="flat-page-title">My Files</h1>
           <p className="flat-page-subtitle">Upload, organize, and manage your encrypted files with folder-level control.</p>
         </div>
@@ -317,7 +319,7 @@ export default function MyFiles() {
         </div>
       </div>
 
-      <div className="my-files-header-search" style={{ marginBottom: '18px' }}>
+      <div className="my-files-header-search">
         <SearchBar value={searchQuery} onChange={setSearchQuery} onClear={() => setSearchQuery('')} />
       </div>
 
@@ -434,10 +436,10 @@ export default function MyFiles() {
         <div className="my-files-empty">
           <div className="my-files-empty-icon"><FolderOpen size={40} strokeWidth={1.5} /></div>
           <h3 className="my-files-empty-title">
-            {searchQuery ? `No files matching "${searchQuery}"` : 'No files uploaded yet'}
+            {searchQuery ? `No files matching "${searchQuery}"` : 'No files here yet'}
           </h3>
           <p className="my-files-empty-subtitle">
-            {searchQuery ? 'Try a different term or clear filters.' : 'Upload your first file to securely store and share documents.'}
+            {searchQuery ? 'Try a different term or clear filters.' : 'Upload a file here to securely store and share documents.'}
           </p>
           {!searchQuery && (
             <button type="button" onClick={() => fileInputRef.current?.click()}

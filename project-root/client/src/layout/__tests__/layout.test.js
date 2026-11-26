@@ -163,7 +163,7 @@ describe("ProtectedRoute — Authentication Guard", () => {
 
     expect(screen.queryByTestId("login-page")).not.toBeInTheDocument();
     expect(screen.queryByTestId("protected-content")).not.toBeInTheDocument();
-    expect(screen.getByText("Loading TrustShare...")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Preparing your workspace");
 
     console.log("✅ TEST 3 PASSED: Loading state shows spinner not redirect");
   });

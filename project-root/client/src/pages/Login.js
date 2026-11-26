@@ -7,8 +7,7 @@ import { API_BASE_URL } from '../data/constants';
 import { clearAuthStorage } from '../utils/api';
 import { Mail, Lock, Eye, EyeOff, Shield, Terminal, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
-
-const BgEnvironment = () => null;
+import AuthArtwork from '../components/AuthArtwork';
 
 export default function Login() {
   const { login } = useAuth();
@@ -21,8 +20,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [rm, setRm] = useState(true);
-  const mouseX = 0;
-  const mouseY = 0;
 
 
 
@@ -51,7 +48,6 @@ export default function Login() {
 
   return (
     <div className="ap">
-      <BgEnvironment mouseX={mouseX} mouseY={mouseY} />
 
       <nav className="ap-nav">
         <Link to="/" className="ap-logo">
@@ -82,6 +78,7 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }}
           >
+            <AuthArtwork/>
             <span className="ap-narrative-eyebrow">Your workspace awaits</span>
             <h1 className="ap-narrative-h1">
               Sign in to your<br /><span className="italic-gradient">secure vault.</span>

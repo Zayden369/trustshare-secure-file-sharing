@@ -1,0 +1,64 @@
+.trustshare-boot {
+  min-height: 100svh;
+  background: var(--background,#080808);
+  color: var(--text-primary,#f5f5f5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-family: var(--font-sans,Arial,sans-serif);
+  padding: 28px;
+  position: relative;
+}
+.trustshare-boot-mark {
+  font-family: var(--font-editorial,Georgia,serif);
+  font-size: 46px;
+  line-height: 1;
+  border: 1px solid var(--border,#333);
+  width: 65px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+}
+.trustshare-boot strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -.6px;
+}
+.trustshare-boot div>span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary,#aaa);
+  margin-top: 9px;
+}
+.trustshare-boot i {
+  position: absolute;
+  bottom: 12%;
+  width: 100px;
+  height: 1px;
+  background: var(--border,#333);
+  overflow: hidden;
+}
+.trustshare-boot i:after {
+  content: '';
+  display: block;
+  width: 35%;
+  height: 1px;
+  background: currentColor;
+  animation: boot-line 1.5s ease-in-out infinite;
+}
+@keyframes boot-line {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(380%);
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .trustshare-boot i:after {
+    animation: none;
+    width: 100%;
+  }
+}

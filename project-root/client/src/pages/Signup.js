@@ -5,8 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Check, Server, Award, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
-
-const BgEnvironment = () => null;
+import AuthArtwork from '../components/AuthArtwork';
 
 export default function Signup() {
   const { register } = useAuth();
@@ -19,8 +18,6 @@ export default function Signup() {
   const [fe, setFe] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
-  const mouseX = 0;
-  const mouseY = 0;
 
 
 
@@ -48,7 +45,6 @@ export default function Signup() {
 
   return (
     <div className="ap">
-      <BgEnvironment mouseX={mouseX} mouseY={mouseY} />
 
       <nav className="ap-nav">
         <Link to="/" className="ap-logo">
@@ -79,6 +75,7 @@ export default function Signup() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }}
           >
+            <AuthArtwork/>
             <span className="ap-narrative-eyebrow">Create your workspace</span>
             <h1 className="ap-narrative-h1">
               Create your<br /><span className="italic-gradient">secure account.</span>

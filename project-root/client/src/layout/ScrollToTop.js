@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import useInitialScrollRestoration from "./useInitialScrollRestoration";
 
 /**
  * Auto-scroll to top when route changes.
@@ -8,14 +9,18 @@ import { useLocation } from "react-router-dom";
 export default function ScrollToTop() {
   const { pathname } = useLocation();
 
+  const previousPath = useRef(pathname);
+  const cancelRestore = useInitialScrollRestoration(pathname);
+
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    // Let the browser restore a reload or initial deep link. Reset only on a new route.
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    cancelRestore.current?.();
 
     // Function to scroll everything
     const scrollAll = () => {
-      const behavior = prefersReducedMotion ? "auto" : "smooth";
+      const behavior = "instant";
 
       // Window scroll
       window.scrollTo({ top: 0, left: 0, behavior });
@@ -45,11 +50,7 @@ export default function ScrollToTop() {
     // Run immediately
     scrollAll();
 
-    // Run again after React finishes rendering (double-tap for reliability)
-    const timeout = setTimeout(scrollAll, 50);
-
-    return () => clearTimeout(timeout);
-  }, [pathname]);
+  }, [pathname, cancelRestore]);
 
   return null;
 }

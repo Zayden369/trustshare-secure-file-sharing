@@ -3,16 +3,17 @@
    ============================================================ */
 
 .settings-container {
-  max-width: 720px; /* Constrained strictly to match Figma/previous narrow width */
+  max-width: 960px; /* Constrained strictly to match Figma/previous narrow width */
   margin: 0 auto;
   width: 100%;
 }
 
 .settings-subtitle {
   color: var(--text-secondary);
-  font-size: 0.9375rem;
+  font-size: 12px;
   margin-top: 4px;
   margin-bottom: 24px;
+  line-height: 1.8;
 }
 
 /* ── Tab Navigation ────────────────────────────────────────── */
@@ -35,8 +36,8 @@
 }
 
 .settings-tab {
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   padding: 12px 4px 16px 4px;
   color: var(--text-secondary);
   background: none;
@@ -46,6 +47,7 @@
   white-space: nowrap;
   transition: all 0.2s ease;
   position: relative;
+  border-bottom-width: 1px;
 }
 
 .settings-tab:hover {
@@ -64,13 +66,14 @@ body.dark .settings-tab.active {
 
 /* ── Card Styles ───────────────────────────────────────────── */
 .settings-card {
-  border-radius: 6px;
-  padding: 28px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  border-radius: 0;
+  padding: 28px 0;
+  background: none;
+  border: 0;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  border-top: 1px solid var(--border);
 }
 
 .settings-card:hover {
@@ -82,10 +85,11 @@ body.dark .settings-tab.active {
 }
 
 .settings-card-title {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 450;
   color: var(--text-primary);
   margin-bottom: 4px;
+  letter-spacing: -.6px;
 }
 
 .settings-card-subtitle {
@@ -386,7 +390,11 @@ body.dark .session-icon-box {
 
 @media (max-width: 768px) {
   .settings-card {
-    padding: 20px;
+    padding: 28px 0;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
   }
   
   .avatar-section {
@@ -510,6 +518,15 @@ body:not(.dark) .btn-primary:hover {
 }
 
 /* ── Toggle Off State Fix for Dark Mode ────────────────────── */
+.settings-page-title {
+  font-size: 30px;
+  font-weight: 450;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin: 0;
+}
+
 body.dark .settings-container button[style*="bg-hover"] {
   box-shadow: none;
 }

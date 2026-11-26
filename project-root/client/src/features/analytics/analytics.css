@@ -3,12 +3,13 @@
 /* ── Font stack ───────────────────────────────────────────────────────────── */
 .an-page,
 .an-page * {
-  font-family: -apple-system, "SF Pro Display", "SF Pro Text",
-               "Helvetica Neue", Inter, system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   box-sizing: border-box;
+  padding: 0;
+  min-height: 0;
 }
 
 body.light .an-page,
@@ -17,26 +18,22 @@ body:not(.dark) .an-page {
   --an-page-bg:           transparent;
 
   /* Cards — pure white with layered shadows */
-  --an-card-bg:           #FFFFFF;
-  --an-card-border:       rgba(0, 0, 0, 0.06);
-  --an-card-border-hover: rgba(0, 0, 0, 0.12);
+  --an-card-bg:           var(--surface-primary);
+  --an-card-border:       var(--border);
+  --an-card-border-hover: var(--text-muted);
   --an-card-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.02),
-    0 2px 4px rgba(0, 0, 0, 0.03),
-    0 8px 24px rgba(0, 0, 0, 0.04);
+    none;
   --an-card-shadow-hover:
-    0 0 0 1px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    0 20px 48px rgba(0, 0, 0, 0.10);
-  --an-card-radius:       6px;
+    none;
+  --an-card-radius:       4px;
 
   /* Typography — deep true blacks */
-  --an-text-primary:      #202020;
-  --an-text-secondary:    #606060;
-  --an-text-tertiary:     #808080;
+  --an-text-primary:      var(--text-primary);
+  --an-text-secondary:    var(--text-secondary);
+  --an-text-tertiary:     var(--text-muted);
 
-  --an-header-title:      #202020;
-  --an-header-sub:        #606060;
+  --an-header-title:      var(--text-primary);
+  --an-header-sub:        var(--text-secondary);
 
   /* Tab switcher — frosted */
   --an-tab-bg:            rgba(0, 0, 0, 0.04);
@@ -158,6 +155,8 @@ body:not(.dark) .an-page {
 
   --an-donut-legend-name:  #606060;
   --an-donut-legend-value: #202020;
+  padding: 0;
+  min-height: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -168,27 +167,22 @@ body.dark .an-page {
   --an-page-bg:           transparent;
 
   /* Cards — lifted navy panels */
-  --an-card-bg:           #181818;
-  --an-card-border:       rgba(255, 255, 255, 0.06);
-  --an-card-border-hover: rgba(160, 160, 160, 0.30);
+  --an-card-bg:           var(--surface-primary);
+  --an-card-border:       var(--border);
+  --an-card-border-hover: var(--text-muted);
   --an-card-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    0 12px 32px rgba(0, 0, 0, 0.30);
+    none;
   --an-card-shadow-hover:
-    0 0 0 1px rgba(160, 160, 160, 0.20),
-    0 8px 20px rgba(0, 0, 0, 0.35),
-    0 24px 56px rgba(0, 0, 0, 0.45),
-    0 0 60px rgba(128, 128, 128, 0.12);
-  --an-card-radius:       6px;
+    none;
+  --an-card-radius:       4px;
 
   /* Typography */
-  --an-text-primary:      #f8f8f8;
-  --an-text-secondary:    #e0e0e0;
-  --an-text-tertiary:     #a0a0a0;
+  --an-text-primary:      var(--text-primary);
+  --an-text-secondary:    var(--text-secondary);
+  --an-text-tertiary:     var(--text-muted);
 
-  --an-header-title:      #f8f8f8;
-  --an-header-sub:        #a0a0a0;
+  --an-header-title:      var(--text-primary);
+  --an-header-sub:        var(--text-secondary);
 
   /* Tabs — frosted with blue gradient pill */
   --an-tab-bg:            rgba(255, 255, 255, 0.05);
@@ -309,6 +303,8 @@ body.dark .an-page {
 
   --an-donut-legend-name:  #e0e0e0;
   --an-donut-legend-value: #f8f8f8;
+  padding: 0;
+  min-height: 0;
 }
 
 body.dark .an-tab-btn--active .an-tab-pill {
@@ -324,9 +320,9 @@ body.dark .an-tab-btn--active .an-tab-pill {
   width:      100%;
   max-width:  1400px;
   margin:     0 auto;
-  padding:    32px 24px;
+  padding:    0;
   background: var(--an-page-bg);
-  min-height: 100vh;
+  min-height: 0;
   display:    flex;
   flex-direction: column;
   gap:        24px;
@@ -352,9 +348,9 @@ body.dark .an-tab-btn--active .an-tab-pill {
 
 .an-header-title {
   margin:         0;
-  font-size:      32px;
-  font-weight:    700;
-  letter-spacing: -0.9px;
+  font-size:      30px;
+  font-weight:    450;
+  letter-spacing: -1px;
   color:          var(--an-header-title);
   line-height:    1.1;
 }
@@ -562,8 +558,8 @@ body.dark .an-tab-btn--active .an-tab-pill {
 
 @media (max-width: 640px) {
   .an-kpi-grid { grid-template-columns: 1fr; }
-  .an-page     { padding: 16px 12px; }
-  .an-header-title { font-size: 26px; }
+  .an-page     { padding: 0; min-height: 0; }
+  .an-header-title { font-size: 30px; font-weight: 450; letter-spacing: -1px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -601,8 +597,8 @@ body.dark .an-tab-btn--active .an-tab-pill {
 
 .an-card-title {
   margin:         0;
-  font-size:      15px;
-  font-weight:    600;
+  font-size:      14px;
+  font-weight:    500;
   color:          var(--an-chart-title);
   letter-spacing: -0.3px;
 }
@@ -655,9 +651,9 @@ body.dark .an-tab-btn--active .an-tab-pill {
 
 .an-kpi-value {
   margin:               0;
-  font-size:            30px;
-  font-weight:          700;
-  letter-spacing:       -0.9px;
+  font-size:            36px;
+  font-weight:          400;
+  letter-spacing:       -1.5px;
   color:                var(--an-text-primary);
   font-variant-numeric: tabular-nums;
   line-height:          1;
@@ -1084,7 +1080,7 @@ body.dark .an-tab-btn--active .an-tab-pill {
 .an-unauth-ip-value {
   font-size:            13px;
   font-weight:          600;
-  font-family:          "SF Mono", "Menlo", "Fira Code", ui-monospace, monospace;
+  font-family:          var(--font-sans);
   color:                var(--an-unauth-ip);
   margin:               0;
   font-variant-numeric: tabular-nums;
@@ -1810,6 +1806,8 @@ body.dark .an-system-stat:hover {
 /* Native smooth scroll for the whole analytics page */
 .an-page {
   scroll-behavior: smooth;
+  padding: 0;
+  min-height: 0;
 }
 
 html {
@@ -1874,6 +1872,8 @@ body.dark .an-page * {
 .an-unauth-list {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior:        contain;
+  padding: 0;
+  min-height: 0;
 }
 
 
@@ -3489,7 +3489,7 @@ body.dark .an-custom-date-label {
   background:           transparent;
   font-size:            15px;
   font-weight:          700;
-  font-family:          inherit;
+  font-family:          var(--font-sans);
   cursor:               pointer;
   outline:              none;
   font-variant-numeric: tabular-nums;

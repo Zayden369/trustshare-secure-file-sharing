@@ -6,8 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { authAPI } from '../utils/api';
 import { Shield, Clock, RotateCcw, ShieldCheck, Mail, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
-
-const BgEnvironment = () => null;
+import AuthArtwork from '../components/AuthArtwork';
 
 export default function VerifyOtp() {
   const { setUser } = useAuth();
@@ -19,8 +18,6 @@ export default function VerifyOtp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cd, setCd] = useState(60);
-  const mouseX = 0;
-  const mouseY = 0;
   const q = new URLSearchParams(location.search);
   const email = q.get('email') || '';
   const mfaToken = q.get('mfa_token') || '';
@@ -82,7 +79,6 @@ export default function VerifyOtp() {
 
   return (
     <div className="ap">
-      <BgEnvironment mouseX={mouseX} mouseY={mouseY} />
 
       <nav className="ap-nav">
         <Link to="/login" className="ap-logo">
@@ -114,17 +110,18 @@ export default function VerifyOtp() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
+            <AuthArtwork/>
             <span className="ap-narrative-eyebrow">One more step</span>
             <h1 className="ap-narrative-h1">
-              Multi-Factor<br /><span className="italic-gradient">Identity Check.</span>
+              One more step.<br /><span className="italic-gradient">Back to your files.</span>
             </h1>
             <p className="ap-narrative-p">
-              We dispatched an authorized 6-digit session verification challenge to your email. Validate the code to unlock your decrypted portal views.
+              Enter the six-digit verification code sent to your email to finish signing in.
             </p>
             <div className="ap-narrative-features">
               {[
-                { t: 'Decentralized OTP authentication nodes', i: ShieldCheck },
-                { t: 'Encrypted verification link dispatchers', i: Mail }
+                { t: 'An additional sign-in check', i: ShieldCheck },
+                { t: 'A code sent to your email', i: Mail }
               ].map((f, i) => (
                 <div key={i} className="ap-narrative-feat">
                   <div className="ap-narrative-feat-circle"><f.i size={12} /></div>

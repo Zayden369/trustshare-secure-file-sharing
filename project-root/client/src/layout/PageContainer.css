@@ -4,7 +4,7 @@
 
 .page-wrapper {
   flex: 1;
-  background: var(--bg-primary);
+  background: var(--background);
   padding-top: 60px;
   transition: background 0.3s ease;
 }
@@ -13,21 +13,23 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 30px;
 }
 
 @media (max-width: 1024px) {
   .page-container {
-    padding: 16px;
+    padding: 30px;
   }
 }
 
 /* ── Dark Mode ────────────────────────────────────────────────────────── */
 
 body.dark .page-wrapper {
-  background: transparent;
+  background: var(--background);
 }
 
 body.dark .page-container {
   background: transparent;
 }
+@media(max-width:1024px){.page-container{padding:24px}}
+@media(max-width:650px){.page-container{padding:22px 16px}}
