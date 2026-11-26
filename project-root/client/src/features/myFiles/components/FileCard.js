@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FileArtwork from '../../../components/FileArtwork';
 import {
   FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet,
   File as FileIcon, Sparkles, Trash2, Download, Lock, LockOpen, Check, Play, Eye, History
@@ -266,9 +267,7 @@ export default function FileCard({
       </button>
 
       <div className="my-files-card-top">
-        <div className={`my-files-icon-box ${iconColorClass}`}>
-          <IconComponent size={18} strokeWidth={2} />
-        </div>
+        <FileArtwork name={fileName} mimetype={file.mimetype}/>
         <div className="my-files-card-top-right">
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {versionNumber > 1 && (

@@ -486,8 +486,8 @@ body.dark .an-tab-btn--active .an-tab-pill {
   font-size:     13px;
   font-weight:   600;
   cursor:        pointer;
-  background:    var(--surface-primary);
-  color:         var(--an-export-text);
+  background:    var(--accent);
+  color:         var(--accent-contrast);
   white-space:   nowrap;
   box-shadow:
     none;

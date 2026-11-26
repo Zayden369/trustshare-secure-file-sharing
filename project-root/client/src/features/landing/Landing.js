@@ -8,6 +8,7 @@ import ArchiveArtwork, { ArchiveDocument } from './ArchiveArtwork';
 import ArchiveJourney from './ArchiveJourney';
 import ParticleFormation from './ParticleFormation';
 import WorkspacePreview from './WorkspacePreview';
+import SwarmConstruction from './SwarmConstruction';
 import './landing.css';
 
 function ArchiveHero() {
@@ -29,8 +30,8 @@ export default function Landing(){
   const {user}=useAuth();
   const {theme,toggleTheme}=useTheme();
   return <main className="m-home"><a className="m-skip" href="#system">Skip introduction</a><header className="m-nav"><Link className="m-wordmark" to="/" aria-label="TrustShare home"><span className="m-mark" aria-hidden="true">t.</span>TrustShare</Link><nav aria-label="Main navigation"><a href="#system">The platform</a><a href="#product">The workspace</a></nav><div className="m-nav-actions"><button onClick={toggleTheme} aria-label={theme==='dark'?'Switch to light theme':'Switch to dark theme'}>{theme==='dark'?<Sun size={17}/>:<Moon size={17}/>}</button><Link to="/login">Sign in</Link><Link to={user?'/dashboard':'/signup'} className="m-nav-start">{user?'Open dashboard':'Get started'}<ArrowUpRight size={14}/></Link></div></header>
-    <ArchiveHero/><ArchiveJourney/><ParticleFormation/>
-    <section className="m-product" id="product"><div className="m-product-intro"><span className="m-kicker">06 / The workspace</span><h2>From possibility<br/><em>to everyday work.</em></h2><p>Keep your files, sharing and activity in one place. A clear workspace for the work that matters.</p></div><WorkspacePreview authenticated={Boolean(user)}/></section>
+    <ArchiveHero/><ArchiveJourney/><ParticleFormation/><SwarmConstruction/>
+    <section className="m-product" id="product"><div className="m-product-intro"><span className="m-kicker">07 / The workspace</span><h2>From possibility<br/><em>to everyday work.</em></h2><p>Keep your files, sharing and activity in one place. A clear workspace for the work that matters.</p></div><WorkspacePreview authenticated={Boolean(user)}/></section>
     <section className="m-closing"><svg className="archive-closing-document" viewBox="0 0 240 280" aria-hidden="true"><path d="M10 35V10H35M205 10H230V35M10 245V270H35M205 270H230V245" fill="none" stroke="currentColor" strokeWidth=".6"/><ArchiveDocument x={56} y={45}/><text x="120" y="246" textAnchor="middle">PRIVATE ARCHIVE / 001</text></svg><span className="m-kicker">Your next workspace</span><h2>Keep what matters.<br/><em>Share on your terms.</em></h2><div><Link className="m-button" to={user?'/dashboard':'/signup'}>{user?'Open dashboard':'Create account'}<ArrowUpRight size={17}/></Link><Link className="m-text-link" to="/login">Sign in<ArrowUpRight size={15}/></Link></div></section><footer className="m-footer"><Link className="m-wordmark" to="/">TrustShare</Link><span>Your files. Your security. Your control.</span><div><a href="#system">Platform</a><Link to="/login">Sign in</Link></div></footer>
   </main>;
 }

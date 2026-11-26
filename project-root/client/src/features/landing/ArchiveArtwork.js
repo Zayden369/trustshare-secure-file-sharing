@@ -23,6 +23,9 @@ export default function ArchiveArtwork({ className = '', document = true }) {
     <path d="M227 154L555 127L590 579L269 621Z" fill="#080808" stroke="#696969"/><path d="M241 170L542 145L574 566L281 605Z" fill="#111" stroke="#272727"/><path d="M242 170L364 209L391 552L281 605Z" fill="#181818" stroke="#363636"/><path d="M542 145L471 199L499 538L574 566Z" fill="#0c0c0c" stroke="#313131"/><path d="M364 209L471 199L499 538L391 552Z" fill="#090909" stroke="#222"/>
     <g stroke="#8a8a8a" strokeWidth="1">{[234,490].map(y=><g key={y}><path d={`M210 ${y}L235 ${y-2}L239 ${y+43}L214 ${y+45}Z`} fill="#303030"/><path d={`M216 ${y+7}L231 ${y+6}M218 ${y+35}L233 ${y+34}`}/></g>)}</g>
     <path d="M555 127L590 579" stroke="#e4e4e4" strokeWidth="1.1"/>
+    <path d="M174 101L590 64L672 115L711 628" stroke="#b4b4b4" strokeOpacity=".48" strokeWidth=".7"/>
+    <path d="M185 650L239 701L710 627M218 681L239 701M592 60L677 113" stroke="#aaa" strokeOpacity=".3" strokeWidth=".6"/>
+    <path d="M176 102L209 130L613 95L590 66Z" fill="#fff" fillOpacity=".045"/>
     <g fill="#9a9a9a" fontFamily="monospace" fontSize="8" letterSpacing="2"><text transform="translate(252 140) rotate(-5)">TRUSTSHARE / PRIVATE ARCHIVE</text><text x="278" y="656" transform="rotate(-7 278 656)">CONTROLLED ACCESS · 001</text></g>
     {document && <g transform="translate(365 304) rotate(-5)"><ArchiveDocument width={128}/></g>}
     <g stroke="currentColor" strokeWidth=".6" opacity=".45"><path d="M614 230H713M669 219V241M282 694V739M272 720H292"/><circle cx="669" cy="230" r="4"/></g>

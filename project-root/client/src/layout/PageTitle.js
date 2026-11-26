@@ -17,6 +17,7 @@ const ROUTE_TITLES = {
   "/login":           "Sign In",
   "/signup":          "Create Account",
   "/verify-otp":      "Verify OTP",
+  "/oauth-callback":  "Completing Sign In",
   "/forgot-password": "Forgot Password",
   "/reset-password":  "Reset Password",
   "/s":               "Public Vault",

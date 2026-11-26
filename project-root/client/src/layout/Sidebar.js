@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from "react";
+import BrandMark from '../components/BrandMark';
 import { NavLink, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { events, EVENTS } from "../utils/events";
 import UserDropdownMenu from "./UserDropdownMenu";
@@ -44,6 +45,7 @@ export default function Sidebar({
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const reducedMotion = useReducedMotion();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userTriggerRef = useRef(null);
 
@@ -124,11 +126,7 @@ export default function Sidebar({
               whileHover={{ scale: 1.05, rotate: -5 }}
               transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
             >
-              <img
-                src="/logo.png"
-                alt="TrustShare"
-                className="sidebar-logo-img"
-              />
+              <BrandMark/>
             </motion.div>
 
             {!sidebarCollapsed && (
@@ -170,6 +168,8 @@ export default function Sidebar({
                   `sidebar-link ${isActive ? "active" : ""}`
                 }
               >
+                {({isActive}) => <>
+                {isActive && <motion.span className="sidebar-active-indicator" layoutId="workspace-active-route" aria-hidden="true" transition={{duration:reducedMotion?0:.22,ease:[.2,.75,.25,1]}}/>}
                 <span className="sidebar-link-icon">
                   <Icon size={18} />
                 </span>
@@ -185,6 +185,7 @@ export default function Sidebar({
                 {sidebarCollapsed && item.badge && unreadCount > 0 && (
                   <span className="sidebar-link-dot" />
                 )}
+                </>}
               </NavLink>
             );
           })}

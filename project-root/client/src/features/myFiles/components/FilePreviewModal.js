@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
+import PreparationMark from '../../../components/PreparationMark';
 import {
   X,
   Download,
   Trash2,
-  Loader2,
   FileText,
   AlertCircle,
   ExternalLink,
@@ -243,9 +243,9 @@ export default function FilePreviewModal({
         <div className="file-preview-body">
           {loading && (
             <div className="file-preview-state">
-              <Loader2 size={36} className="file-preview-spinner" strokeWidth={1.8} />
+              <PreparationMark/>
               <p className="file-preview-state-title">Loading preview…</p>
-              <p className="file-preview-state-subtitle">Decrypting and preparing secure stream</p>
+              <p className="file-preview-state-subtitle">Preparing your file for viewing</p>
             </div>
           )}
 

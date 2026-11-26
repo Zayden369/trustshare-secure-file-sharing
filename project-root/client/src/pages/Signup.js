@@ -1,3 +1,4 @@
+import BrandMark from '../components/BrandMark';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,7 +49,7 @@ export default function Signup() {
 
       <nav className="ap-nav">
         <Link to="/" className="ap-logo">
-          <img src="/logo.png" alt="" onError={e => e.target.style.display='none'} />
+          <BrandMark/>
           TrustShare
         </Link>
         <div className="ap-nav-r">

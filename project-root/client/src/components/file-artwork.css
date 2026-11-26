@@ -1,0 +1,7 @@
+.file-artwork{width:92px;height:100px;color:var(--text-secondary);fill:none;stroke:currentColor;stroke-width:1;overflow:visible}.file-artwork .file-artwork-shadow{fill:var(--surface-secondary);stroke:var(--border)}.file-artwork .file-artwork-paper{fill:var(--surface-primary);stroke:var(--text-muted)}.file-artwork text{font:9px var(--font-sans);stroke:none;fill:currentColor;letter-spacing:2px}.file-artwork.is-compact{width:35px;height:40px}.my-files-card-top>.file-artwork{transition:transform var(--motion-base) var(--motion-ease)}.my-files-file-card:hover .file-artwork{transform:translateY(-3px) rotate(-2deg)}
+.folder-artwork{width:76px;height:60px;color:var(--text-secondary)}
+.folder-artwork svg{width:100%;height:100%;overflow:visible;stroke:currentColor;stroke-width:.8;fill:var(--surface-secondary);transition:transform var(--motion-base) var(--motion-ease)}
+.folder-artwork svg path:nth-child(2){fill:var(--surface-primary);filter:drop-shadow(1px 3px 1px #0000000c)}
+.folder-artwork svg path:last-child{fill:none;opacity:.4}
+.my-files-folder-card:hover .folder-artwork svg{transform:translateY(-3px) rotate(-2deg)}
+@media(prefers-reduced-motion:reduce){.my-files-folder-card:hover .folder-artwork svg{transform:none}}

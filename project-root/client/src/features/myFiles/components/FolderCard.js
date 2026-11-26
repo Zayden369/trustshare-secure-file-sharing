@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Folder, Trash2, Pencil } from 'lucide-react';
+import '../../../components/file-artwork.css';
 
 export default function FolderCard({
   id, title, subtitle,
@@ -115,8 +116,8 @@ export default function FolderCard({
       tabIndex={0}
     >
       <div className="my-files-card-top">
-        <div className="my-files-icon-box my-files-icon--folder">
-          <Folder size={18} strokeWidth={2} />
+        <div className="folder-artwork" aria-hidden="true">
+          <svg viewBox="0 0 88 68"><path d="M5 14h29l8 9h40v40H5z"/><path d="M5 27h77l-8 36H5z"/><path d="M13 36h54M13 42h38"/></svg>
         </div>
         <div className="my-files-card-top-right">
           <span className="my-files-type-chip">Folder</span>

@@ -67,9 +67,10 @@ body.dark .settings-tab.active {
 /* ── Card Styles ───────────────────────────────────────────── */
 .settings-card {
   border-radius: 0;
-  padding: 28px 0;
-  background: none;
-  border: 0;
+  padding: 24px;
+  background: var(--surface-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);

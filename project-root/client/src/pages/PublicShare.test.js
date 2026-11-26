@@ -40,7 +40,7 @@ test('loads and renders safe public share metadata without authentication', asyn
 
   expect(await screen.findByText('Roadmap.pdf')).toBeInTheDocument();
   expect(screen.getByText(/2.0 KB/)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /View secure file/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Open Secure Preview/i })).toBeInTheDocument();
   expect(sharesAPI.publicDetails).toHaveBeenCalledWith('public-token', undefined);
 });
 
@@ -50,9 +50,9 @@ test('prompts for and submits a password when the share is protected', async () 
     .mockResolvedValueOnce({ data: { ...shareDetails, password_required: true } });
   render(<PublicShare />);
 
-  const passwordInput = await screen.findByLabelText('Share password');
+  const passwordInput = await screen.findByLabelText('Passphrase');
   userEvent.type(passwordInput, 'safe-pass');
-  userEvent.click(screen.getByRole('button', { name: 'Unlock file' }));
+  userEvent.click(screen.getByRole('button', { name: 'Unlock shared file' }));
 
   await waitFor(() => expect(sharesAPI.publicDetails).toHaveBeenLastCalledWith('public-token', 'safe-pass'));
   expect(await screen.findByText('Roadmap.pdf')).toBeInTheDocument();
@@ -66,7 +66,7 @@ test('requests content only after the visitor chooses to open the file', async (
   sharesAPI.publicContent.mockResolvedValue({ data: new Blob(['document']) });
   render(<PublicShare />);
 
-  userEvent.click(await screen.findByRole('button', { name: /View secure file/i }));
+  userEvent.click(await screen.findByRole('button', { name: /Open Secure Preview/i }));
 
   await waitFor(() => expect(sharesAPI.publicContent).toHaveBeenCalledWith('public-token', undefined));
 });

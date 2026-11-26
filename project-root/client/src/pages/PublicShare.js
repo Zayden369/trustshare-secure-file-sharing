@@ -1,13 +1,16 @@
+import BrandMark from '../components/BrandMark';
+import PreparationMark from '../components/PreparationMark';
+import FileArtwork from '../components/FileArtwork';
+import './PublicShare.css';
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Download, Eye, LockKeyhole,
-  ShieldCheck, ShieldAlert,
-  X, Maximize2, Minimize2, Music, Film
+  ShieldAlert,
+  X, Maximize2, Minimize2, Music
 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { sharesAPI } from '../utils/api';
-import SharedFileIcon from '../features/sharedWithMe/components/SharedFileIcon';
 
 const formatSize = (size) => {
   if (!Number.isFinite(size)) return 'Unknown size';
@@ -28,7 +31,6 @@ export default function PublicShare() {
   const [needsPassword, setNeedsPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [logoFailed, setLogoFailed] = useState(false);
 
   const [previewing, setPreviewing] = useState(false);
   const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
@@ -165,7 +167,7 @@ export default function PublicShare() {
   const isText = Boolean(previewText);
 
   return (
-    <main
+    <main className="recipient-page"
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -176,14 +178,14 @@ export default function PublicShare() {
       }}
     >
       <motion.section
-        className="card"
+        className="card recipient-panel"
         style={{
-          width: previewing ? 'min(980px, 96vw)' : 'min(500px, 100%)',
+          width: previewing ? 'min(980px, 96vw)' : 'min(600px, 100%)',
           padding: previewing ? '24px' : '36px 32px',
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-medium)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
-          borderRadius: 24,
+          borderRadius: 8,
           transition: 'width 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
         }}
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -192,35 +194,13 @@ export default function PublicShare() {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {!logoFailed ? (
-              <img
-                src="/logo.png"
-                alt="TrustShare"
-                style={{ width: 40, height: 40, objectFit: 'contain' }}
-                onError={() => setLogoFailed(true)}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 12,
-                  background: 'linear-gradient(135deg, #202020, #606060)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <ShieldCheck size={22} />
-              </div>
-            )}
+            <BrandMark/>
             <div>
               <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 TrustShare Vault
               </h1>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                Zero-Trust Encrypted Transfer
+                A file shared with you
               </p>
             </div>
           </div>
@@ -247,8 +227,8 @@ export default function PublicShare() {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <div className="spinner" style={{ margin: '0 auto 16px' }} />
-            <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Verifying security token…</p>
+            <PreparationMark/>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Opening the shared file…</p>
           </div>
         ) : needsPassword ? (
           <form onSubmit={unlock}>
@@ -264,7 +244,7 @@ export default function PublicShare() {
               marginBottom: 18,
             }}>
               <LockKeyhole size={18} />
-              <span>This file requires a passkey to decrypt.</span>
+              <span>This shared file requires a password.</span>
             </div>
 
             <div className="form-group">
@@ -290,7 +270,7 @@ export default function PublicShare() {
               style={{ width: '100%', justifyContent: 'center', marginTop: 18 }}
               type="submit"
             >
-              Decrypt & Unlock File
+              Unlock shared file
             </button>
           </form>
         ) : details ? (
@@ -298,6 +278,7 @@ export default function PublicShare() {
             {!previewing ? (
               <>
                 <div
+                  className="recipient-file"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -309,9 +290,9 @@ export default function PublicShare() {
                     marginBottom: 20,
                   }}
                 >
-                  <SharedFileIcon mimetype={details.mimetype} name={details.file_name} />
+                  <FileArtwork mimetype={details.mimetype} name={details.file_name}/>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <strong style={{ display: 'block', fontSize: 14, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <strong style={{ display: 'block', fontSize: 22, fontWeight: 500, letterSpacing: '-.04em', lineHeight: 1.3, marginBottom: 10, color: 'var(--text-primary)', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
                       {details.file_name}
                     </strong>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>

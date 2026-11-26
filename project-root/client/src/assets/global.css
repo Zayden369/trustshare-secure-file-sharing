@@ -1237,12 +1237,12 @@ body.dark .upload-file-row.is-failed {
 }
 
 .upload-error-msg {
-  color: var(--rose-500);
+  color: var(--text-primary);
   font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  max-width: 100%;
+  line-height: 1.6;
 }
 
 body.dark .upload-error-msg { color: var(--rose-400); }
@@ -1332,7 +1332,7 @@ body.dark .upload-spin { color: var(--blue-400); }
   .upload-modal-footer { padding: 12px 18px 16px; }
   .upload-modal-title { font-size: 20px; font-weight:   450; }
   .upload-modal-subtitle { font-size: 11px; }
-  .upload-error-msg { max-width: 120px; }
+  .upload-error-msg { max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

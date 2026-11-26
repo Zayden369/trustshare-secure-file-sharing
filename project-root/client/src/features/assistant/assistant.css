@@ -666,7 +666,7 @@ body.dark .asst-msg-bubble.error {
 
 .asst-suggestion-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%,240px), 1fr));
   gap: 8px;
 }
 
@@ -700,8 +700,8 @@ body.dark .asst-msg-bubble.error {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--asst-gradient-primary);
-  color: white;
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
   border-radius: 8px;
   flex-shrink: 0;
 }
@@ -713,17 +713,17 @@ body.dark .asst-msg-bubble.error {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 40px;
+  padding: 38px 24px;
   text-align: center;
-  min-height: 400px;
+  min-height: 300px;
 }
 
 .asst-empty-icon {
   width: 80px;
   height: 80px;
   border-radius: 6px;
-  background: var(--asst-gradient-header);
-  color: white;
+  background: var(--surface-primary);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -799,12 +799,12 @@ body.dark .asst-msg-bubble.error {
   position: fixed;
   right: 24px;
   bottom: 24px;
-  width: 400px;
-  height: 600px;
+  width: min(440px, calc(100vw - 48px));
+  height: min(720px, calc(100svh - 48px));
   max-height: calc(100vh - 48px);
   background: var(--asst-bg-panel);
   border: 1px solid var(--asst-border);
-  border-radius: 20px;
+  border-radius: 8px;
   box-shadow: none;
   z-index: 1000;
   display: flex;
@@ -829,8 +829,8 @@ body.dark .asst-msg-bubble.error {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background: var(--asst-gradient-header);
-  color: white;
+  background: var(--surface-primary);
+  color: var(--text-primary);
 }
 
 .asst-bubble-title {
@@ -849,10 +849,10 @@ body.dark .asst-msg-bubble.error {
 .asst-bubble-action {
   width: 30px;
   height: 30px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--surface-secondary);
   border: none;
   border-radius: 8px;
-  color: white;
+  color: var(--text-secondary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -861,7 +861,7 @@ body.dark .asst-msg-bubble.error {
 }
 
 .asst-bubble-action:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--surface-hover);
 }
 
 .asst-bubble-body {
@@ -1591,8 +1591,8 @@ body.dark .asst-admin-header::after {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: var(--asst-gradient-header);
-  color: white;
+  background: var(--surface-primary);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2663,10 +2663,10 @@ body.dark .asst-active-provider {
 
 /* Message bubbles */
 .asst-msg-bubble {
-  padding: 10px 14px;
-  font-size: 13px;
-  line-height: 1.5;
-  border-radius: 14px;
+  padding: 13px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  border-radius: 6px;
 }
 
 .asst-msg-avatar {

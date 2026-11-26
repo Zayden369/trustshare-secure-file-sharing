@@ -232,7 +232,7 @@
 .sidebar-link.active {
   background: var(--surface-hover);
   color: var(--text-primary);
-  box-shadow: inset 2px 0 var(--accent);
+  box-shadow: none;
   transform: translateX(0);
 }
 
@@ -616,7 +616,7 @@ body.dark .sidebar-link:hover {
 body.dark .sidebar-link.active {
   background: var(--surface-hover);
   color: var(--text-primary);
-  box-shadow: inset 2px 0 var(--accent);
+  box-shadow: none;
 }
 
 body.dark .sidebar-link.active svg {
@@ -703,3 +703,8 @@ body.dark .sidebar-close-btn:hover {
     animation: none !important;
   }
 }
+
+/* One shared indicator carries route selection between existing destinations. */
+.sidebar-active-indicator{position:absolute;inset:0;z-index:0;pointer-events:none;background:var(--surface-hover);border-left:2px solid var(--accent);border-radius:3px}
+.sidebar-link>span:not(.sidebar-active-indicator){position:relative;z-index:1}
+@media(max-width:1024px){.sidebar-modern:not(.sidebar-open){visibility:hidden}.sidebar-modern.sidebar-open{visibility:visible}}

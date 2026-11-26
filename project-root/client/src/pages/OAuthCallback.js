@@ -1,3 +1,6 @@
+import BrandMark from '../components/BrandMark';
+import PreparationMark from '../components/PreparationMark';
+import '../styles/oauth-callback.css';
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -74,19 +77,11 @@ export default function OAuthCallback() {
   }, [location, setUser, navigate]);
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      minHeight: '100vh', background: '#050c1a', padding: '20px'
-    }}>
-      <div style={{
-        background: '#0a162b', border: '1px solid #1e293b', borderRadius: '16px',
-        padding: '40px', maxWidth: '440px', width: '100%', textAlign: 'center',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
-      }}>
+    <div className="oauth-stage"><div className="oauth-panel"><div className="oauth-brand"><BrandMark/><span>TrustShare</span></div>
         {error ? (
           <>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '12px' }}>
+            <span className="oauth-error-symbol" aria-hidden="true">!</span>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
               Authentication Error
             </h2>
             <p style={{ color: 'var(--rose-500)', fontSize: '.875rem', marginBottom: '24px', lineHeight: 1.6 }}>
@@ -102,12 +97,8 @@ export default function OAuthCallback() {
           </>
         ) : (
           <>
-            <div style={{
-              margin: '0 auto 24px auto', width: '40px', height: '40px',
-              border: '3px solid rgba(59,130,246,0.2)', borderTopColor: 'var(--primary)',
-              borderRadius: '50%', animation: 'spin 1s linear infinite'
-            }} />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
+            <PreparationMark/>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
               Completing login…
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '.875rem' }}>
