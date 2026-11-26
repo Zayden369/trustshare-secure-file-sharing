@@ -4,12 +4,14 @@ import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTran
 import { ArrowUpRight, ArrowRight, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import ArchiveArtwork, { ArchiveDocument } from './ArchiveArtwork';
+import { ArchiveDocument } from './ArchiveArtwork';
+import LivingArchive from './LivingArchive';
 import ArchiveJourney from './ArchiveJourney';
 import ParticleFormation from './ParticleFormation';
 import WorkspacePreview from './WorkspacePreview';
 import SwarmConstruction from './SwarmConstruction';
 import './landing.css';
+import './living-archive.css';
 
 function ArchiveHero() {
   const ref=useRef(null), reduced=useReducedMotion();
@@ -19,7 +21,7 @@ function ArchiveHero() {
   const depth=useTransform(scrollYProgress,[0,1],[1,1.1]);
   return <section className="m-hero" ref={ref} onPointerMove={e=>{if(reduced)return;const r=e.currentTarget.getBoundingClientRect();px.set((e.clientX-r.left-r.width/2)*.012);py.set((e.clientY-r.top-r.height/2)*.01);}} onPointerLeave={()=>{px.set(0);py.set(0);}}>
     <div className="m-hero-topline"><span>A private archive. A connected workspace.</span><span>Designed around your files.</span></div>
-    <motion.div className="m-hero-architecture" style={{x:reduced?0:x,y:reduced?0:y,scale:reduced?1:depth}}><ArchiveArtwork/></motion.div>
+    <motion.div className="m-hero-architecture" style={{x:reduced?0:x,y:reduced?0:y,scale:reduced?1:depth}}><LivingArchive/></motion.div>
     <div className="m-hero-copy"><span className="m-kicker">The space between private and shared.</span><h1><span>Keep it</span><br/><em>close.</em><br/><span className="m-hero-last">Let work flow.</span></h1></div>
     <div className="m-hero-aside"><p>One considered place for your files.<br/>Protected in storage.<br/>Shared on your terms.</p><a className="m-button" href="#system">Enter the archive<ArrowRight size={17}/></a></div>
     <div className="m-hero-baseline"><span>01 — The private archive</span><a href="#system">Follow a file ↓</a><span>TrustShare / Introduction</span></div>

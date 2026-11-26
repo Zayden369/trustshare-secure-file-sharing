@@ -17,6 +17,7 @@ from src.shares.service import (
     create_share,
     list_shares,
     revoke_share,
+    archive_share,
     access_share,
     inspect_public_share,
     get_public_file_path,
@@ -80,6 +81,11 @@ def revoke(
 ):
     ip = _get_client_ip(request)
     revoke_share(db, share_id, current_user.id, ip_address=ip)
+
+
+@router.delete("/{share_id}/record", status_code=204)
+def delete_inactive_record(share_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    archive_share(db, share_id, current_user.id)
 
 
 @router.get("/access/{token}", response_model=ShareOut)

@@ -460,3 +460,5 @@
     gap: 24px;
   }
 }
+
+.dashboard-stat-card:first-child{background:var(--surface-primary)}.dashboard-stat-card:first-child:before{content:'';position:absolute;top:0;left:0;width:36px;height:2px;background:var(--accent)}.dashboard-progress>span{background:var(--accent)}.dashboard-action{transition:background 160ms,transform 160ms}.dashboard-action:hover{transform:translateY(-2px);color:var(--accent)}.dashboard-stat-icon{color:var(--accent)}

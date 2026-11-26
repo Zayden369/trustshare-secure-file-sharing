@@ -18,3 +18,9 @@ class ShareLink(Base):
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_accessed_at = Column(DateTime(timezone=True), nullable=True)
+
+class ShareLinkArchive(Base):
+    """Owner-hidden links retain their original row and all audit references."""
+    __tablename__ = "share_link_archives"
+    share_id = Column(Integer, ForeignKey("share_links.id"), primary_key=True)
+    archived_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

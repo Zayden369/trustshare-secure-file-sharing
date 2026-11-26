@@ -196,7 +196,7 @@ export default function DashboardOverview({ dashboardData = {}, user }) {
                 <HardDrive aria-hidden="true" size={22} />
               </span>
               <div>
-                <strong>{analytics.storage.used_gb} GB used</strong>
+                <strong>{Number(analytics.storage.used_gb) < 1 ? formatBytes(analytics.storage.used_bytes ?? Number(analytics.storage.used_gb)*1024**3) : `${analytics.storage.used_gb} GB`} used</strong>
                 <p>of {analytics.storage.quota_gb} GB</p>
               </div>
             </div>
