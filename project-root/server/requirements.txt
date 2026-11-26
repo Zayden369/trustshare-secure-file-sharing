@@ -2,6 +2,7 @@ fastapi==0.110.0
 uvicorn[standard]==0.29.0
 sqlalchemy==2.0.29
 pydantic[email]==2.6.4
+email-validator>=2.2.0,<3
 python-dotenv==1.0.1
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1

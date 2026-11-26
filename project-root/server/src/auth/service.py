@@ -220,7 +220,14 @@ def register_user(
     request=None,
     ip_address: str | None = None,
 ) -> TokenResponse:
-    existing = db.query(User).filter(User.email == data.email).first()
+    from src.auth.registration import normalize, consume, VerifiedEmail, now
+    from sqlalchemy import func
+    from sqlalchemy.exc import IntegrityError
+    if len(data.password.encode('utf-8')) > 72:
+        raise HTTPException(422, 'Password must be at most 72 bytes.')
+    data.email = normalize(str(data.email))
+    consume(db, data.email, data.verification_token)
+    existing = db.query(User).filter(func.lower(User.email) == data.email).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -237,8 +244,14 @@ def register_user(
         plan=plan,
     )
 
-    db.add(user)
-    db.commit()
+    try:
+        db.add(user)
+        db.flush()
+        db.add(VerifiedEmail(user_id=user.id, email=data.email, method='registration_otp', verified_at=now()))
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, 'This address cannot be registered. Try signing in.') from None
     db.refresh(user)
 
     log_event(
@@ -255,9 +268,13 @@ def register_user(
 
 
 def _build_token_response(user: User, db: Session = None, request=None) -> TokenResponse:
-    token_data = {"sub": str(user.id)}
-    access_token = create_access_token(token_data)
+    import hashlib
+    if db is not None and request is not None:
+        # Serialize issuance for the existing single-current-session account policy.
+        db.query(User).filter(User.id == user.id).with_for_update().one()
+    token_data = {"sub": str(user.id), "jti": secrets.token_urlsafe(24)}
     refresh_token = create_refresh_token(token_data)
+    access_token = create_access_token({**token_data, 'session': hashlib.sha256(refresh_token.encode()).hexdigest()})
 
     if db is not None and request is not None:
         try:
@@ -388,10 +405,11 @@ def _build_token_response(user: User, db: Session = None, request=None) -> Token
             db.commit()
         except Exception as _session_err:
             try:
-                print(f"[SESSION SAVE ERROR] {type(_session_err).__name__}: {_session_err}", flush=True)
+                print(f"[SESSION SAVE ERROR] {type(_session_err).__name__}", flush=True)
             except Exception:
                 pass
             db.rollback()
+            raise HTTPException(503, 'Could not establish your session. Please sign in again.') from None
 
     return TokenResponse(
         access_token=access_token,
@@ -406,22 +424,19 @@ def _build_token_response(user: User, db: Session = None, request=None) -> Token
 # ═══════════════════════════════════════════════════════════════════════════
 
 def generate_otp(user_id: int, to_email: str = "", user_name: str = "") -> str:
-    code = f"{random.randint(100000, 999999)}"
+    code = f"{secrets.randbelow(1000000):06d}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=5)
-    otp_store[user_id] = {"otp": code, "expires_at": expires_at}
+    otp_store[user_id] = {"otp": code, "expires_at": expires_at, "attempts": 0}
 
-    if _environment() in {"development", "dev"}:
-        print(f"[OTP DEV] User {user_id} -> {code} (expires {expires_at.strftime('%H:%M:%S')} UTC)", flush=True)
 
-    if to_email:
-        if _is_development_dummy_email(to_email):
-            domain = to_email.strip().lower().rpartition("@")[2]
-            print(f"[EMAIL DEV] Skipping SMTP for configured dummy/test domain: {domain}", flush=True)
-        else:
-            try:
-                email_service.send_otp_email(to_email, code, user_name)
-            except Exception as exc:
-                print(f"[EMAIL ERROR] Failed to send MFA email: {type(exc).__name__}", flush=True)
+    if not to_email:
+        otp_store.pop(user_id, None)
+        raise HTTPException(503, "A delivery address is required for MFA.")
+    try:
+        email_service.send_otp_email(to_email, code, user_name)
+    except Exception:
+        otp_store.pop(user_id, None)
+        raise HTTPException(503, "We could not send your verification email. Please try again later.") from None
 
     return code
 
@@ -441,7 +456,11 @@ def verify_otp_code(
             db.commit()
         return False
 
-    if entry["otp"] != code:
+    entry["attempts"] = entry.get("attempts", 0) + 1
+    if entry["attempts"] > 5:
+        otp_store.pop(user_id, None)
+        return False
+    if not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit() or not secrets.compare_digest(entry["otp"], code):
         if db:
             log_event(db, event_type=AnalyticsEventType.SECURITY, user_id=user_id, status=AnalyticsEventStatus.FAILED, ip_address=ip_address,
                 event_metadata={"severity_key": "login_failed", "label": "OTP verification failed", "detail": "Incorrect OTP code entered", "target": "otp", "attempts": 1})
@@ -543,7 +562,10 @@ def get_or_create_oauth_user(
     name: str,
     ip_address: str | None = None,
 ) -> User:
-    user = db.query(User).filter(User.email == email).first()
+    from src.auth.registration import normalize
+    from sqlalchemy import func
+    email = normalize(email)
+    user = db.query(User).filter(func.lower(User.email) == email).first()
 
     if not user:
         random_password = secrets.token_urlsafe(16)

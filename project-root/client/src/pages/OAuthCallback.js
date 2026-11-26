@@ -4,7 +4,7 @@ import '../styles/oauth-callback.css';
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../utils/api';
+import { authAPI, clearAuthStorage } from '../utils/api';
 import axios from 'axios';
 import { API_BASE_URL } from '../data/constants';
 
@@ -32,11 +32,25 @@ export default function OAuthCallback() {
 
     const finishLogin = async () => {
       try {
+        clearAuthStorage();
         // ── Exchange code for actual tokens via POST ──────────────────────────
         const { data: tokenData } = await axios.post(
           `${API_BASE_URL}/api/auth/oauth/exchange`,
           { code: exchangeCode }
         );
+
+        if (tokenData.mfa_required) {
+          if (!tokenData.mfa_token || !tokenData.email) {
+            throw new Error('MFA challenge was not returned');
+          }
+          const params = new URLSearchParams({
+            email: tokenData.email,
+            mfa_token: tokenData.mfa_token,
+            rememberMe: 'true',
+          });
+          navigate(`/verify-otp?${params}`, { replace: true });
+          return;
+        }
 
         const accessToken = tokenData.access_token;
         const refreshToken = tokenData.refresh_token;
@@ -55,21 +69,9 @@ export default function OAuthCallback() {
 
         navigate('/dashboard', { replace: true });
       } catch (err) {
-        // ── Only clear tokens if they were not already successfully stored ──
-        const alreadyLoggedIn = !!localStorage.getItem('access_token');
-        if (!alreadyLoggedIn) {
-          setError('Failed to complete authentication. Please try signing in again.');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-        } else {
-          // Tokens already stored successfully by first call — just navigate
-          authAPI.me().then(({ data }) => {
-            setUser(data);
-            navigate('/dashboard', { replace: true });
-          }).catch(() => {
-            setError('Failed to complete authentication. Please try signing in again.');
-          });
-        }
+        clearAuthStorage();
+        const detail = err.response?.data?.detail;
+        setError(typeof detail === 'string' ? detail : 'Failed to complete authentication. Please try signing in again.');
       }
     };
 

@@ -1,0 +1,16 @@
+.m-cinematic{height:270vh;min-height:1800px;padding:100px 5vw 60px;border-top:1px solid var(--border);position:relative}
+.m-cinematic-sticky{position:sticky;top:100px;display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;gap:3vw;max-width:1500px;margin:auto}
+.m-cinematic-heading h2{font-family:var(--font-display,Georgia,serif);font-size:clamp(38px,4.5vw,72px);font-weight:400;letter-spacing:-.045em;line-height:1.03;margin:24px 0 40px}
+.m-cinematic-heading h2 em{font-weight:400;color:var(--text-secondary)}
+.cinematic-stage{perspective:1200px;min-width:0}
+.cinematic-stage svg{width:100%;height:auto;overflow:visible;color:var(--text-primary);display:block;transform-style:preserve-3d}
+.story-document{filter:drop-shadow(0 9px 8px #00000014)}
+.story-code{font:7px var(--font-mono,monospace);letter-spacing:.6px}
+.story-chapters{position:relative;height:170px;max-width:340px}
+.story-chapter{position:absolute;inset:0;pointer-events:none}
+.story-chapter h3{font-size:22px;font-weight:400;margin:16px 0 10px;letter-spacing:-.03em}
+.story-chapter p{font-size:13px;line-height:1.8;color:var(--text-secondary)}
+.m-cinematic-caption{grid-column:1/-1;display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:20px;font-size:10px;color:var(--text-muted);gap:30px;line-height:1.7}
+.m-cinematic-caption p{max-width:330px;margin:0}
+@media(max-width:700px){.m-cinematic{padding:60px 5vw;height:250vh;min-height:1600px}.m-cinematic-sticky{top:90px;grid-template-columns:1fr;gap:16px}.m-cinematic-heading h2{font-size:38px;margin:18px 0}.story-chapters{height:100px;max-width:none}.story-chapter h3{font-size:18px;margin:10px 0}.story-chapter p{font-size:11px;margin:0;line-height:1.6}.story-chapter .m-kicker{font-size:8px}.cinematic-stage{max-width:520px;width:100%;margin:auto}.m-cinematic-caption{font-size:8px;gap:15px;padding-top:12px}.m-cinematic-caption p{max-width:180px}}
+@media(prefers-reduced-motion:reduce){.m-cinematic{height:auto;min-height:0}.m-cinematic-sticky{position:relative;top:0}.story-chapters{height:170px}}

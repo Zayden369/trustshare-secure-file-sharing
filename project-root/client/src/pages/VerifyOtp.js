@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { authAPI } from '../utils/api';
+import { authAPI, setAuthTokens } from '../utils/api';
 import { Shield, Clock, RotateCcw, ShieldCheck, Mail, Sun, Moon } from 'lucide-react';
 import '../styles/apple-auth.css';
 import AuthArtwork from '../components/AuthArtwork';
@@ -60,9 +60,7 @@ export default function VerifyOtp() {
     setError(''); setLoading(true);
     try {
       const { data } = await authAPI.verifyOTP(mfaToken, code);
-      const st = rm === 'true' ? localStorage : sessionStorage;
-      st.setItem('access_token', data.access_token);
-      st.setItem('refresh_token', data.refresh_token);
+      setAuthTokens(data.access_token, data.refresh_token, rm === 'true');
       setUser(data.user);
       navigate('/dashboard');
     } catch (err) {
@@ -73,9 +71,14 @@ export default function VerifyOtp() {
   };
 
   const resend = async () => {
+    setError('');
     setCd(60);
-    setOtp(['', '', '', '', '', '']);
-    try { await authAPI.resendOTP(mfaToken); } catch {}
+    try {
+      await authAPI.resendOTP(mfaToken);
+      setOtp(['', '', '', '', '', '']);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Could not resend the code. Please try again later.');
+    }
   };
 
   return (

@@ -5,6 +5,7 @@ from src.security.seed.seed_allowed_file_types import seed_allowed_file_types
 from src.security.models.app_config import AppConfig
 
 # Import all entities so SQLAlchemy knows about them before create_all
+from src.auth.registration import RegistrationChallenge, RegistrationLimit, VerifiedEmail  # noqa
 from src.entities.user import User  # noqa
 from src.entities.todo import Todo  # noqa
 from src.entities.folder import Folder  # noqa
