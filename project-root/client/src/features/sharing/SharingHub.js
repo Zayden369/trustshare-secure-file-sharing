@@ -1,3 +1,4 @@
+import {motion,AnimatePresence} from 'framer-motion';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Link2, Users, Search, Copy, Check, Lock,
@@ -48,6 +49,7 @@ export default function SharingHub() {
   const [copiedId, setCopiedId] = useState(null);
   const [toast, setToast] = useState(null);
   const [revokeTarget, setRevokeTarget] = useState(null);
+  const [removingLink, setRemovingLink] = useState(false);
 
   const location = useLocation();
   const [highlightShareId, setHighlightShareId] = useState(null);
@@ -199,7 +201,10 @@ export default function SharingHub() {
   const handleConfirmRevoke = async () => {
     if (!revokeTarget) return;
     try {
-      if (revokeTarget.type === 'link') {
+      if (revokeTarget.type === 'archive') {
+        await sharesAPI.deleteInactive(revokeTarget.id);
+        showToast('Inactive link removed. Your original file is unchanged.');
+      } else if (revokeTarget.type === 'link') {
         await sharesAPI.revoke(revokeTarget.id);
         showToast('Share link revoked.');
       } else {
@@ -475,7 +480,7 @@ export default function SharingHub() {
             )}
           </div>
         ) : (
-          <div className="sharing-grid">
+          <div className="sharing-grid"><AnimatePresence initial={false}>
             {filteredShares.map((s) => {
               const status = getShareStatus(s);
               const isAlive = status === 'active';
@@ -485,7 +490,7 @@ export default function SharingHub() {
                  String(highlightShareId) === String(s.file_id));
 
               return (
-                <div
+                <motion.div layout exit={{opacity:0,scale:.96,height:0}} transition={{duration:.2}}
                   key={s.id}
                   data-share-id={s.id}
                   data-file-id={s.file_id}
@@ -591,6 +596,7 @@ export default function SharingHub() {
                       <ExternalLink size={13} /> Visit
                     </button>
 
+                    {(status === 'revoked' || status === 'expired') && <button className="my-files-btn my-files-btn--danger" onClick={() => setRevokeTarget({id:s.id,type:'archive',name:s.file_name})}><Trash2 size={14}/> Delete Link</button>}
                     {isAlive && (
                       <button
                         className="my-files-btn my-files-btn--danger"
@@ -601,9 +607,9 @@ export default function SharingHub() {
                       </button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
-            })}
+            })}</AnimatePresence>
           </div>
         )
       ) : (
@@ -757,9 +763,9 @@ export default function SharingHub() {
         onClose={() => setRevokeTarget(null)}
         onConfirm={handleConfirmRevoke}
         icon={Trash2}
-        title="Revoke Permission?"
-        message={`Are you sure you want to revoke ${revokeTarget?.name}? Anyone with this link or permission will immediately lose access.`}
-        confirmText="Revoke Access"
+        title={revokeTarget?.type === 'archive' ? 'Delete this share link?' : 'Revoke Permission?'}
+        message={revokeTarget?.type === 'archive' ? 'Remove this inactive record from your Sharing Center. The original file and security history are retained.' : `Are you sure you want to revoke ${revokeTarget?.name}? Anyone with this link or permission will immediately lose access.`}
+        confirmText={removingLink ? 'Please wait…' : revokeTarget?.type === 'archive' ? 'Delete Link' : 'Revoke Access'}
         variant="danger"
       />
     </div>

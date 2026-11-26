@@ -34,3 +34,15 @@ test('reduced motion presents the complete interface immediately',()=>{
   useReducedMotion.mockReturnValue(true);render(<SwarmConstruction/>);
   expect(screen.getByRole('status')).toHaveTextContent('Workspace assembled');
 });
+test('consecutive replays keep one cursor set and each deadline',()=>{
+  const {container}=render(<SwarmConstruction/>);
+  act(()=>observe([{isIntersecting:true}]));
+  for(let run=0;run<3;run++){
+    act(()=>jest.advanceTimersByTime(13500));
+    expect(screen.getByRole('status')).toHaveTextContent('Workspace assembled');
+    expect(container.querySelectorAll('[data-agent]')).toHaveLength(16);
+    fireEvent.click(screen.getByRole('button',{name:/replay construction/i}));
+    act(()=>observe([{isIntersecting:true}]));
+    expect(screen.getByRole('status')).toHaveTextContent('Constructing');
+  }
+});

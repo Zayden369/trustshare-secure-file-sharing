@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from src.entities.share_link import ShareLink
+from src.entities.share_link import ShareLink, ShareLinkArchive
 from src.entities.file import File
 from src.entities.audit_log import AuditLog
 from src.entities.notification import Notification
@@ -362,7 +362,8 @@ def list_shares(db: Session, user_id: int) -> list[ShareOut]:
     rows = (
         db.query(ShareLink, File)
         .join(File, ShareLink.file_id == File.id)
-        .filter(ShareLink.created_by == user_id)
+        .filter(ShareLink.created_by == user_id,
+                ~ShareLink.id.in_(db.query(ShareLinkArchive.share_id)))
         .order_by(ShareLink.created_at.desc())
         .all()
     )
@@ -551,3 +552,17 @@ def access_share(
         )
 
     return _to_out(share, file)
+
+
+def archive_share(db: Session, share_id: int, user_id: int) -> None:
+    share = db.query(ShareLink).filter(ShareLink.id == share_id, ShareLink.created_by == user_id).with_for_update().first()
+    if not share:
+        raise HTTPException(status_code=404, detail="Share not found")
+    if share.is_active and not _is_expired(share.expires_at):
+        raise HTTPException(status_code=409, detail="Revoke this link before deleting it")
+    if db.query(ShareLinkArchive).filter_by(share_id=share_id).first():
+        return
+    share.is_active = False
+    db.add(ShareLinkArchive(share_id=share_id))
+    db.add(AuditLog(user_id=user_id, action="ARCHIVE_SHARE", resource_type="share_link", resource_id=share_id, level="info"))
+    db.commit()

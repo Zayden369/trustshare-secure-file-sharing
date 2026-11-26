@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {RotateCcw} from 'lucide-react';
 import {useReducedMotion} from 'framer-motion';
 import {CONSTRUCTION_DURATION,AGENT_LABELS,constructionFrame} from './constructionSchedule';
 import './swarm-construction.css';
@@ -8,6 +9,8 @@ export default function SwarmConstruction({agentCount}) {
   const root=useRef(null),stage=useRef(null),started=useRef(null),completed=useRef(false),skipRef=useRef(null);
   const reduced=useReducedMotion();
   const [done,setDone]=useState(false);
+  const [run,setRun]=useState(0);
+  const replay=()=>{if(!done)return;started.current=null;completed.current=false;setDone(false);stage.current.dataset.complete='false';delete root.current.dataset.completedAt;stage.current.querySelectorAll('[data-build]').forEach(el=>el.style.setProperty('--build','0'));setRun(value=>value+1);};
   useEffect(()=>{
     const node=root.current,scene=stage.current;
     if(!node||!scene)return;
@@ -43,10 +46,10 @@ export default function SwarmConstruction({agentCount}) {
     const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){activate();resume();}else cancelAnimationFrame(raf);},{threshold:.12});
     observer.observe(node);document.addEventListener('visibilitychange',resume);
     return()=>{disposed=true;observer.disconnect();resize?.disconnect();clearTimeout(timer);cancelAnimationFrame(raf);document.removeEventListener('visibilitychange',resume);skipRef.current=null;};
-  },[reduced,agentCount]);
+  },[reduced,agentCount,run]);
   return <section className="construction" ref={root} id="construction" aria-labelledby="construction-heading">
     <div className="construction-intro"><div><span className="m-kicker">06 / A coordinated workspace</span><h2 id="construction-heading">Considered details.<br/><em>Working together.</em></h2></div><p>One interface, assembled with intention. A conceptual construction of the workspace you’re about to enter.</p></div>
-    <div className="construction-toolbar"><span role="status">{done?'Workspace assembled':'Constructing the workspace'}</span><a href="#product" onClick={()=>skipRef.current?.()}>Skip to the workspace ↗</a></div>
+    <div className="construction-toolbar"><span role="status">{done?'Workspace assembled':'Constructing the workspace'}</span>{done && <button className="construction-replay" onClick={replay}><RotateCcw size={14}/>Replay construction</button>}<a href="#product" onClick={()=>skipRef.current?.()}>Skip to the workspace ↗</a></div>
     <div className="construction-stage" ref={stage} data-complete="false" aria-hidden="true">
       <div className="construction-shell" data-build="shell"/>
       <aside className="construction-sidebar" data-build="sidebar"><b>t.</b><span>TrustShare</span><div data-build="navigation">{['Dashboard','My Files','Sharing','Activity','Analytics'].map((s,i)=><p key={s}><i>{String(i+1).padStart(2,'0')}</i>{s}</p>)}</div></aside>

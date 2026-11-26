@@ -139,6 +139,7 @@ export const sharesAPI = {
   list: () => api.get('/api/shares/'),
   create: (data) => api.post('/api/shares/', data),
   revoke: (id) => api.delete(`/api/shares/${id}`),
+  deleteInactive: (id) => api.delete(`/api/shares/${id}/record`),
   updatePermission: (id, permission) => api.patch(`/api/shares/${id}`, { permission }),
   access: (token, password) => api.get(`/api/shares/access/${token}`, { params: { password } }),
   publicDetails: (token, password) => axios.get(`${API_BASE_URL}/api/shares/public/${token}`, { params: { password } }),

@@ -8,28 +8,16 @@ const smooth = v => { const x=Math.max(0,Math.min(1,v)); return x*x*(3-2*x); };
 
 // Deterministic formations: no per-frame randomness or React state updates.
 export function formationPoint(i,count,progress,time=0,pointer={x:0,y:0}){
-  const u=(i+.5)/count, v=(i*.61803398875)%1, angle=v*TAU, phi=((i*.754877666)%1)*TAU;
-  const cloudR=.7+((i*.41421356)%1)*.5;
-  const cloud=[Math.cos(angle)*cloudR,Math.sin(angle)*cloudR*.75,Math.sin(phi)*.6];
-  const radius=.63+.22*Math.cos(phi);
-  const ring=[Math.cos(angle)*radius,Math.sin(angle)*radius,Math.sin(phi)*.22];
-  const sy=u*1.8-.9;
-  const halfWidth=sy<.15?.73:(.95-sy)*.91;
-  const shield=[(v*2-1)*halfWidth,sy,Math.sin(phi)*.12];
-  const document=[(v*2-1)*.57,sy*.85,Math.sin(phi)*.07];
-  const archive=[(v*2-1)*.7,Math.round(sy*5)/5,Math.cos(phi)*.22];
-  const shapes=[cloud,document,shield,archive,ring];
-  const position=Math.min(.999999,Math.max(0,progress))*4;
-  const index=Math.floor(position),t=smooth(position-index);
-  let x=mix(shapes[index][0],shapes[index+1][0],t);
-  let y=mix(shapes[index][1],shapes[index+1][1],t);
-  const z=mix(shapes[index][2],shapes[index+1][2],t);
-  const turn=Math.sin(time*.16)*.16+pointer.x*.12;
-  const rx=x*Math.cos(turn)+z*Math.sin(turn);
-  const rz=-x*Math.sin(turn)+z*Math.cos(turn);
-  y+=Math.sin(time*.24+v*TAU)*.009+pointer.y*.025;
-  const perspective=2.6/(2.6+rz);
-  return {x:rx*perspective,y:y*perspective,z:rz};
+  const row=Math.floor(i/60),angle=(i%60)/59*TAU;
+  const ring=row/Math.max(1,Math.ceil(count/60)-1), tilt=(ring-.5)*1.5;
+  const a=[Math.cos(angle)*(.45+ring*.4),Math.sin(angle)*.35+tilt*.45,Math.sin(angle)*.5];
+  const b=[(i%60)/59*2-1,Math.sin(angle*.65+ring*3+time*.2)*.25+(ring-.5),Math.cos(angle+ring*2)*.25];
+  const c=[(i%60)/59*1.5-.75,(ring-.5)*1.4,Math.floor(ring*5)*.06];
+  const phase=Math.min(1,Math.max(0,progress))*2, t=smooth(phase%1);
+  const start=phase<1?a:b,end=phase<1?b:c,blend=phase===2?1:t;
+  const x=mix(start[0],end[0],blend),y=mix(start[1],end[1],blend),z=mix(start[2],end[2],blend);
+  const turn=.32+Math.sin(time*.16)*.1+pointer.x*.15;
+  return {x:x*Math.cos(turn)+z*Math.sin(turn),y:y+pointer.y*.04,z:z};
 }
 
 export default function ParticleFormation(){
@@ -45,8 +33,8 @@ export default function ParticleFormation(){
     const ctx=node.getContext('2d');
     if(!ctx)return;
     let width=0,height=0,raf=0,visible=false,disposed=false;
-    const desktopCount=(navigator.hardwareConcurrency||4)<4?800:1800;
-    let count=window.matchMedia('(max-width:700px)').matches?450:desktopCount;
+    const desktopCount=(navigator.hardwareConcurrency||4)<4?480:900;
+    let count=window.matchMedia('(max-width:700px)').matches?360:desktopCount;
     const dpr=Math.min(window.devicePixelRatio||1,1.5);
     let ink='245,245,245';
     const paint=time=>{
@@ -58,8 +46,10 @@ export default function ParticleFormation(){
         const p=formationPoint(i,count,phase,reduced?0:time*.001,reduced?{x:0,y:0}:pointer.current);
         const opacity=Math.max(.15,Math.min(.9,.62-p.z*.45));
         ctx.fillStyle=`rgba(${ink},${opacity})`;
-        const radius=.55+(1-p.z)*.36;
-        ctx.beginPath();ctx.arc(width/2+p.x*scale,height/2+p.y*scale,radius,0,TAU);ctx.fill();
+        if(i%60===59)continue;
+        const q=formationPoint(i+1,count,phase,reduced?0:time*.001,reduced?{x:0,y:0}:pointer.current);
+        ctx.strokeStyle=i%240<60?(theme==='light'?'rgba(79,70,229,.55)':'rgba(165,180,252,.65)'):`rgba(${ink},${opacity*.5})`;
+        ctx.lineWidth=.75;if(i%60===0){ctx.beginPath();ctx.moveTo(width/2+p.x*scale,height/2+p.y*scale);}ctx.lineTo(width/2+q.x*scale,height/2+q.y*scale);if(i%60===58)ctx.stroke();
       }
       if(!reduced&&visible)raf=requestAnimationFrame(paint);
     };
@@ -79,5 +69,5 @@ export default function ParticleFormation(){
     observer.observe(node);
     return()=>{disposed=true;observer.disconnect();resizeObserver.disconnect();cancelAnimationFrame(raf);};
   },[reduced,theme]);
-  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">Order, from possibility</span><h2>Many individual files.<br/><em>One considered whole.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:220},(_,i)=>{const p=formationPoint(i,220,1);return <circle key={i} cx={p.x} cy={p.y} r=".006" fill="currentColor"/>;})}</svg><canvas ref={canvas} role="img" aria-label="Monochrome particles coordinate from a dispersed field into a document, shield, archive, and connected ring"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
+  return <section className="m-particle-scene" ref={section} id="formation"><div className="m-particle-heading"><span className="m-kicker">Order, from possibility</span><h2>Structure, in motion.<br/><em>Connection, by design.</em></h2></div><div className="m-particle-field" onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();pointer.current={x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5};}} onPointerLeave={()=>{pointer.current={x:0,y:0};}}><svg viewBox="-1.3 -1.2 2.6 2.4" className={ready?'m-particle-fallback is-rendered':'m-particle-fallback'} aria-hidden="true">{Array.from({length:14},(_,i)=><ellipse key={i} cx="0" cy="0" rx={.4+i*.035} ry={.15+i*.035} fill="none" stroke="currentColor" strokeWidth=".003" transform={`rotate(${i*8})`}/>)}</svg><canvas ref={canvas} role="img" aria-label="Architectural data sculpture: layered orbital paths unfold into a flowing wireframe and organized file planes"/></div><div className="m-particle-caption"><span>Distributed → connected → structured</span><p>This is a conceptual visualization. It does not represent an autonomous AI swarm.</p></div></section>;
 }
