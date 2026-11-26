@@ -5,10 +5,14 @@ import '../fileSummary.css';
 export default function FileSummaryPanel({ file, onClose }) {
   const [options, setOptions] = useState({ summary_length: 'standard', output_language: 'original', output_format: 'paragraph', force_regenerate: false });
   const [copied, setCopied] = useState(false);
-  const { summary, loading, error, retryAfter = 0, generate, regenerate } = useFileSummary(file.id || file.file_id);
+  const { summary, loading, error, retryAfter = 0, generate, regenerate, changeOptions } = useFileSummary(file.id || file.file_id);
+  const isBulletSummary = summary?.output_format === 'bullet_points';
+  const bulletItems = isBulletSummary
+    ? (summary.summary_text?.split(/\n+/).map(line => line.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean) || [])
+    : [];
 
   const copy = async () => {
-    const value = [summary?.summary_text, ...(summary?.key_points || []).map(point => `- ${point}`)].filter(Boolean).join('\n\n');
+    const value = [summary?.summary_text, ...(!isBulletSummary ? (summary?.key_points || []).map(point => `- ${point}`) : [])].filter(Boolean).join('\n\n');
     await navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
@@ -37,13 +41,13 @@ export default function FileSummaryPanel({ file, onClose }) {
         {summary?.status === 'failed' && <div className="summary-error" role="alert"><strong>Generation failed</strong><p>{summary.error_message}</p><button className="btn btn-secondary btn-sm" onClick={regenerate}>Try again</button></div>}
         {summary?.status === 'completed' && !loading && (
           <div className="summary-result">
-            <div className="summary-meta"><span>{summary.cached ? 'Cached summary' : summary.provider}</span><span>Version {summary.source_file_version}</span><span>{new Date(summary.generated_at || summary.updated_at).toLocaleString()}</span></div>
+            <div className="summary-meta"><span>{summary.cached ? `Cached · ${summary.provider || 'summary'}` : summary.provider}</span><span>{summary.summary_length} · {summary.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'}</span><span>Version {summary.source_file_version}</span><span>{new Date(summary.generated_at || summary.updated_at).toLocaleString()}</span></div>
             {summary.warning_message && <div className="summary-warning">Warning: {summary.warning_message}</div>}
             <h3>{summary.title}</h3>
-            <p className="summary-text">{summary.summary_text}</p>
-            {!!summary.key_points?.length && <><h4>Key points</h4><ul>{summary.key_points.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul></>}
+            {isBulletSummary ? <ul className="summary-main-bullets" aria-label="Summary">{bulletItems.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul> : <p className="summary-text">{summary.summary_text}</p>}
+            {!isBulletSummary && !!summary.key_points?.length && <><h4>Key points</h4><ul>{summary.key_points.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul></>}
             {!!summary.keywords?.length && <div className="summary-keywords">{summary.keywords.map(word => <span key={word}>{word}</span>)}</div>}
-            <div className="summary-actions"><button className="btn btn-secondary btn-sm" onClick={copy}>{copied ? 'Copied' : 'Copy summary'}</button><button className="btn btn-primary btn-sm" onClick={regenerate}>Regenerate</button></div>
+            <div className="summary-actions"><button className="btn btn-secondary btn-sm" onClick={copy}>{copied ? 'Copied' : 'Copy summary'}</button><button className="btn btn-secondary btn-sm" onClick={changeOptions}>Change options</button><button className="btn btn-primary btn-sm" onClick={regenerate}>Regenerate</button></div>
           </div>
         )}
       </section>
