@@ -1,5 +1,6 @@
+import RegistrationVerification from '../components/RegistrationVerification';
 import BrandMark from '../components/BrandMark';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +20,8 @@ export default function Signup() {
   const [fe, setFe] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [verification,setVerification]=useState(null);
+  const updateVerification=useCallback(proof=>{setVerification(proof);if(proof)setFe({});},[]);
 
 
 
@@ -31,14 +34,17 @@ export default function Signup() {
     if (step === 1 && !form.name.trim()) e.name = 'Required';
     if (step === 2) { if (!form.email) e.email = 'Required'; else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid'; }
     if (step === 3) { if (!form.password) e.password = 'Required'; else if (form.password.length < 8) e.password = 'Min 8 chars'; if (form.confirmPassword !== form.password) e.cp = 'No match'; }
+    if(step===2&&(!verification||verification.expires<=Date.now()||verification.email!==form.email.trim().toLowerCase()))e.email='Verify this email before continuing.';
     setFe(e); if (Object.keys(e).length) return;
     if (step < 3) setStep(step + 1); else doSubmit();
   };
 
   const doSubmit = async () => {
     setError(''); setLoading(true);
-    try { await register(form.name, form.email, form.password); navigate('/dashboard'); }
-    catch (err) { setError(err.response?.data?.detail || 'Failed'); }
+    try {
+      if (!verification || verification.expires <= Date.now()) {setVerification(null); setStep(2); setError('Please verify your email again.'); return;}
+      await register(form.name, verification.email, form.password, verification.token); navigate('/dashboard'); }
+    catch (err) { setError(typeof err.response?.data?.detail === 'string' ? err.response.data.detail : 'Account creation failed. Please check your details.'); }
     finally { setLoading(false); }
   };
 
@@ -130,8 +136,8 @@ export default function Signup() {
                   {step === 2 && (
                     <div className="ap-f"><div className="ap-fi">
                       <span className="ap-ic"><Mail size={16} /></span>
-                      <input className="ap-in" type="email" aria-label="Work email" placeholder="Work email" value={form.email} onChange={e => { setForm(f => ({...f, email: e.target.value})); setFe({}); }} autoFocus required />
-                    </div>{fe.email && <div className="ap-err">{fe.email}</div>}</div>
+                      <input className="ap-in" type="email" aria-label="Work email" placeholder="Work email" value={form.email} onChange={e => { setForm(f => ({...f, email: e.target.value})); setFe({}); setVerification(null); }} autoFocus required />
+                    </div>{fe.email && <div className="ap-err">{fe.email}</div>}<RegistrationVerification key={form.email} email={form.email} existing={verification} onVerified={updateVerification}/></div>
                   )}
                   {step === 3 && (
                     <>

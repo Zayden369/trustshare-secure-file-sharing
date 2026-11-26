@@ -14,6 +14,8 @@ jest.mock('framer-motion', () => {
     h1: ({ children, initial, animate, transition, ...props }) => <h1 {...props}>{children}</h1>,
     p: ({ children, initial, animate, transition, ...props }) => <p {...props}>{children}</p>,
     button: ({ children, initial, animate, transition, whileHover, whileTap, ...props }) => <button {...props}>{children}</button>,
+    svg: ({children,style,...props}) => <svg {...props}>{children}</svg>,
+    rect: ({style,...props}) => <rect {...props}/>,
     path: ({ style, ...props }) => <path {...props}/>,
     g: ({ children, style, ...props }) => <g {...props}>{children}</g>,
   },
@@ -49,4 +51,11 @@ test('illustrations do not claim live metrics or an autonomous swarm', () => {
   expect(screen.getByText(/does not represent an autonomous AI swarm/i)).toBeInTheDocument();
   expect(screen.getByText(/Live file-list and file-card components, with illustrative documents/i)).toBeInTheDocument();
   expect(screen.queryByText(/Actual dashboard component, shown in its empty state/i)).not.toBeInTheDocument();
+});
+
+test('reduced motion completes every registered homepage construction target', () => {
+  const {container}=show();
+  expect(container.querySelectorAll('.page-build-target').length).toBeGreaterThan(50);
+  expect(container.querySelector('.m-home')).toHaveAttribute('data-page-construction','complete');
+  expect(screen.getByText('Experience assembled')).toBeInTheDocument();
 });

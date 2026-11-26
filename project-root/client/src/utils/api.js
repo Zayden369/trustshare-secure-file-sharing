@@ -37,12 +37,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let refreshInFlight = null;
+
 // ── Response interceptor: handle 401 ─────────────────────────────────────
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
-    if (err.response?.status === 401 && !originalRequest._retry) {
+    if (err.response?.status === 401 && originalRequest && !originalRequest._retry && !/\/auth\/(login|verify-otp|oauth|register)/.test(originalRequest.url)) {
       originalRequest._retry = true;
 
       const usedSessionStorage = !!sessionStorage.getItem('refresh_token');
@@ -52,17 +54,24 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
-            refresh_token: refreshToken,
-          });
+          if (!refreshInFlight || refreshInFlight.token !== refreshToken) {
+            const promise = axios.post(`${API_BASE_URL}/api/auth/refresh`, {refresh_token: refreshToken})
+              .finally(() => { if (refreshInFlight?.token === refreshToken) refreshInFlight = null; });
+            refreshInFlight = {token: refreshToken, promise};
+          }
+          const { data } = await refreshInFlight.promise;
           const storage = usedSessionStorage ? sessionStorage : localStorage;
+          if (![refreshToken, data.refresh_token].includes(storage.getItem('refresh_token'))) return Promise.reject(err);
           storage.setItem('access_token', data.access_token);
           storage.setItem('refresh_token', data.refresh_token);
           originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
           return api(originalRequest);
         } catch {
-          clearAuthStorage();
-          window.location.href = '/login';
+          const activeRefresh = sessionStorage.getItem('refresh_token') || localStorage.getItem('refresh_token');
+          if (activeRefresh === refreshToken) {
+            clearAuthStorage();
+            window.location.href = '/login';
+          }
         }
       } else {
         clearAuthStorage();
@@ -76,7 +85,9 @@ api.interceptors.response.use(
 // ── Auth ──────────────────────────────────────────────────────────────────
 export const authAPI = {
   login: (email, password) => api.post('/api/auth/login', { email, password }),
-  signup: (name, email, password) => api.post('/api/auth/signup', { name, email, password }),
+  signup: (name, email, password, verification_token) => api.post('/api/auth/signup', { name, email, password, verification_token }),
+  sendRegistrationCode: (email) => api.post('/api/auth/register/send-otp', { email }),
+  verifyRegistrationCode: (challenge_id, code) => api.post('/api/auth/register/verify-otp', { challenge_id, code }),
   me: () => api.get('/api/auth/me'),
   storageBreakdown: () => api.get('/api/auth/me/storage-breakdown'),
   logout: () => api.post('/api/auth/logout'),

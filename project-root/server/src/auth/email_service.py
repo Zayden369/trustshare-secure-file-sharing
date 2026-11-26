@@ -5,6 +5,7 @@ Reads credentials from environment variables — never hardcodes secrets.
 """
 import os
 import smtplib
+import ssl
 import threading
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -18,6 +19,23 @@ EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 
+class EmailDeliveryError(RuntimeError):
+    """SMTP did not accept the message; contains no credentials or message body."""
+
+
+def _failure_reason(exc: Exception) -> str:
+    if isinstance(exc, smtplib.SMTPAuthenticationError):
+        return "smtp_authentication_failed"
+    if isinstance(exc, smtplib.SMTPResponseException):
+        response = str(exc.smtp_error).lower()
+        if "not verified" in response:
+            return "ses_identity_not_verified_check_sandbox"
+        return f"smtp_rejected_{exc.smtp_code}"
+    if isinstance(exc, smtplib.SMTPRecipientsRefused):
+        return "recipient_rejected"
+    return "smtp_unavailable"
+
+
 def _is_development() -> bool:
     return os.getenv("ENVIRONMENT", "development").strip().lower() in {
         "development",
@@ -25,42 +43,43 @@ def _is_development() -> bool:
     }
 
 
-def _send_email(to_email: str, subject: str, html_body: str):
+def _send_email(to_email: str, subject: str, html_body: str, plain_body: str | None = None):
     """Internal helper: opens SMTP connection and sends one email."""
     if not SMTP_USER or not SMTP_PASSWORD:
-        print("\n[EMAIL FALLBACK - configure SMTP in .env to send real emails]")
-        print(f"  To: {to_email}")
-        print(f"  Subject: {subject}")
-        if _is_development():
-            print(f"  Body preview: {html_body[:200]}\n", flush=True)
-        else:
-            print("  Email was not sent because SMTP credentials are unavailable.\n", flush=True)
-        return
+        raise EmailDeliveryError('smtp_not_configured')
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = EMAIL_FROM
     msg["To"] = to_email
+    if plain_body:
+        msg.attach(MIMEText(plain_body, "plain"))
     msg.attach(MIMEText(html_body, "html"))
 
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as server:
             server.ehlo()
-            server.starttls()          # Encrypt the connection
+            server.starttls(context=ssl.create_default_context())
+            server.ehlo()
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(EMAIL_FROM, to_email, msg.as_string())
-        print(f"[EMAIL] Sent '{subject}' to {to_email}", flush=True)
+        print(f"[EMAIL] SMTP accepted '{subject}'", flush=True)
     except Exception as exc:
         # Report the failure without exposing credentials or message contents.
-        print(
-            f"[EMAIL ERROR] Failed to send '{subject}': {type(exc).__name__}",
-            flush=True,
-        )
+        reason = _failure_reason(exc)
+        print(f"[EMAIL ERROR] {reason}", flush=True)
+        raise EmailDeliveryError(reason) from None
 
 
 def _send_in_background(to_email: str, subject: str, html_body: str):
     """Send email in a background thread so the API response is not delayed."""
-    thread = threading.Thread(target=_send_email, args=(to_email, subject, html_body), daemon=True)
+    def deliver():
+        try:
+            _send_email(to_email, subject, html_body)
+        except EmailDeliveryError:
+            pass  # Already logged safely; never log reset links or OTPs.
+
+    thread = threading.Thread(target=deliver, daemon=True)
     thread.start()
 
 
@@ -88,7 +107,8 @@ def send_otp_email(to_email: str, otp_code: str, user_name: str = ""):
       </p>
     </div>
     """
-    _send_in_background(to_email, subject, html_body)
+    # Login/setup/resend must not claim success when the SMTP provider rejects it.
+    _send_email(to_email, subject, html_body)
 
 
 def send_reset_email(to_email: str, reset_link: str, user_name: str = ""):
@@ -120,3 +140,11 @@ def send_reset_email(to_email: str, reset_link: str, user_name: str = ""):
     </div>
     """
     _send_in_background(to_email, subject, html_body)
+
+
+def send_registration_email(to_email: str, code: str):
+    if not SMTP_USER or not SMTP_PASSWORD:
+        raise EmailDeliveryError('smtp_not_configured')
+    plain = f"Welcome to TrustShare. Your email verification code is {code}. It expires in 5 minutes. If you did not request it, ignore this message. Your files. Your security. Your control."
+    html = f'<div style="font:16px Arial;background:#fafafa;color:#141416;padding:32px;max-width:480px;margin:auto"><h2>t. TrustShare</h2><p>Confirm your email address to complete registration.</p><p style="font:32px monospace;letter-spacing:8px;color:#4f46e5">{code}</p><p>This code expires in 5 minutes.</p><p>If you did not request this, you can safely ignore this email.</p><small>Your files. Your security. Your control.</small></div>'
+    _send_email(to_email, 'Verify your TrustShare email address', html, plain)

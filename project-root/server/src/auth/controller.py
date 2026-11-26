@@ -22,19 +22,30 @@ _oauth_token_store: dict[str, dict] = {}
 _oauth_store_lock = threading.Lock()
 
 
-def _store_oauth_tokens(access_token: str, refresh_token: str) -> str:
+def _store_oauth_user(user_id: int) -> str:
+    """Store a short-lived identity proof, never a session before the MFA check."""
     code = secrets.token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + timedelta(seconds=60)
     with _oauth_store_lock:
         _oauth_token_store[code] = {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
+            "user_id": user_id,
             "expires_at": expires_at,
         }
     return code
 
 
 router = APIRouter()
+
+@router.post('/register/send-otp')
+def registration_send(body: models.RegistrationEmailRequest, request: Request, db: Session = Depends(get_db)):
+    from src.auth.registration import send_code
+    return send_code(db, body.email, request.client.host if request.client else 'unknown')
+
+@router.post('/register/verify-otp')
+def registration_verify(body: models.RegistrationVerifyRequest, request: Request, db: Session = Depends(get_db)):
+    from src.auth.registration import verify_code
+    return verify_code(db, body.challenge_id, body.code, request.client.host if request.client else "unknown")
+
 
 
 def _get_client_ip(request: Request) -> str | None:
@@ -143,6 +154,12 @@ def swagger_login(
             detail="Account suspended",
         )
 
+    if user.mfa_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="MFA is enabled. Sign in through the application and verify your email code.",
+        )
+
     response = service._build_token_response(user, db=db, request=request)
 
     _log_audit(db, user.id, "LOGIN_SUCCESS", user.email, ip, "info")
@@ -192,7 +209,11 @@ def refresh(
             detail="Invalid refresh token",
         )
     user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == int(user_id)).first()
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(401, "Invalid refresh token") from None
+    user = db.query(User).filter(User.id == user_id).with_for_update().first()
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -205,7 +226,7 @@ def refresh(
             LoginSession.user_id == user.id,
             LoginSession.refresh_token == body.refresh_token,
             LoginSession.is_current == True,
-        ).first()
+        ).with_for_update().first()
 
         if not active_session:
             raise HTTPException(
@@ -214,12 +235,13 @@ def refresh(
             )
 
         active_session.is_current = False
-        db.commit()
+        db.flush()
 
     except HTTPException:
         raise
     except Exception:
-        pass
+        db.rollback()
+        raise HTTPException(503, 'Session validation is temporarily unavailable.') from None
 
     return service._build_token_response(user, db=db, request=request)
 
@@ -358,10 +380,12 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 
 @router.get("/oauth/google")
-async def google_login():
+async def google_login(request: Request):
     client = make_google_client()
     uri, state = client.create_authorization_url(GOOGLE_AUTHORIZE_URL)
-    return RedirectResponse(url=uri)
+    response = RedirectResponse(url=uri)
+    response.set_cookie("trustshare_google_state", state, max_age=600, httponly=True, secure=FRONTEND_URL.startswith("https://"), samesite="lax", path="/api/auth/oauth/google")
+    return response
 
 
 @router.get("/oauth/google/callback")
@@ -370,6 +394,10 @@ async def google_callback(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    state = request.query_params.get("state")
+    expected = request.cookies.get("trustshare_google_state")
+    if not state or not expected or not secrets.compare_digest(state, expected):
+        raise HTTPException(400, "OAuth session expired or invalid. Please start sign in again.")
     ip = _get_client_ip(request)
     client = make_google_client()
 
@@ -385,10 +413,10 @@ async def google_callback(
     google_email = profile.get("email")
     google_name = profile.get("name", google_email)
 
-    if not google_email:
+    if not google_email or profile.get("email_verified") is not True:
         raise HTTPException(
             status_code=400,
-            detail="Google did not return an email address",
+            detail="Google did not return a verified email address",
         )
 
     user = service.get_or_create_oauth_user(
@@ -401,72 +429,35 @@ async def google_callback(
             detail="Account suspended",
         )
 
-    token_resp = service._build_token_response(user, db=db, request=request)
-
-    exchange_code = _store_oauth_tokens(
-        token_resp.access_token,
-        token_resp.refresh_token,
-    )
+    from src.auth.registration import VerifiedEmail, now
+    if not db.get(VerifiedEmail, user.id):
+        db.add(VerifiedEmail(user_id=user.id, email=user.email, method="google_verified", verified_at=now()))
+        db.commit()
+    exchange_code = _store_oauth_user(user.id)
     redirect_url = f"{FRONTEND_URL}/oauth-callback?code={exchange_code}&provider=google"
-    return RedirectResponse(url=redirect_url)
+    response = RedirectResponse(url=redirect_url)
+    response.delete_cookie("trustshare_google_state", path="/api/auth/oauth/google")
+    return response
 
 
 @router.get("/oauth/microsoft")
 async def microsoft_login():
-    client = make_microsoft_client()
-    uri, state = client.create_authorization_url(get_ms_authorize_url())
-    return RedirectResponse(url=uri)
+    # Microsoft remains disabled, as selected for this launch. Graph's mail/UPN
+    # alone must not become a shortcut around email ownership verification.
+    raise HTTPException(503, "Microsoft sign-in is unavailable. Use email or Google sign-in.")
 
 
 @router.get("/oauth/microsoft/callback")
-async def microsoft_callback(
-    code: str,
-    request: Request,
-    db: Session = Depends(get_db),
-):
-    ip = _get_client_ip(request)
-    client = make_microsoft_client()
-
-    token = await client.fetch_token(
-        get_ms_token_url(),
-        code=code,
-        redirect_uri=MICROSOFT_REDIRECT_URI,
-    )
-
-    resp = await client.get(MICROSOFT_USERINFO_URL)
-    profile = resp.json()
-
-    ms_email = profile.get("mail") or profile.get("userPrincipalName")
-    ms_name = profile.get("displayName", ms_email)
-
-    if not ms_email:
-        raise HTTPException(
-            status_code=400,
-            detail="Microsoft did not return an email address",
-        )
-
-    user = service.get_or_create_oauth_user(
-        db, "microsoft", ms_email, ms_name, ip_address=ip,
-    )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account suspended",
-        )
-
-    token_resp = service._build_token_response(user, db=db, request=request)
-
-    exchange_code = _store_oauth_tokens(
-        token_resp.access_token,
-        token_resp.refresh_token,
-    )
-    redirect_url = f"{FRONTEND_URL}/oauth-callback?code={exchange_code}&provider=microsoft"
-    return RedirectResponse(url=redirect_url)
+async def microsoft_callback(code: str, request: Request, db: Session = Depends(get_db)):
+    raise HTTPException(503, "Microsoft sign-in is unavailable. Use email or Google sign-in.")
 
 
 @router.post("/oauth/exchange")
-def oauth_exchange(body: models.OAuthExchangeRequest):
+def oauth_exchange(
+    body: models.OAuthExchangeRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     with _oauth_store_lock:
         entry = _oauth_token_store.pop(body.code, None)
 
@@ -482,11 +473,15 @@ def oauth_exchange(body: models.OAuthExchangeRequest):
             detail="OAuth exchange code has expired. Please login again.",
         )
 
-    return {
-        "access_token": entry["access_token"],
-        "refresh_token": entry["refresh_token"],
-        "token_type": "bearer",
-    }
+    user = db.query(User).filter(User.id == entry["user_id"]).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=403, detail="Account unavailable or suspended")
+
+    if user.mfa_enabled:
+        pending = service.build_mfa_pending_response(user)
+        return {**pending.model_dump(), "email": user.email}
+
+    return service._build_token_response(user, db=db, request=request)
 
 
 @router.post("/mfa/setup")

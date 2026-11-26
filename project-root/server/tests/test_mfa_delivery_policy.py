@@ -1,126 +1,43 @@
+"""MFA delivery must fail closed in every environment; never print OTPs."""
 import pytest
-from pydantic import ValidationError
-
-from src.auth import service as auth_service
-from src.auth.models import SignupRequest
-
+from fastapi import HTTPException
+from src.auth import service, email_service
 
 @pytest.fixture(autouse=True)
-def clear_otp_store():
-    auth_service.otp_store.clear()
+def clear_store():
+    service.otp_store.clear()
     yield
-    auth_service.otp_store.clear()
+    service.otp_store.clear()
 
+@pytest.mark.parametrize("environment",["development","production"])
+@pytest.mark.parametrize("email",["test@example.com","recipient@gmail.com"])
+def test_every_address_requires_smtp_without_logging_codes(monkeypatch,capsys,environment,email):
+    monkeypatch.setenv("ENVIRONMENT",environment)
+    sent=[]
+    monkeypatch.setattr(email_service,"send_otp_email",lambda *args:sent.append(args))
+    code=service.generate_otp(1,email,"Test")
+    assert sent==[(email,code,"Test")]
+    assert code not in capsys.readouterr().out
+    assert service.verify_otp_code(1,code)
+    assert not service.verify_otp_code(1,code)
 
-def test_development_dummy_email_logs_otp_and_skips_smtp(monkeypatch, capsys):
-    monkeypatch.setenv("ENVIRONMENT", "development")
-    monkeypatch.setenv("DEV_DUMMY_EMAIL_DOMAINS", "example.com,test.com")
-    monkeypatch.setattr(auth_service.random, "randint", lambda *_: 483921)
-    send_calls = []
-    monkeypatch.setattr(
-        auth_service.email_service,
-        "send_otp_email",
-        lambda *args: send_calls.append(args),
-    )
+@pytest.mark.parametrize("environment",["development","production"])
+def test_smtp_failure_never_leaves_a_usable_code(monkeypatch,environment):
+    monkeypatch.setenv("ENVIRONMENT",environment)
+    def fail(*args):raise email_service.EmailDeliveryError("smtp_unavailable")
+    monkeypatch.setattr(email_service,"send_otp_email",fail)
+    with pytest.raises(HTTPException) as error:service.generate_otp(1,"recipient@gmail.com")
+    assert error.value.status_code==503
+    assert 1 not in service.otp_store
 
-    code = auth_service.generate_otp(27, "test@example.com", "Test User")
+def test_mfa_attempts_are_limited(monkeypatch):
+    monkeypatch.setattr(email_service,"send_otp_email",lambda *args:None)
+    code=service.generate_otp(1,"recipient@gmail.com")
+    wrong="000001" if code!="000001" else "000002"
+    for _ in range(5):assert not service.verify_otp_code(1,wrong)
+    assert not service.verify_otp_code(1,code)
 
-    output = capsys.readouterr().out
-    assert code == "483921"
-    assert auth_service.otp_store[27]["otp"] == code
-    assert "[OTP DEV] User 27 -> 483921" in output
-    assert "configured dummy/test domain: example.com" in output
-    assert send_calls == []
-
-
-def test_development_normal_email_logs_and_attempts_smtp(monkeypatch, capsys):
-    monkeypatch.setenv("ENVIRONMENT", "development")
-    monkeypatch.setenv("DEV_DUMMY_EMAIL_DOMAINS", "example.com,test.com")
-    monkeypatch.setenv("SMTP_USER", "sender@gmail.com")
-    monkeypatch.setenv("SMTP_PASSWORD", "configured-app-password")
-    monkeypatch.setattr(auth_service.random, "randint", lambda *_: 654321)
-    send_calls = []
-    monkeypatch.setattr(
-        auth_service.email_service,
-        "send_otp_email",
-        lambda *args: send_calls.append(args),
-    )
-
-    code = auth_service.generate_otp(31, "user@gmail.com", "Normal User")
-
-    output = capsys.readouterr().out
-    assert auth_service.otp_store[31]["otp"] == code
-    assert "[OTP DEV] User 31 -> 654321" in output
-    assert send_calls == [("user@gmail.com", code, "Normal User")]
-
-
-def test_development_email_failure_keeps_otp_usable(monkeypatch, capsys):
-    monkeypatch.setenv("ENVIRONMENT", "development")
-    monkeypatch.setenv("DEV_DUMMY_EMAIL_DOMAINS", "example.com")
-    monkeypatch.setattr(auth_service.random, "randint", lambda *_: 112233)
-
-    def fail_delivery(*_args):
-        raise ConnectionError("simulated SMTP outage")
-
-    monkeypatch.setattr(auth_service.email_service, "send_otp_email", fail_delivery)
-
-    code = auth_service.generate_otp(44, "user@gmail.com", "Offline User")
-
-    output = capsys.readouterr().out
-    assert code == "112233"
-    assert auth_service.otp_store[44]["otp"] == code
-    assert auth_service.verify_otp_code(44, code) is True
-    assert "[OTP DEV] User 44 -> 112233" in output
-    assert "[EMAIL ERROR] Failed to send MFA email: ConnectionError" in output
-
-
-def test_production_never_logs_otp_value(monkeypatch, capsys):
-    monkeypatch.setenv("ENVIRONMENT", "production")
-    monkeypatch.setenv("DEV_DUMMY_EMAIL_DOMAINS", "example.com")
-    monkeypatch.setattr(auth_service.random, "randint", lambda *_: 778899)
-    send_calls = []
-    monkeypatch.setattr(
-        auth_service.email_service,
-        "send_otp_email",
-        lambda *args: send_calls.append(args),
-    )
-
-    code = auth_service.generate_otp(52, "user@gmail.com", "Production User")
-
-    monkeypatch.setattr(auth_service.email_service, "SMTP_USER", "")
-    monkeypatch.setattr(auth_service.email_service, "SMTP_PASSWORD", "")
-    auth_service.email_service._send_email(
-        "user@gmail.com",
-        "Your TrustShare Verification Code",
-        f"Production OTP: {code}",
-    )
-
-    output = capsys.readouterr().out
-    assert code == "778899"
-    assert auth_service.otp_store[52]["otp"] == code
-    assert code not in output
-    assert "[OTP DEV]" not in output
-    assert send_calls == [("user@gmail.com", code, "Production User")]
-
-
-def test_signup_keeps_format_only_email_validation():
-    example_user = SignupRequest(
-        name="Example User",
-        email="test@example.com",
-        password="StrongPassword123!",
-    )
-    normal_user = SignupRequest(
-        name="Normal User",
-        email="something@gmail.com",
-        password="StrongPassword123!",
-    )
-
-    assert str(example_user.email) == "test@example.com"
-    assert str(normal_user.email) == "something@gmail.com"
-
-    with pytest.raises(ValidationError):
-        SignupRequest(
-            name="Invalid Format",
-            email="not-an-email",
-            password="StrongPassword123!",
-        )
+def test_malformed_mfa_code_is_rejected_safely(monkeypatch):
+    monkeypatch.setattr(email_service,"send_otp_email",lambda *args:None)
+    service.generate_otp(1,"recipient@gmail.com")
+    assert not service.verify_otp_code(1,"１２３４５６")

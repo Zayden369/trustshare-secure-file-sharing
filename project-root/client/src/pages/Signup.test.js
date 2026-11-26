@@ -1,0 +1,25 @@
+import React from 'react';
+import {render,screen,fireEvent} from '@testing-library/react';
+import '@testing-library/jest-dom';
+import {MemoryRouter} from 'react-router-dom';
+import Signup from './Signup';
+jest.mock('../context/AuthContext',()=>({useAuth:()=>({register:jest.fn()})}));
+jest.mock('../context/ThemeContext',()=>({useTheme:()=>({theme:'dark',toggleTheme:jest.fn()})}));
+jest.mock('../components/AuthArtwork',()=>()=>null);
+jest.mock('../components/RegistrationVerification',()=>({onVerified,email,existing})=><div>{existing?'Verified by server':'Awaiting verification'}<button onClick={()=>onVerified({token:'server-proof',email,expires:Date.now()+300000})}>Complete controlled verification</button></div>);
+jest.mock('framer-motion',()=>({motion:{div:({children,initial,animate,exit,transition,...props})=><div {...props}>{children}</div>},AnimatePresence:({children})=><>{children}</>}));
+test('successful verification clears the prior warning; changing email requires verification again',()=>{
+  render(<MemoryRouter><Signup/></MemoryRouter>);
+  fireEvent.change(screen.getByRole('textbox',{name:'Full name'}),{target:{value:'Controlled test'}});
+  fireEvent.click(screen.getByRole('button',{name:'Continue'}));
+  fireEvent.change(screen.getByRole('textbox',{name:'Work email'}),{target:{value:'owned@gmail.com'}});
+  fireEvent.click(screen.getByRole('button',{name:'Continue'}));
+  expect(screen.getByText('Verify this email before continuing.')).toBeInTheDocument();
+  fireEvent.click(screen.getByText('Complete controlled verification'));
+  expect(screen.queryByText('Verify this email before continuing.')).not.toBeInTheDocument();
+  expect(screen.getByText('Verified by server')).toBeInTheDocument();
+  fireEvent.change(screen.getByRole('textbox',{name:'Work email'}),{target:{value:'changed@gmail.com'}});
+  expect(screen.getByText('Awaiting verification')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{name:'Continue'}));
+  expect(screen.getByText('Verify this email before continuing.')).toBeInTheDocument();
+});

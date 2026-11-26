@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from src.database.core import get_db
 from src.entities.user import User
 
-SECRET_KEY = os.getenv("SECRET_KEY", "trustshare-super-secret-key-change-in-prod-2026")
+DEFAULT_SECRET_KEY = "trustshare-super-secret-key-change-in-prod-2026"
+SECRET_KEY = os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)
+if os.getenv("ENVIRONMENT", "development").lower() == "production" and (
+    SECRET_KEY == DEFAULT_SECRET_KEY or len(SECRET_KEY) < 32 or SECRET_KEY.startswith("replace-with-")
+):
+    raise RuntimeError("Production requires a strong SECRET_KEY with at least 32 characters.")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 30
@@ -53,6 +58,18 @@ def decode_token(token: str) -> dict:
         )
 
 
+def validate_session(db, user_id, payload):
+    import hashlib
+    import hmac
+    from src.entities.login_session import LoginSession
+    binding = payload.get('session')
+    if not isinstance(binding, str) or len(binding) != 64:
+        raise HTTPException(401, 'Session validation required. Please refresh or sign in.')
+    sessions = db.query(LoginSession).filter(LoginSession.user_id == user_id, LoginSession.is_current == True).all()
+    if not any(row.refresh_token and hmac.compare_digest(hashlib.sha256(row.refresh_token.encode()).hexdigest(), binding) for row in sessions):
+        raise HTTPException(401, 'Session expired or revoked. Please sign in.')
+
+
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -88,6 +105,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",
         )
+    validate_session(db, user.id, payload)
     return user
 
 
@@ -126,6 +144,7 @@ def get_current_user_from_query(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",
         )
+    validate_session(db, user.id, payload)
     return user
 
 
