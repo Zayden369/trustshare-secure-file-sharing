@@ -150,7 +150,7 @@ export default function MoveModal({
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <Folder size={16} color="#FF9500" style={{ flexShrink: 0 }} />
+                  <Folder size={16} color="#a0a0a0" style={{ flexShrink: 0 }} />
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {folder.name}
                   </span>

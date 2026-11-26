@@ -12,8 +12,8 @@ const NotConfiguredState = ({ status, onGoToAdmin }) => {
             <motion.div
                 className="asst-empty-icon"
                 style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-                    boxShadow: '0 12px 32px rgba(245, 158, 11, 0.35)',
+                    background: 'linear-gradient(135deg, #a0a0a0, #606060)',
+                    boxShadow: '0 12px 32px rgba(160, 160, 160, 0.35)',
                 }}
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

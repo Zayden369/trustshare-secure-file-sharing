@@ -2,15 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { filesAPI, foldersAPI } from '../utils/api';
 import { events, EVENTS } from '../utils/events';
 import FileSummaryPanel from '../features/fileSummary/components/FileSummaryPanel';
+import { FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet } from 'lucide-react';
 
 const FILE_ICON = (mime = '') => {
-  if (mime.startsWith('image/')) return { icon: '🖼️', color: '#8b5cf6' };
-  if (mime.startsWith('video/')) return { icon: '🎬', color: '#ec4899' };
-  if (mime.startsWith('audio/')) return { icon: '🎵', color: '#06b6d4' };
-  if (mime.includes('pdf'))      return { icon: '📕', color: '#ef4444' };
-  if (mime.includes('zip'))      return { icon: '📦', color: '#f59e0b' };
-  if (mime.includes('spreadsheet') || mime.includes('excel')) return { icon: '📊', color: '#10b981' };
-  return { icon: '📄', color: '#3b82f6' };
+  if (mime.startsWith('image/')) return { icon: <FileImage size={22}/>, color: '#808080' };
+  if (mime.startsWith('video/')) return { icon: <FileVideo size={22}/>, color: '#808080' };
+  if (mime.startsWith('audio/')) return { icon: <FileAudio size={22}/>, color: '#808080' };
+  if (mime.includes('pdf'))      return { icon: <FileText size={22}/>, color: '#808080' };
+  if (mime.includes('zip'))      return { icon: <FileArchive size={22}/>, color: '#808080' };
+  if (mime.includes('spreadsheet') || mime.includes('excel')) return { icon: <FileSpreadsheet size={22}/>, color: '#808080' };
+  return { icon: <FileText size={22}/>, color: '#808080' };
 };
 
 const fmt = (bytes) => {

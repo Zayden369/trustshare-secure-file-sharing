@@ -19,12 +19,12 @@
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: linear-gradient(135deg, #808080, #606060);
   color: #ffffff;
 
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.15),
-    0 8px 24px rgba(99, 102, 241, 0.35);
+    0 8px 24px rgba(96, 96, 96, 0.35);
 
   will-change: transform;
   transition: box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -33,11 +33,11 @@
 .scroll-top-btn:hover {
   box-shadow:
     0 6px 16px rgba(0, 0, 0, 0.20),
-    0 12px 32px rgba(99, 102, 241, 0.45);
+    0 12px 32px rgba(96, 96, 96, 0.45);
 }
 
 .scroll-top-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid #606060;
   outline-offset: 3px;
 }
 
@@ -48,13 +48,13 @@
 body.dark .scroll-top-btn {
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.4),
-    0 8px 24px rgba(99, 102, 241, 0.40);
+    0 8px 24px rgba(96, 96, 96, 0.40);
 }
 
 body.dark .scroll-top-btn:hover {
   box-shadow:
     0 6px 16px rgba(0, 0, 0, 0.5),
-    0 12px 32px rgba(99, 102, 241, 0.55);
+    0 12px 32px rgba(96, 96, 96, 0.55);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

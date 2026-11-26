@@ -381,8 +381,8 @@ export default function Navbar({
         case "folder": return <RiFolderOpenLine className="search-icon" />;
         case "share": return <RiShareForwardLine className="search-icon" />;
         case "notification": return <RiNotification3Line className="search-icon" />;
-        case "content": return <RiFileSearchLine className="search-icon" style={{ color: "#6366f1" }} />;
-        case "user": return <RiUserLine className="search-icon" style={{ color: "#10B981" }} />;
+        case "content": return <RiFileSearchLine className="search-icon" style={{ color: "#606060" }} />;
+        case "user": return <RiUserLine className="search-icon" style={{ color: "#a0a0a0" }} />;
         case "people_file": return getSearchFileIcon(item.data.original_name || item.data.name || "");
         default: return <RiFileTextLine className="search-icon" />;
       }

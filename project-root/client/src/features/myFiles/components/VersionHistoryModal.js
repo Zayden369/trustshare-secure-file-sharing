@@ -174,7 +174,7 @@ export default function VersionHistoryModal({
                   justifyContent: 'space-between',
                   padding: '12px 14px',
                   borderRadius: '12px',
-                  background: v.is_current ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg-input)',
+                  background: v.is_current ? 'rgba(128, 128, 128, 0.08)' : 'var(--bg-input)',
                   border: v.is_current ? '1.5px solid var(--blue-500)' : '1px solid var(--border-subtle)',
                 }}
               >

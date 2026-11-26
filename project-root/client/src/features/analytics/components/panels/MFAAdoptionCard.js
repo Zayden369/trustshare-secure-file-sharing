@@ -90,7 +90,7 @@ export default function MFAAdoptionCard({
 
   // Data for donut
   const chartData = [
-    { name: enabledLabel, value: mfa_enabled, color: color || "#10B981" },
+    { name: enabledLabel, value: mfa_enabled, color: color || "#a0a0a0" },
     { name: disabledLabel, value: mfa_disabled, color: "var(--an-top-file-track-bg)" },
   ];
 

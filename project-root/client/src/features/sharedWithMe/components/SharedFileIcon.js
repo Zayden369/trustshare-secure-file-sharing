@@ -48,7 +48,7 @@ export default function SharedFileIcon({ mimetype = '', name = '', size = 20 }) 
 
   if (['ppt', 'pptx', 'odp', 'key'].includes(ext) || mime.includes('presentation') || mime.includes('powerpoint')) {
     return (
-      <span className="my-files-icon-box my-files-icon--folder" style={{ color: '#F59E0B', background: 'rgba(245, 158, 11, 0.12)' }}>
+      <span className="my-files-icon-box my-files-icon--folder" style={{ color: '#a0a0a0', background: 'rgba(160, 160, 160, 0.12)' }}>
         <Presentation size={size} />
       </span>
     );

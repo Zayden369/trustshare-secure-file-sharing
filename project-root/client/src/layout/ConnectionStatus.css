@@ -15,11 +15,11 @@
 }
 
 .connection-dot--online {
-  color: #10b981;
+  color: #a0a0a0;
 }
 
 .connection-dot--offline {
-  color: #ef4444;
+  color: #606060;
   animation: offlinePulse 2s ease-in-out infinite;
 }
 
@@ -51,28 +51,28 @@
 }
 
 .connection-banner--online {
-  background: rgba(16, 185, 129, 0.95);
+  background: rgba(160, 160, 160, 0.95);
   color: #ffffff;
 }
 
 .connection-banner--offline {
-  background: rgba(239, 68, 68, 0.95);
+  background: rgba(96, 96, 96, 0.95);
   color: #ffffff;
 }
 
 /* Dark mode */
 body.dark .connection-dot--online {
-  color: #34d399;
+  color: #a0a0a0;
 }
 
 body.dark .connection-dot--offline {
-  color: #f87171;
+  color: #808080;
 }
 
 body.dark .connection-banner--online {
-  background: rgba(16, 185, 129, 0.90);
+  background: rgba(160, 160, 160, 0.90);
 }
 
 body.dark .connection-banner--offline {
-  background: rgba(239, 68, 68, 0.90);
+  background: rgba(96, 96, 96, 0.90);
 }

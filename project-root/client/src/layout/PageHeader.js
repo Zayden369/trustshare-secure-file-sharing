@@ -47,7 +47,7 @@ export default function PageHeader({
           }}
           whileHover={{
             y: -2,
-            boxShadow: "0 12px 24px rgba(99, 102, 241, 0.35)",
+            boxShadow: "0 12px 24px rgba(96, 96, 96, 0.35)",
           }}
           whileTap={{ scale: 0.97 }}
         >

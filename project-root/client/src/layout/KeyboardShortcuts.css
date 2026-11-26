@@ -9,7 +9,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(24, 24, 24, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 99999;
@@ -33,8 +33,8 @@
   max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-shadow:
-    0 8px 24px rgba(15, 23, 42, 0.12),
-    0 32px 64px rgba(15, 23, 42, 0.18);
+    0 8px 24px rgba(24, 24, 24, 0.12),
+    0 32px 64px rgba(24, 24, 24, 0.18);
 }
 
 /* ── Header ─────────────────────────────────────────────────────── */
@@ -44,28 +44,28 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  border-bottom: 1px solid rgba(24, 24, 24, 0.06);
 }
 
 .shortcuts-header-left {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #6366f1;
+  color: #606060;
 }
 
 .shortcuts-header-left h3 {
   margin: 0;
   font-size: 15px;
   font-weight: 700;
-  color: #0f172a;
+  color: #181818;
   letter-spacing: -0.2px;
 }
 
 .shortcuts-close {
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: #a0a0a0;
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
@@ -76,8 +76,8 @@
 }
 
 .shortcuts-close:hover {
-  background: rgba(15, 23, 42, 0.06);
-  color: #0f172a;
+  background: rgba(24, 24, 24, 0.06);
+  color: #181818;
 }
 
 /* ── Body ───────────────────────────────────────────────────────── */
@@ -97,7 +97,7 @@
 .shortcuts-group-title {
   font-size: 10px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #a0a0a0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 8px;
@@ -112,7 +112,7 @@
 
 .shortcuts-label {
   font-size: 13px;
-  color: #475569;
+  color: #606060;
   font-weight: 500;
   letter-spacing: -0.1px;
 }
@@ -125,7 +125,7 @@
 
 .shortcuts-plus {
   font-size: 10px;
-  color: #94a3b8;
+  color: #a0a0a0;
 }
 
 .shortcuts-kbd {
@@ -135,14 +135,14 @@
   min-width: 24px;
   height: 24px;
   padding: 0 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f8f8f8;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  color: #475569;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  color: #606060;
+  box-shadow: 0 1px 2px rgba(24, 24, 24, 0.06);
   line-height: 1;
 }
 
@@ -150,10 +150,10 @@
 
 .shortcuts-footer {
   padding: 12px 20px;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  border-top: 1px solid rgba(24, 24, 24, 0.06);
   text-align: center;
   font-size: 11px;
-  color: #94a3b8;
+  color: #a0a0a0;
 }
 
 .shortcuts-footer kbd {
@@ -169,7 +169,7 @@ body.dark .shortcuts-overlay {
 }
 
 body.dark .shortcuts-modal {
-  background: #131c2e;
+  background: #181818;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
     0 32px 64px rgba(0, 0, 0, 0.5);
@@ -180,32 +180,32 @@ body.dark .shortcuts-header {
 }
 
 body.dark .shortcuts-header-left h3 {
-  color: #f8fafc;
+  color: #f8f8f8;
 }
 
 body.dark .shortcuts-close {
-  color: #64748b;
+  color: #808080;
 }
 
 body.dark .shortcuts-close:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
+  color: #f8f8f8;
 }
 
 body.dark .shortcuts-label {
-  color: #cbd5e1;
+  color: #e0e0e0;
 }
 
 body.dark .shortcuts-kbd {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.10);
-  color: #94a3b8;
+  color: #a0a0a0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 body.dark .shortcuts-footer {
   border-top-color: rgba(255, 255, 255, 0.06);
-  color: #64748b;
+  color: #808080;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -221,7 +221,7 @@ body.dark .shortcuts-footer {
 }
 
 .shortcuts-modal::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(160, 160, 160, 0.3);
   border-radius: 999px;
 }
 

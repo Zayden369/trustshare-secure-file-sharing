@@ -293,7 +293,7 @@ const AssistantAdminSetup = ({ onDone }) => {
                         <Cloud size={14} />
                         AI Provider
                         {isProviderChanging && (
-                            <span className="asst-admin-badge" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                            <span className="asst-admin-badge" style={{ background: 'rgba(160, 160, 160, 0.15)', color: '#a0a0a0' }}>
                                 CHANGING
                             </span>
                         )}
@@ -400,8 +400,8 @@ const AssistantAdminSetup = ({ onDone }) => {
                                 </label>
                                 <div style={{
                                     padding: '14px 16px',
-                                    background: 'rgba(16, 185, 129, 0.08)',
-                                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                                    background: 'rgba(160, 160, 160, 0.08)',
+                                    border: '1px solid rgba(160, 160, 160, 0.25)',
                                     borderRadius: 10,
                                     fontSize: 13,
                                     color: 'var(--asst-text-primary)',
@@ -440,7 +440,7 @@ const AssistantAdminSetup = ({ onDone }) => {
                                         title="Live from provider API"
                                         style={{
                                             fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                                            background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 600,
+                                            background: 'rgba(160, 160, 160, 0.15)', color: '#a0a0a0', fontWeight: 600,
                                         }}
                                     >LIVE</span>
                                 )}
@@ -449,7 +449,7 @@ const AssistantAdminSetup = ({ onDone }) => {
                                         title="Cached (updates hourly)"
                                         style={{
                                             fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                                            background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontWeight: 600,
+                                            background: 'rgba(128, 128, 128, 0.15)', color: '#808080', fontWeight: 600,
                                         }}
                                     >CACHED</span>
                                 )}
@@ -458,7 +458,7 @@ const AssistantAdminSetup = ({ onDone }) => {
                                         title={modelsError || 'Saved list (live fetch unavailable)'}
                                         style={{
                                             fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                                            background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', fontWeight: 600,
+                                            background: 'rgba(160, 160, 160, 0.15)', color: '#a0a0a0', fontWeight: 600,
                                         }}
                                     >SAVED</span>
                                 )}

@@ -235,7 +235,7 @@ export default function Header({
             className={`an-export-btn ${exported ? "an-export-btn--success" : ""}`}
             onClick={() => !exporting && setShowExportMenu(!showExportMenu)}
             disabled={exporting || !data}
-            whileHover={!exporting ? { y: -2, boxShadow: "0 12px 24px rgba(37,99,235,0.30)" } : {}}
+            whileHover={!exporting ? { y: -2, boxShadow: "0 12px 24px rgba(96, 96, 96,0.30)" } : {}}
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
           >
@@ -296,7 +296,7 @@ export default function Header({
                   top: "calc(100% + 8px)",
                   minWidth: 220,
                   background: "var(--an-card-bg, #ffffff)",
-                  border: "1px solid var(--an-select-border, #e5e7eb)",
+                  border: "1px solid var(--an-select-border, #e0e0e0)",
                   borderRadius: 12,
                   boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
                   padding: 6,
@@ -319,9 +319,9 @@ export default function Header({
                     cursor: "pointer",
                     textAlign: "left",
                     transition: "background 0.15s ease",
-                    color: "var(--an-text-primary, #111827)",
+                    color: "var(--an-text-primary, #181818)",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--an-hover-bg, #f3f4f6)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--an-hover-bg, #f0f0f0)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
                   <div
@@ -329,11 +329,11 @@ export default function Header({
                       width: 36,
                       height: 36,
                       borderRadius: 8,
-                      background: "rgba(239, 68, 68, 0.1)",
+                      background: "rgba(96, 96, 96, 0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#ef4444",
+                      color: "#606060",
                       flexShrink: 0,
                     }}
                   >
@@ -341,14 +341,14 @@ export default function Header({
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>Export as PDF</div>
-                    <div style={{ fontSize: 11, color: "var(--an-text-secondary, #6b7280)", marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: "var(--an-text-secondary, #808080)", marginTop: 2 }}>
                       Formatted report document
                     </div>
                   </div>
                 </button>
 
                 {/* Divider */}
-                <div style={{ height: 1, background: "var(--an-select-border, #e5e7eb)", margin: "4px 8px" }} />
+                <div style={{ height: 1, background: "var(--an-select-border, #e0e0e0)", margin: "4px 8px" }} />
 
                 {/* CSV Option */}
                 <button
@@ -365,9 +365,9 @@ export default function Header({
                     cursor: "pointer",
                     textAlign: "left",
                     transition: "background 0.15s ease",
-                    color: "var(--an-text-primary, #111827)",
+                    color: "var(--an-text-primary, #181818)",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--an-hover-bg, #f3f4f6)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--an-hover-bg, #f0f0f0)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
                   <div
@@ -375,11 +375,11 @@ export default function Header({
                       width: 36,
                       height: 36,
                       borderRadius: 8,
-                      background: "rgba(34, 197, 94, 0.1)",
+                      background: "rgba(160, 160, 160, 0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#22c55e",
+                      color: "#a0a0a0",
                       flexShrink: 0,
                     }}
                   >
@@ -387,7 +387,7 @@ export default function Header({
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>Export as CSV</div>
-                    <div style={{ fontSize: 11, color: "var(--an-text-secondary, #6b7280)", marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: "var(--an-text-secondary, #808080)", marginTop: 2 }}>
                       Spreadsheet-friendly data
                     </div>
                   </div>

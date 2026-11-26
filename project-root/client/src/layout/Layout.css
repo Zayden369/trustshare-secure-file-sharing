@@ -11,7 +11,7 @@
 .app-shell {
   display: flex;
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--bg-primary);
   transition: background 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -41,7 +41,7 @@
 /* ── Dark Mode ─────────────────────────────────────────────────────────── */
 
 body.dark .app-shell {
-  background: #0b1220;
+  background: var(--bg-secondary);
 }
 
 body.dark .main-area {

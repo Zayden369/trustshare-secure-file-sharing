@@ -64,12 +64,12 @@ body.dark .settings-tab.active {
 
 /* ── Card Styles ───────────────────────────────────────────── */
 .settings-card {
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 28px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -202,12 +202,12 @@ body.dark .settings-tab.active {
 }
 
 .session-item.is-current {
-  border-color: rgba(16, 185, 129, 0.3);
-  background: rgba(16, 185, 129, 0.04);
+  border-color: rgba(160, 160, 160, 0.3);
+  background: rgba(160, 160, 160, 0.04);
 }
 
 body.dark .session-item.is-current {
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(160, 160, 160, 0.08);
 }
 
 .session-info-left {
@@ -221,7 +221,7 @@ body.dark .session-item.is-current {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(128, 128, 128, 0.1);
   color: var(--blue-500);
   display: flex;
   align-items: center;
@@ -231,7 +231,7 @@ body.dark .session-item.is-current {
 
 body.dark .session-icon-box {
   color: var(--blue-400);
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(128, 128, 128, 0.15);
 }
 
 .session-text {
@@ -257,9 +257,9 @@ body.dark .session-icon-box {
   border-radius: 999px;
   font-size: 10.5px;
   font-weight: 700;
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(160, 160, 160, 0.12);
   color: var(--emerald-400);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(160, 160, 160, 0.2);
 }
 
 .session-details {
@@ -362,15 +362,15 @@ body.dark .session-icon-box {
 }
 
 .alert-success {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(160, 160, 160, 0.15);
   color: var(--emerald-400);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(160, 160, 160, 0.25);
 }
 
 .alert-error {
-  background: rgba(244, 63, 94, 0.15);
+  background: rgba(96, 96, 96, 0.15);
   color: var(--rose-400);
-  border: 1px solid rgba(244, 63, 94, 0.25);
+  border: 1px solid rgba(96, 96, 96, 0.25);
 }
 
 /* ── Buttons (Confined & Compact) ────────────────────────── */
@@ -460,35 +460,35 @@ body.dark .session-icon-box {
 
 body:not(.dark) .form-input {
     background: #fff;
-    border: 1px solid #D1D5DB;
-    color: #111827;
+    border: 1px solid #e0e0e0;
+    color: #181818;
 }
 
 body:not(.dark) .form-input:focus {
-    border-color: #2563EB;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    border-color: #606060;
+    box-shadow: 0 0 0 3px rgba(96, 96, 96,.15);
 }
 
 body.dark .form-input {
-    background: #1E293B;
+    background: #202020;
     color: #fff;
 }
 
 body:not(.dark) .password-visibility-btn {
-    color: #6B7280;
+    color: #808080;
 }
 
 body.dark .password-visibility-btn {
-    color: #94A3B8;
+    color: #a0a0a0;
 }
 
 body:not(.dark) .btn-primary {
-    background: #2563EB;
+    background: #606060;
     color: #fff;
 }
 
 body:not(.dark) .btn-primary:hover {
-    background: #1D4ED8;
+    background: #404040;
 }
 
 /* ── Session Timestamp Label ───────────────────────────────── */
@@ -511,5 +511,5 @@ body:not(.dark) .btn-primary:hover {
 
 /* ── Toggle Off State Fix for Dark Mode ────────────────────── */
 body.dark .settings-container button[style*="bg-hover"] {
-  box-shadow: inset 0 1px 3px rgba(255,255,255,0.08);
+  box-shadow: none;
 }

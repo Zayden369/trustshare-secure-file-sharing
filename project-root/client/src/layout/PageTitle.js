@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const ROUTE_TITLES = {
+  "/":                "Your files. Your control.",
   "/dashboard":       "Dashboard",
   "/files":           "My Files",
   "/my-files":        "My Files",
@@ -34,7 +35,7 @@ export default function PageTitle() {
 
     const matchedKey = Object.keys(ROUTE_TITLES)
       .sort((a, b) => b.length - a.length)
-      .find((key) => pathname.startsWith(key));
+      .find((key) => key !== "/" && pathname.startsWith(key));
 
     const pageTitle = matchedKey
       ? ROUTE_TITLES[matchedKey]

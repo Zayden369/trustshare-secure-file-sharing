@@ -52,7 +52,7 @@ function StatCard({ icon: Icon, label, meta, tone, value }) {
       </span>
       <div>
         <p className="dashboard-stat-label">{label}</p>
-        <strong className="dashboard-stat-value">{value}</strong>
+        <strong className="dashboard-stat-value">{value ?? '—'}</strong>
         <p className="dashboard-stat-meta">{meta}</p>
       </div>
     </article>

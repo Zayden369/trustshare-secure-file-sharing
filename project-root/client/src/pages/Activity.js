@@ -14,7 +14,7 @@ export default function Activity() {
           padding: "32px",
           borderRadius: "16px",
           background: "var(--card-bg, #fff)",
-          border: "1px solid #e2e8f0",
+          border: "1px solid #e0e0e0",
           textAlign: "center",
         }}
       >

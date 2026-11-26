@@ -205,7 +205,7 @@ export default function PublicShare() {
                   width: 42,
                   height: 42,
                   borderRadius: 12,
-                  background: 'linear-gradient(135deg, #00227B, #005EFF)',
+                  background: 'linear-gradient(135deg, #202020, #606060)',
                   color: '#fff',
                   display: 'flex',
                   alignItems: 'center',
@@ -258,7 +258,7 @@ export default function PublicShare() {
               gap: 10,
               padding: '12px 16px',
               borderRadius: 12,
-              background: 'rgba(245, 158, 11, 0.1)',
+              background: 'rgba(160, 160, 160, 0.1)',
               color: 'var(--amber-400)',
               fontSize: 13,
               marginBottom: 18,
@@ -473,7 +473,7 @@ export default function PublicShare() {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(244, 63, 94, 0.1)', color: 'var(--rose-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(96, 96, 96, 0.1)', color: 'var(--rose-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <ShieldAlert size={28} />
             </div>
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px' }}>Share Unavailable</h2>

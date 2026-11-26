@@ -136,17 +136,17 @@ const MFACard = ({ onSuccess, onError }) => {
           gap: 12,
           padding: '16px 20px',
           background: isMfaEnabled
-            ? 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02))'
-            : 'linear-gradient(135deg, rgba(148,163,184,0.08), rgba(148,163,184,0.02))',
-          border: `1px solid ${isMfaEnabled ? 'rgba(34,197,94,0.25)' : 'rgba(148,163,184,0.2)'}`,
+            ? 'linear-gradient(135deg, rgba(160, 160, 160,0.08), rgba(160, 160, 160,0.02))'
+            : 'linear-gradient(135deg, rgba(160, 160, 160,0.08), rgba(160, 160, 160,0.02))',
+          border: `1px solid ${isMfaEnabled ? 'rgba(160, 160, 160,0.25)' : 'rgba(160, 160, 160,0.2)'}`,
           borderRadius: 12,
           marginBottom: 20,
         }}
       >
         {isMfaEnabled ? (
-          <ShieldCheck size={28} color="#22c55e" />
+          <ShieldCheck size={28} color="#a0a0a0" />
         ) : (
-          <ShieldOff size={28} color="#94a3b8" />
+          <ShieldOff size={28} color="#a0a0a0" />
         )}
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 15 }}>
@@ -250,11 +250,11 @@ const MFACard = ({ onSuccess, onError }) => {
             padding: 20,
             background: 'var(--bg-input)',
             borderRadius: 12,
-            border: '1px solid rgba(239,68,68,0.2)',
+            border: '1px solid rgba(96, 96, 96,0.2)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Lock size={18} color="#ef4444" />
+            <Lock size={18} color="#606060" />
             <strong style={{ color: 'var(--text-primary)' }}>Confirm your identity</strong>
           </div>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>

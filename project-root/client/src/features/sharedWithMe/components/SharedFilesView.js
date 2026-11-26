@@ -236,7 +236,7 @@ export default function SharedFilesView({ data, onDownload }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0' }}>
                   <div
                     className="avatar av-sm"
-                    style={{ background: 'linear-gradient(135deg, #3B82F6, #6366F1)', color: '#fff', fontSize: 10 }}
+                    style={{ background: 'linear-gradient(135deg, #808080, #606060)', color: '#fff', fontSize: 10 }}
                   >
                     {file.shared_by?.slice(0, 2).toUpperCase() || 'TS'}
                   </div>
@@ -258,7 +258,7 @@ export default function SharedFilesView({ data, onDownload }) {
                     <button
                       className="my-files-download-btn"
                       onClick={() => setPreviewFile(file)}
-                      style={{ color: 'var(--blue-400)', background: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.15)' }}
+                      style={{ color: 'var(--blue-400)', background: 'rgba(128, 128, 128, 0.08)', borderColor: 'rgba(128, 128, 128, 0.15)' }}
                     >
                       {isAudio ? (
                         <><Play size={12} strokeWidth={2.4} /> Play</>

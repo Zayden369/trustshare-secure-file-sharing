@@ -15,11 +15,11 @@
 
 .loading-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, #808080, #606060, #808080);
   border-radius: 0 999px 999px 0;
   box-shadow:
-    0 0 8px rgba(99, 102, 241, 0.5),
-    0 0 20px rgba(99, 102, 241, 0.3);
+    0 0 8px rgba(96, 96, 96, 0.5),
+    0 0 20px rgba(96, 96, 96, 0.3);
   position: relative;
 }
 
@@ -34,7 +34,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(99, 102, 241, 0.6)
+    rgba(96, 96, 96, 0.6)
   );
   border-radius: 999px;
   transform: rotate(1deg);
@@ -42,17 +42,17 @@
 
 /* Dark mode */
 body.dark .loading-bar-fill {
-  background: linear-gradient(90deg, #60a5fa, #818cf8, #a78bfa);
+  background: linear-gradient(90deg, #a0a0a0, #a0a0a0, #a0a0a0);
   box-shadow:
-    0 0 8px rgba(129, 140, 248, 0.6),
-    0 0 20px rgba(129, 140, 248, 0.3);
+    0 0 8px rgba(160, 160, 160, 0.6),
+    0 0 20px rgba(160, 160, 160, 0.3);
 }
 
 body.dark .loading-bar-fill::after {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(129, 140, 248, 0.7)
+    rgba(160, 160, 160, 0.7)
   );
 }
 

@@ -68,7 +68,7 @@ export default function DirectShareModal({
             gap: 8,
             padding: '10px 14px',
             borderRadius: 10,
-            background: 'rgba(244, 63, 94, 0.1)',
+            background: 'rgba(96, 96, 96, 0.1)',
             color: 'var(--rose-400)',
             fontSize: 13,
             marginBottom: 16,

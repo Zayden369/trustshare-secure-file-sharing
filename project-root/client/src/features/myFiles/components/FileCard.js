@@ -335,7 +335,7 @@ export default function FileCard({
           <button
             type="button"
             className="my-files-download-btn"
-            style={{ color: 'var(--blue-400)', background: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.15)' }}
+            style={{ color: 'var(--blue-400)', background: 'rgba(128, 128, 128, 0.08)', borderColor: 'rgba(128, 128, 128, 0.15)' }}
             onClick={() => onPreview(file)}
           >
             {category === 'AUDIO' ? (

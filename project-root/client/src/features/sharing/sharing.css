@@ -30,7 +30,7 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
   transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -42,7 +42,7 @@
 .form-select-custom:focus {
   border-color: var(--blue-500);
   background-color: var(--bg-secondary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 4px rgba(128, 128, 128, 0.15);
 }
 
 .form-select-custom option {
@@ -61,7 +61,7 @@
 
 body.dark .form-input::placeholder,
 body.dark .form-select-custom::placeholder {
-  color: #94a3b8 !important;
+  color: #a0a0a0 !important;
   opacity: 0.9;
 }
 
@@ -78,7 +78,7 @@ body.dark .form-select-custom::placeholder {
 .form-input:focus {
   border-color: var(--blue-500);
   background-color: var(--bg-secondary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 4px rgba(128, 128, 128, 0.15);
 }
 
 /* ── Segmented Interactive Permission Toggle Switch ────────── */
@@ -113,29 +113,29 @@ body.dark .form-select-custom::placeholder {
 }
 
 .sharing-perm-toggle-btn.is-active.view {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(128, 128, 128, 0.12);
   color: var(--blue-400);
-  border-color: rgba(59, 130, 246, 0.2);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.05);
+  border-color: rgba(128, 128, 128, 0.2);
+  box-shadow: none;
 }
 
 body.light .sharing-perm-toggle-btn.is-active.view {
-  background: rgba(13, 71, 161, 0.08);
+  background: rgba(64, 64, 64, 0.08);
   color: var(--blue-600);
-  border-color: rgba(13, 71, 161, 0.12);
+  border-color: rgba(64, 64, 64, 0.12);
 }
 
 .sharing-perm-toggle-btn.is-active.download {
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(128, 128, 128, 0.12);
   color: var(--purple-400);
-  border-color: rgba(139, 92, 246, 0.2);
-  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.05);
+  border-color: rgba(128, 128, 128, 0.2);
+  box-shadow: none;
 }
 
 body.light .sharing-perm-toggle-btn.is-active.download {
-  background: rgba(139, 92, 246, 0.08);
+  background: rgba(128, 128, 128, 0.08);
   color: var(--purple-500);
-  border-color: rgba(139, 92, 246, 0.12);
+  border-color: rgba(128, 128, 128, 0.12);
 }
 
 /* ── KPI Stats Grid ───────────────────────────────────────── */
@@ -149,18 +149,18 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 .sharing-stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  backdrop-filter: blur(12px);
+  backdrop-filter: none;
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .sharing-stat-card:hover {
   border-color: var(--border-medium);
-  transform: translateY(-2px);
+  transform: none;
 }
 
 .sharing-stat-icon {
@@ -173,10 +173,10 @@ body.light .sharing-perm-toggle-btn.is-active.download {
   flex-shrink: 0;
 }
 
-.sharing-stat-icon.blue { background: rgba(59, 130, 246, 0.12); color: var(--blue-500); }
-.sharing-stat-icon.purple { background: rgba(139, 92, 246, 0.12); color: var(--purple-400); }
-.sharing-stat-icon.emerald { background: rgba(16, 185, 129, 0.12); color: var(--emerald-400); }
-.sharing-stat-icon.amber { background: rgba(245, 158, 11, 0.12); color: var(--amber-400); }
+.sharing-stat-icon.blue { background: rgba(128, 128, 128, 0.12); color: var(--blue-500); }
+.sharing-stat-icon.purple { background: rgba(128, 128, 128, 0.12); color: var(--purple-400); }
+.sharing-stat-icon.emerald { background: rgba(160, 160, 160, 0.12); color: var(--emerald-400); }
+.sharing-stat-icon.amber { background: rgba(160, 160, 160, 0.12); color: var(--amber-400); }
 
 .sharing-stat-info {
   display: flex;
@@ -212,7 +212,7 @@ body.light .sharing-perm-toggle-btn.is-active.download {
   align-items: center;
   gap: 8px;
   padding: 8px 18px;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -228,9 +228,9 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 }
 
 .sharing-tab-btn.is-active {
-  color: #fff;
-  background: linear-gradient(135deg, #3B82F6, #6366F1);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  box-shadow: none;
 }
 
 .sharing-tab-badge {
@@ -238,7 +238,7 @@ body.light .sharing-perm-toggle-btn.is-active.download {
   align-items: center;
   justify-content: center;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
   background: rgba(255, 255, 255, 0.18);
@@ -281,7 +281,7 @@ body.light .sharing-perm-toggle-btn.is-active.download {
   padding: 10px 14px 10px 42px;
   background: var(--bg-input);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 13.5px;
   color: var(--text-primary);
   outline: none;
@@ -290,7 +290,7 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 
 .sharing-search-input:focus {
   border-color: var(--blue-500);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.1);
   background: var(--bg-secondary);
 }
 
@@ -312,13 +312,13 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 .sharing-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   position: relative;
   width: 100%;
@@ -328,8 +328,8 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 
 .sharing-card:hover {
   border-color: var(--border-medium);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .sharing-card.is-inactive {
@@ -417,9 +417,9 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 }
 
 .sharing-security-chip.has-password {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(160, 160, 160, 0.1);
   color: var(--amber-400);
-  border-color: rgba(245, 158, 11, 0.25);
+  border-color: rgba(160, 160, 160, 0.25);
 }
 
 .sharing-card-footer {
@@ -467,9 +467,9 @@ body.light .sharing-perm-toggle-btn.is-active.download {
 }
 
 .perm-tile.is-selected {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(128, 128, 128, 0.08);
   border-color: var(--blue-500);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.12);
 }
 
 .perm-tile-title {
