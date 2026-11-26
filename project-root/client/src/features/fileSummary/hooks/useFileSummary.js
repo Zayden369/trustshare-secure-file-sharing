@@ -19,7 +19,7 @@ export default function useFileSummary(fileId) {
     try {
       const { data } = await fileSummaryAPI.get(fileId, summaryId);
       setSummary(data);
-      if (!TERMINAL.has(data.status)) timer.current = setTimeout(() => poll(summaryId), 2000);
+      if (!TERMINAL.has(data.status)) timer.current = setTimeout(() => poll(summaryId), 750);
       else setLoading(false);
     } catch (requestError) {
       setError(requestError.response?.data?.detail || 'Unable to check summary status.');
