@@ -145,6 +145,22 @@ def test_long_document_uses_bounded_start_middle_end_excerpt():
     assert short == "A short complete document" and warning is None
 
 
+def test_model_input_deduplicates_repeated_text_without_dropping_unique_findings():
+    sentence = "Documents are encrypted before storage. "
+    text = "Pilot included 24 volunteers. " + sentence * 40 + "There were 162 successful tasks. No security audit has been completed."
+    source, warning = _source_for_model(text)
+    assert source.count(sentence.strip()) == 1
+    assert "24 volunteers" in source and "162 successful" in source and "No security audit" in source
+    assert len(source) < len(text) / 2 and warning is None
+
+
+def test_summary_model_override_does_not_change_assistant_model(monkeypatch):
+    monkeypatch.setenv("AI_SUMMARY_PROVIDER", "ollama")
+    monkeypatch.setenv("OLLAMA_MODEL", "qwen2.5:1.5b")
+    monkeypatch.setenv("SUMMARY_OLLAMA_MODEL", "qwen2.5:0.5b")
+    assert _provider().model_name == "qwen2.5:0.5b"
+
+
 def test_ollama_has_bounded_output_and_enforces_requested_layout(monkeypatch):
     import json
     from src.file_summaries import providers
@@ -164,7 +180,46 @@ def test_ollama_has_bounded_output_and_enforces_requested_layout(monkeypatch):
     assert bullets["summary"].startswith("- The contract") and "\n- Only owners" in bullets["summary"]
     assert requests[0]["options"]["num_predict"] < requests[1]["options"]["num_predict"]
     assert requests[1]["keep_alive"] == "30m"
-    assert "Omit the summary field" in requests[1]["prompt"]
+    assert requests[0]["format"]["required"] == ["summary"]
+    assert requests[1]["format"]["required"] == ["key_points"]
+    assert "second copy" in requests[1]["prompt"]
+
+
+def test_ollama_derives_metadata_from_single_generated_paragraph(monkeypatch):
+    from src.file_summaries import providers
+    class Response:
+        def raise_for_status(self): pass
+        def json(self):
+            return {"response": '{"summary":"Contracts are protected."}'}
+    monkeypatch.setattr(providers.httpx, "post", lambda *args, **kwargs: Response())
+    result = OllamaProvider("http://localhost:11434", "test-model", 5).generate_summary(
+        "Contract documents are encrypted. Owners control recipient permissions.",
+        {"summary_length": "short", "output_format": "paragraph", "output_language": "original"},
+    )
+    assert result["key_points"] == ["Contract documents are encrypted.", "Owners control recipient permissions."]
+    assert result["summary"] == "Contracts are protected."
+    assert "contract" in result["keywords"]
+    assert result["title"] == "Document summary"
+
+
+def test_ollama_rejects_truncated_response_and_honours_thread_setting(monkeypatch):
+    from src.file_summaries import providers
+    requests = []
+    class Response:
+        def raise_for_status(self): pass
+        def json(self):
+            return {"response": '{"summary":"An incomplete answer"}', "done_reason": "length"}
+    def post(*args, **kwargs):
+        requests.append(kwargs["json"])
+        return Response()
+    monkeypatch.setattr(providers.httpx, "post", post)
+    monkeypatch.setenv("SUMMARY_OLLAMA_THREADS", "2")
+    with pytest.raises(ProviderUnavailable):
+        OllamaProvider("http://localhost:11434", "test-model", 5).generate_summary(
+            "Contracts are encrypted before storage.",
+            {"summary_length": "short", "output_format": "paragraph", "output_language": "original"},
+        )
+    assert requests[0]["options"]["num_thread"] == 2
 
 
 def test_compact_bullet_response_preserves_points_and_rejects_empty_output():

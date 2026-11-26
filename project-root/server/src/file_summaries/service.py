@@ -1,5 +1,6 @@
 import hashlib
 import os
+import re
 import time
 from datetime import datetime, timezone
 
@@ -75,7 +76,7 @@ def _provider():
         return ExtractiveFallbackProvider()
     if name != "ollama":
         raise ProviderUnavailable("Unknown summary provider")
-    return OllamaProvider(os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"), os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b"), timeout)
+    return OllamaProvider(os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"), os.getenv("SUMMARY_OLLAMA_MODEL") or os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b"), timeout)
 
 
 def _run_provider(text: str, options: dict, fallback_text: str | None = None):
@@ -92,6 +93,20 @@ def _run_provider(text: str, options: dict, fallback_text: str | None = None):
 
 def _source_for_model(text: str) -> tuple[str, str | None]:
     """Bound CPU inference to one request while covering the document's span."""
+    # Repeated headers or paragraphs consume CPU without adding facts. Keep
+    # short fragments and the first occurrence of each complete long segment.
+    segments = re.split(r"(?<=[.!?])\s+|\n+", text)
+    seen, unique = set(), []
+    removed = False
+    for segment in segments:
+        key = re.sub(r"\s+", " ", segment).strip()
+        if len(key) >= 30 and key in seen:
+            removed = True
+            continue
+        seen.add(key)
+        unique.append(segment)
+    if removed:
+        text = "\n".join(unique)
     limit = min(9000, max(3000, _int_env("SUMMARY_MODEL_INPUT_CHARACTERS", 7000)))
     if len(text) <= limit:
         return text, None
