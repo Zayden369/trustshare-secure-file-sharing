@@ -6,7 +6,7 @@
 
 Repository: `Zayden369/trustshare-secure-file-sharing`. Branch: `optimization/ai-performance-architecture`, based on `8e7aa3be9b5681f4a0f3206de29ec99ac5227d0c`.
 
-Implementation commits: `55aa997` (audit/tracing), `0c6ef1f` (hybrid assistant/SSE), `59c7f59` (authorization, retries and transport hardening), `bd74b87d2effba685f35c616e89bcbbb13d693f0` (summary jobs, recovery and fidelity). The validation/report commit follows these; the review PR exposes the exact current head. Run `git rev-parse HEAD` after checkout to pin a reproduction.
+Implementation commits: `55aa997` (audit/tracing), `0c6ef1f` (hybrid assistant/SSE), `59c7f59` (authorization, retries and transport hardening), `bd74b87d2effba685f35c616e89bcbbb13d693f0` (summary jobs, recovery and fidelity), and `33cb5e50914500c8094089d3fc8bb61130345247` (validation/report). The review PR exposes the current head, including documentation-only link updates. Run `git rev-parse HEAD` after checkout to pin a reproduction.
 
 ## 2. Root causes and source references
 
