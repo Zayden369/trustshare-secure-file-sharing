@@ -135,6 +135,8 @@ export const fileSummaryAPI = {
   get: (fileId, summaryId) => api.get(`/api/files/${fileId}/summaries/${summaryId}`),
   regenerate: (fileId, summaryId) => api.post(`/api/files/${fileId}/summaries/${summaryId}/regenerate`),
   delete: (fileId, summaryId) => api.delete(`/api/files/${fileId}/summaries/${summaryId}`),
+  latest: (fileId) => api.get(`/api/files/${fileId}/summaries/latest`),
+  revisions: (fileId, summaryId) => api.get(`/api/files/${fileId}/summaries/${summaryId}/revisions`),
 };
 
 // ── Folders ───────────────────────────────────────────────────────────────

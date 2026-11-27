@@ -28,10 +28,26 @@ def extract_text(filename: str, data: bytes) -> str:
             text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(data)).pages)
         elif extension == ".docx":
             from docx import Document
-            text = "\n".join(p.text for p in Document(io.BytesIO(data)).paragraphs)
+            from docx.text.paragraph import Paragraph
+            from docx.table import Table
+            document=Document(io.BytesIO(data))
+            blocks=[]
+            for element in document.element.body:
+                if element.tag.endswith('}p'):
+                    blocks.append(Paragraph(element,document).text)
+                elif element.tag.endswith('}tbl'):
+                    blocks.extend(' | '.join(cell.text for cell in row.cells) for row in Table(element,document).rows)
+            text='\n'.join(blocks)
         elif extension == ".pptx":
             from pptx import Presentation
-            text = "\n".join(shape.text for slide in Presentation(io.BytesIO(data)).slides for shape in slide.shapes if hasattr(shape, "text"))
+            blocks=[]
+            for slide in Presentation(io.BytesIO(data)).slides:
+                for shape in slide.shapes:
+                    if hasattr(shape,'text'):
+                        blocks.append(shape.text)
+                    if getattr(shape,'has_table',False):
+                        blocks.extend(' | '.join(cell.text for cell in row.cells) for row in shape.table.rows)
+            text='\n'.join(blocks)
         elif extension == ".csv":
             rows = csv.reader(io.StringIO(data.decode("utf-8-sig")))
             text = "\n".join(" | ".join(cell.strip() for cell in row) for row in rows)

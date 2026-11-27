@@ -1,0 +1,1265 @@
+{
+  "environment": "http://localhost:8011",
+  "predefined": [
+    {
+      "seconds": 0.4645,
+      "first_meaningful_seconds": 0.4638,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "4175d44eb3024d0f88097826accbfb39",
+        "operation": "assistant",
+        "total_ms": 410.28,
+        "stages_ms": {
+          "database_queries": 215.28,
+          "validation_authorization_persistence": 246.14,
+          "database_operation": 39.66,
+          "persistence": 62.02
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 170,
+      "text": "I found 3 matching files. Showing 3.",
+      "question": "Show me my recent files",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3513,
+      "first_meaningful_seconds": 0.3502,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "d89d2b232cf440a4a913e1effab3219c",
+        "operation": "assistant",
+        "total_ms": 328.46,
+        "stages_ms": {
+          "database_queries": 174.43,
+          "validation_authorization_persistence": 193.3,
+          "database_operation": 46.59,
+          "persistence": 60.21
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 171,
+      "text": "No files match this request.",
+      "question": "Find all PDFs I uploaded this month",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3953,
+      "first_meaningful_seconds": 0.395,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "77e0696c8b49455fada5292ca949464e",
+        "operation": "assistant",
+        "total_ms": 368.45,
+        "stages_ms": {
+          "database_queries": 208.3,
+          "validation_authorization_persistence": 204.78,
+          "database_operation": 20.58,
+          "persistence": 113.58
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 172,
+      "text": "I found 3 matching files. Showing 3.",
+      "question": "What are my largest files?",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.4286,
+      "first_meaningful_seconds": 0.4283,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "e4bbd7269fb54273a53b9c3e70fafde7",
+        "operation": "assistant",
+        "total_ms": 388.05,
+        "stages_ms": {
+          "database_queries": 223.48,
+          "validation_authorization_persistence": 205.97,
+          "database_operation": 24.66,
+          "persistence": 101.38
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 26
+        }
+      },
+      "conversation_id": 173,
+      "text": "You've used 890.0 B of 5.0 GB; 5.0 GB remains.",
+      "question": "How much storage do I have left?",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3403,
+      "first_meaningful_seconds": 0.3391,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "bf14023bfd544a1eae77aa5443fc08dd",
+        "operation": "assistant",
+        "total_ms": 306.51,
+        "stages_ms": {
+          "database_queries": 160.09,
+          "validation_authorization_persistence": 168.52,
+          "database_operation": 28.55,
+          "persistence": 71.65
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 174,
+      "text": "Your 3 files use 1.6 KB.",
+      "question": "Show my storage breakdown by category",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.2805,
+      "first_meaningful_seconds": 0.2787,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "6160a81538ac476f8084f0a5c45d7e5d",
+        "operation": "assistant",
+        "total_ms": 256.21,
+        "stages_ms": {
+          "database_queries": 132.33,
+          "validation_authorization_persistence": 139.43,
+          "database_operation": 22.65,
+          "persistence": 64.99
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 175,
+      "text": "Found 0 direct shares and 0 share links (up to 50 of each).",
+      "question": "What files have I shared with others?",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.2618,
+      "first_meaningful_seconds": 0.2615,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "17c5b8c1d7be438591220756dc226900",
+        "operation": "assistant",
+        "total_ms": 235.07,
+        "stages_ms": {
+          "database_queries": 127.31,
+          "validation_authorization_persistence": 121.55,
+          "database_operation": 19.57,
+          "persistence": 63.79
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 176,
+      "text": "Found 0 direct shares and 0 active share links (up to 50 of each).",
+      "question": "Show my active share links",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.2408,
+      "first_meaningful_seconds": 0.2404,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "77355255068d4f32a2d3bcdd8dbb587f",
+        "operation": "assistant",
+        "total_ms": 220.5,
+        "stages_ms": {
+          "database_queries": 109.85,
+          "validation_authorization_persistence": 108.68,
+          "database_operation": 14.73,
+          "persistence": 75.61
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 177,
+      "text": "You have 1 active login session.",
+      "question": "Show my active login sessions",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3591,
+      "first_meaningful_seconds": 0.3586,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "f28333f4159b481bbc75ba7ea63505d4",
+        "operation": "assistant",
+        "total_ms": 340.82,
+        "stages_ms": {
+          "database_queries": 187.15,
+          "validation_authorization_persistence": 164.32,
+          "database_operation": 48.11,
+          "persistence": 93.29
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 178,
+      "text": "You have 21 unread notifications.",
+      "question": "Do I have any unread notifications?",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3418,
+      "first_meaningful_seconds": 0.3415,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "ddaf4883058749ff9b94b42154db5b42",
+        "operation": "assistant",
+        "total_ms": 308.89,
+        "stages_ms": {
+          "database_queries": 155.24,
+          "validation_authorization_persistence": 179.77,
+          "database_operation": 9.6,
+          "persistence": 88.58
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 26
+        }
+      },
+      "conversation_id": 179,
+      "text": "Here is your account information. Your role is member and your plan is free.",
+      "question": "What's my account information?",
+      "repeat": 0
+    },
+    {
+      "seconds": 0.3481,
+      "first_meaningful_seconds": 0.3475,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "326fb9fd62394f52a9b020d15ecb8b4a",
+        "operation": "assistant",
+        "total_ms": 322.39,
+        "stages_ms": {
+          "database_queries": 163.84,
+          "validation_authorization_persistence": 212.06,
+          "database_operation": 23.98,
+          "persistence": 57.07
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 180,
+      "text": "I found 2 matching files. Showing 2.",
+      "question": "Show me my recent files",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.2682,
+      "first_meaningful_seconds": 0.2678,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "12ba99db228d469a89472220270f0c85",
+        "operation": "assistant",
+        "total_ms": 246.38,
+        "stages_ms": {
+          "database_queries": 128.47,
+          "validation_authorization_persistence": 137.75,
+          "database_operation": 17.63,
+          "persistence": 62.26
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 181,
+      "text": "No files match this request.",
+      "question": "Find all PDFs I uploaded this month",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.3566,
+      "first_meaningful_seconds": 0.3554,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "b5267080d4564e1cb6dc7deb124caa86",
+        "operation": "assistant",
+        "total_ms": 328.03,
+        "stages_ms": {
+          "database_queries": 175.13,
+          "validation_authorization_persistence": 167.3,
+          "database_operation": 26.57,
+          "persistence": 99.93
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 182,
+      "text": "I found 2 matching files. Showing 2.",
+      "question": "What are my largest files?",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.2926,
+      "first_meaningful_seconds": 0.2922,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "710229457b0f44ad8a9a9dbfe395e2be",
+        "operation": "assistant",
+        "total_ms": 252.51,
+        "stages_ms": {
+          "database_queries": 141.13,
+          "validation_authorization_persistence": 135.41,
+          "database_operation": 9.36,
+          "persistence": 73.52
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 26
+        }
+      },
+      "conversation_id": 183,
+      "text": "You've used 1.6 KB of 5.0 GB; 5.0 GB remains.",
+      "question": "How much storage do I have left?",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.3245,
+      "first_meaningful_seconds": 0.3241,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "6d79035295e7494c9cd7caf18bf2cdc7",
+        "operation": "assistant",
+        "total_ms": 296.88,
+        "stages_ms": {
+          "database_queries": 166.39,
+          "validation_authorization_persistence": 175.8,
+          "database_operation": 19.95,
+          "persistence": 68.11
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 184,
+      "text": "Your 2 files use 890.0 B.",
+      "question": "Show my storage breakdown by category",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.2806,
+      "first_meaningful_seconds": 0.2799,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "1ee9ed91d82b4c7fb5565ab81f423320",
+        "operation": "assistant",
+        "total_ms": 255.55,
+        "stages_ms": {
+          "database_queries": 140.85,
+          "validation_authorization_persistence": 120.52,
+          "database_operation": 22.14,
+          "persistence": 86.84
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 185,
+      "text": "Found 0 direct shares and 0 share links (up to 50 of each).",
+      "question": "What files have I shared with others?",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.3934,
+      "first_meaningful_seconds": 0.392,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "198bcb27a46148dcb5664b9dce5ac7a9",
+        "operation": "assistant",
+        "total_ms": 365.02,
+        "stages_ms": {
+          "database_queries": 203.25,
+          "validation_authorization_persistence": 170.14,
+          "database_operation": 26.78,
+          "persistence": 113.0
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 186,
+      "text": "Found 0 direct shares and 0 active share links (up to 50 of each).",
+      "question": "Show my active share links",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.3958,
+      "first_meaningful_seconds": 0.3954,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "45189ce2d58546cc8f20a19f6d2d233f",
+        "operation": "assistant",
+        "total_ms": 344.61,
+        "stages_ms": {
+          "database_queries": 208.35,
+          "validation_authorization_persistence": 213.07,
+          "database_operation": 16.39,
+          "persistence": 76.77
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 27
+        }
+      },
+      "conversation_id": 187,
+      "text": "You have 1 active login session.",
+      "question": "Show my active login sessions",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.2273,
+      "first_meaningful_seconds": 0.2269,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "b6c915123e9546dfbfb962538439da2b",
+        "operation": "assistant",
+        "total_ms": 206.63,
+        "stages_ms": {
+          "database_queries": 111.53,
+          "validation_authorization_persistence": 108.37,
+          "database_operation": 18.5,
+          "persistence": 53.06
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 188,
+      "text": "You have 21 unread notifications.",
+      "question": "Do I have any unread notifications?",
+      "repeat": 1
+    },
+    {
+      "seconds": 0.2103,
+      "first_meaningful_seconds": 0.2101,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "0362294775344927944569369c0a8555",
+        "operation": "assistant",
+        "total_ms": 192.22,
+        "stages_ms": {
+          "database_queries": 100.74,
+          "validation_authorization_persistence": 114.55,
+          "database_operation": 10.1,
+          "persistence": 45.11
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 26
+        }
+      },
+      "conversation_id": 189,
+      "text": "Here is your account information. Your role is admin and your plan is free.",
+      "question": "What's my account information?",
+      "repeat": 1
+    }
+  ],
+  "knowledge": [
+    {
+      "seconds": 0.2133,
+      "first_meaningful_seconds": 0.2125,
+      "delta_events": 1,
+      "error": false,
+      "route": "knowledge",
+      "backend": {
+        "request_id": "94d6d2c7ec5b468c8720f6022d60c6ba",
+        "operation": "assistant",
+        "total_ms": 189.46,
+        "stages_ms": {
+          "database_queries": 97.47,
+          "validation_authorization_persistence": 102.1,
+          "persistence": 64.15
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      },
+      "conversation_id": 190,
+      "text": "The current file upload validator permits up to 100 MiB per file. The API accepts one file per request; the web app queues a selected batch sequentially. There is no implemented five-file batch limit. File type checks, your remaining storage and rate limits still apply.",
+      "question": "How many files can I upload at once?"
+    },
+    {
+      "seconds": 0.3222,
+      "first_meaningful_seconds": 0.3202,
+      "delta_events": 1,
+      "error": false,
+      "route": "knowledge",
+      "backend": {
+        "request_id": "637cb61d64ac462cb08b59e96e4932dd",
+        "operation": "assistant",
+        "total_ms": 277.09,
+        "stages_ms": {
+          "database_queries": 143.02,
+          "validation_authorization_persistence": 163.73,
+          "persistence": 78.65
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      },
+      "conversation_id": 191,
+      "text": "TrustShare uses server-side AES-256-GCM encryption with a separate per-file key protected by a master key. Authorized processing decrypts files in server memory. This is not end-to-end or zero-knowledge encryption; the server can decrypt authorized content.",
+      "question": "Is TrustShare end-to-end encrypted?"
+    },
+    {
+      "seconds": 0.3401,
+      "first_meaningful_seconds": 0.3396,
+      "delta_events": 1,
+      "error": false,
+      "route": "knowledge",
+      "backend": {
+        "request_id": "acb811a765c04794adf0a94336290750",
+        "operation": "assistant",
+        "total_ms": 292.45,
+        "stages_ms": {
+          "database_queries": 158.39,
+          "validation_authorization_persistence": 164.13,
+          "persistence": 88.82
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      },
+      "conversation_id": 192,
+      "text": "AI summaries extract readable text from .csv, .docx, .md, .pdf, .pptx, .txt, .xlsx, up to 20 MiB per file. Scanned image-only PDFs require OCR, which is not enabled. Summary lengths and paragraph/bullet formats are supported in the source language. Long sources use bounded excerpts with a visible coverage warning. The extractive fallback is labelled separately. Generated text can omit details or contain mistakes; verify important facts in the original. The configured summary model is qwen2.5:0.5b.",
+      "question": "Which files support AI summary?"
+    }
+  ],
+  "custom": [
+    {
+      "seconds": 8.1924,
+      "first_meaningful_seconds": 5.6723,
+      "delta_events": 41,
+      "error": false,
+      "route": "inference",
+      "backend": {
+        "request_id": "ca8f79f2c6ad4a5c958e4ef331ba816a",
+        "operation": "assistant",
+        "total_ms": 8142.66,
+        "stages_ms": {
+          "database_queries": 173.67,
+          "validation_authorization_persistence": 153.07,
+          "queue_wait": 0.01,
+          "first_token": 5368.78,
+          "first_meaningful": 5603.35,
+          "model_load": 3251.08,
+          "prompt_evaluation": 2036.98,
+          "token_generation": 2493.37,
+          "inference_http": 7850.47,
+          "persistence": 49.61
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 31,
+          "input_tokens": 139,
+          "output_tokens": 42
+        }
+      },
+      "conversation_id": 193,
+      "text": "A checksum is a quick way to verify the integrity of data by checking for errors. It's a small piece of information added to a file that can be used to confirm the data hasn't been altered.",
+      "case": "checksum"
+    },
+    {
+      "seconds": 2.5268,
+      "first_meaningful_seconds": 0.5647,
+      "delta_events": 30,
+      "error": false,
+      "route": "inference",
+      "backend": {
+        "request_id": "c0cb11231b684846a80e345e029cfb8a",
+        "operation": "assistant",
+        "total_ms": 2503.79,
+        "stages_ms": {
+          "database_queries": 103.91,
+          "validation_authorization_persistence": 91.94,
+          "queue_wait": 0.01,
+          "first_token": 409.43,
+          "first_meaningful": 541.74,
+          "model_load": 9.27,
+          "prompt_evaluation": 384.85,
+          "token_generation": 1907.54,
+          "inference_http": 2316.83,
+          "persistence": 45.95
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 29,
+          "input_tokens": 148,
+          "output_tokens": 31
+        }
+      },
+      "conversation_id": 194,
+      "text": "Revoking a link only removes the link to the file, not the file itself. Once someone has downloaded the file, they still have it.",
+      "case": "revocation"
+    },
+    {
+      "seconds": 0.1816,
+      "first_meaningful_seconds": 0.181,
+      "delta_events": 1,
+      "error": false,
+      "route": "knowledge",
+      "backend": {
+        "request_id": "888c7e9945034165b689bfe6345d5703",
+        "operation": "assistant",
+        "total_ms": 158.2,
+        "stages_ms": {
+          "database_queries": 82.34,
+          "validation_authorization_persistence": 93.54,
+          "persistence": 45.98
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      },
+      "conversation_id": 195,
+      "text": "Owners can grant recipients view or download access, or create revocable share links with optional expiry, a password and an access limit. Revocation and expiry prevent future authorized access; they cannot erase copies already obtained. View-only access does not prevent screenshots or every method of copying.",
+      "case": "unknown_fact"
+    },
+    {
+      "seconds": 3.0688,
+      "first_meaningful_seconds": 0.4613,
+      "delta_events": 42,
+      "error": false,
+      "route": "inference",
+      "backend": {
+        "request_id": "3b9fbfbefad9406c80335369f4ed31d3",
+        "operation": "assistant",
+        "total_ms": 3046.55,
+        "stages_ms": {
+          "database_queries": 124.83,
+          "validation_authorization_persistence": 119.0,
+          "queue_wait": 0.01,
+          "first_token": 276.18,
+          "first_meaningful": 440.02,
+          "model_load": 8.22,
+          "prompt_evaluation": 253.47,
+          "token_generation": 2550.86,
+          "inference_http": 2827.11,
+          "persistence": 46.91
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 29,
+          "input_tokens": 139,
+          "output_tokens": 43
+        }
+      },
+      "conversation_id": 196,
+      "text": "A checksum is a quick way to verify the integrity of a file by checking a small part of it against a known value. If the parts match, the file is likely undamaged; discrepancies indicate potential errors.",
+      "case": "checksum"
+    },
+    {
+      "seconds": 3.2292,
+      "first_meaningful_seconds": 0.5904,
+      "delta_events": 46,
+      "error": false,
+      "route": "inference",
+      "backend": {
+        "request_id": "c9a581da91d54720b315fff83fa073e3",
+        "operation": "assistant",
+        "total_ms": 3205.49,
+        "stages_ms": {
+          "database_queries": 102.1,
+          "validation_authorization_persistence": 91.13,
+          "queue_wait": 0.01,
+          "first_token": 433.97,
+          "first_meaningful": 567.58,
+          "model_load": 7.56,
+          "prompt_evaluation": 410.34,
+          "token_generation": 2585.76,
+          "inference_http": 3019.5,
+          "persistence": 45.21
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 29,
+          "input_tokens": 148,
+          "output_tokens": 47
+        }
+      },
+      "conversation_id": 197,
+      "text": "Reversing a link removes the direct access to the file, but the file itself remains on the server. Once someone has downloaded the file, they have the original copy. The link is just a temporary way to access it.",
+      "case": "revocation"
+    },
+    {
+      "seconds": 0.2022,
+      "first_meaningful_seconds": 0.2019,
+      "delta_events": 1,
+      "error": false,
+      "route": "knowledge",
+      "backend": {
+        "request_id": "95186bf1cf15492dbe43f74bd62dca95",
+        "operation": "assistant",
+        "total_ms": 181.85,
+        "stages_ms": {
+          "database_queries": 93.1,
+          "validation_authorization_persistence": 98.06,
+          "persistence": 58.61
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      },
+      "conversation_id": 198,
+      "text": "Owners can grant recipients view or download access, or create revocable share links with optional expiry, a password and an access limit. Revocation and expiry prevent future authorized access; they cannot erase copies already obtained. View-only access does not prevent screenshots or every method of copying.",
+      "case": "unknown_fact"
+    }
+  ],
+  "summaries": [
+    {
+      "seconds": 7.752,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "86a2e7dc0a954dd3aef3141a24902f63",
+        "operation": "summary_generation",
+        "total_ms": 5225.02,
+        "stages_ms": {
+          "background_wait": 1.86,
+          "database_queries": 132.46,
+          "authorization": 4.61,
+          "file_retrieval": 0.32,
+          "decryption": 0.32,
+          "text_extraction": 7.24,
+          "preprocessing": 0.41,
+          "queue_wait": 0.01,
+          "model_load": 1955.1,
+          "prompt_evaluation": 1524.37,
+          "token_generation": 1451.87,
+          "inference_http": 4968.38,
+          "output_parsing": 0.17,
+          "keyword_generation": 0.04,
+          "output_validation": 0.0,
+          "authorization_recheck": 6.7,
+          "notification_creation": 0.11,
+          "database_persistence": 23.98
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 549,
+          "model_input_characters": 549,
+          "input_tokens": 212,
+          "output_tokens": 72
+        }
+      },
+      "length": "short",
+      "format": "paragraph",
+      "summary": "Project Cedar, a secure document sharing prototype, features encrypted files before storage with owner permissions granted or revoked. It was used by 24 volunteers over six weeks and had 162 tasks succeed out of 180 attempted. Participants requested clearer labels and faster summaries but no independent security audit has been completed.",
+      "key_points": [
+        "Project Cedar is a secure document sharing prototype.",
+        "The pilot involved 24 volunteers, 180 tasks and six weeks of use."
+      ],
+      "summary_id": 6,
+      "document": "cedar",
+      "critical_facts_covered": 3,
+      "critical_facts_total": 5
+    },
+    {
+      "seconds": 6.3984,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "f0bfcaedb2164bdc82b3e4702dd03d54",
+        "operation": "summary_generation",
+        "total_ms": 3394.73,
+        "stages_ms": {
+          "background_wait": 3.82,
+          "database_queries": 110.54,
+          "authorization": 3.6,
+          "file_retrieval": 0.49,
+          "decryption": 0.49,
+          "text_extraction": 4.66,
+          "preprocessing": 0.1,
+          "queue_wait": 0.01,
+          "model_load": 34.84,
+          "prompt_evaluation": 1297.11,
+          "token_generation": 1813.93,
+          "inference_http": 3183.08,
+          "output_parsing": 0.04,
+          "keyword_generation": 0.03,
+          "output_validation": 0.0,
+          "authorization_recheck": 9.57,
+          "notification_creation": 0.04,
+          "database_persistence": 30.79
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 445,
+          "model_input_characters": 445,
+          "input_tokens": 194,
+          "output_tokens": 70
+        }
+      },
+      "length": "standard",
+      "format": "paragraph",
+      "summary": "A botany study observed 48 plant species over six weeks, with native mixed planting attracting more pollinator species than monoculture plots. Roots absorb water and nutrients while leaves use sunlight for photosynthesis. Flowers support pollination and seed production. The results are described but do not establish effects in other climates.",
+      "key_points": [
+        "A botany study observed 48 plant species in six plots over 12 weeks.",
+        "Native mixed plantings attracted more pollinator species than monoculture plots.",
+        "Roots absorb water and nutrients, while leaves use sunlight for photosynthesis.",
+        "The results describe the observed plots only and do not establish effects in other climates."
+      ],
+      "summary_id": 7,
+      "document": "botany",
+      "critical_facts_covered": 4,
+      "critical_facts_total": 4
+    },
+    {
+      "seconds": 5.3083,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "3230db4b02f4493da0dae6509f6d6265",
+        "operation": "summary_generation",
+        "total_ms": 3071.4,
+        "stages_ms": {
+          "background_wait": 1.87,
+          "database_queries": 181.76,
+          "authorization": 7.84,
+          "file_retrieval": 0.4,
+          "decryption": 0.36,
+          "text_extraction": 7.39,
+          "preprocessing": 0.09,
+          "queue_wait": 0.01,
+          "model_load": 10.26,
+          "prompt_evaluation": 1105.94,
+          "token_generation": 1604.38,
+          "inference_http": 2751.64,
+          "output_parsing": 0.03,
+          "keyword_generation": 0.04,
+          "output_validation": 0.0,
+          "authorization_recheck": 8.76,
+          "notification_creation": 0.08,
+          "database_persistence": 31.57
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 549,
+          "model_input_characters": 549,
+          "input_tokens": 214,
+          "output_tokens": 71
+        }
+      },
+      "length": "detailed",
+      "format": "paragraph",
+      "summary": "Project Cedar, a secure document sharing prototype, features encrypted storage of files before uploading them to servers. Owners can grant or revoke review permissions and may remove links from documents. The pilot involved 24 volunteers with 180 tasks over six weeks. Most failures were due to expired permissions rather than encryption errors.",
+      "key_points": [
+        "Project Cedar is a secure document sharing prototype.",
+        "Owners grant reviewer permissions and may revoke links.",
+        "The pilot involved 24 volunteers, 180 tasks and six weeks of use.",
+        "A total of 162 tasks succeeded.",
+        "A proposed second pilot has not started.",
+        "No independent security audit has been completed; the prototype is not certified for regulated medical records."
+      ],
+      "summary_id": 8,
+      "document": "cedar",
+      "critical_facts_covered": 5,
+      "critical_facts_total": 5
+    },
+    {
+      "seconds": 5.2744,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "dd060adeb756412eae086cbd4228b5ed",
+        "operation": "summary_generation",
+        "total_ms": 2897.18,
+        "stages_ms": {
+          "background_wait": 1.26,
+          "database_queries": 108.22,
+          "authorization": 7.75,
+          "file_retrieval": 0.26,
+          "decryption": 0.26,
+          "text_extraction": 3.91,
+          "preprocessing": 0.07,
+          "queue_wait": 0.0,
+          "model_load": 13.89,
+          "prompt_evaluation": 1121.49,
+          "token_generation": 1550.12,
+          "inference_http": 2700.92,
+          "output_parsing": 0.03,
+          "keyword_generation": 0.06,
+          "output_validation": 0.0,
+          "authorization_recheck": 6.99,
+          "notification_creation": 0.05,
+          "database_persistence": 26.57
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 445,
+          "model_input_characters": 445,
+          "input_tokens": 200,
+          "output_tokens": 63
+        }
+      },
+      "length": "short",
+      "format": "bullet_points",
+      "summary": "- A botany study observed 48 plant species over 12 weeks, with native mixed planting attracting more pollinator species.\n- Roots absorb water and nutrients while leaves use sunlight for photosynthesis. Flowers support pollination and seed production.",
+      "key_points": [
+        "A botany study observed 48 plant species in six plots over 12 weeks.",
+        "The results describe the observed plots only and do not establish effects in other climates."
+      ],
+      "summary_id": 9,
+      "document": "botany",
+      "critical_facts_covered": 4,
+      "critical_facts_total": 4
+    },
+    {
+      "seconds": 6.0278,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "b8cfd2b855d247cdab66cc47938b7b40",
+        "operation": "summary_generation",
+        "total_ms": 3407.35,
+        "stages_ms": {
+          "background_wait": 1.53,
+          "database_queries": 102.16,
+          "authorization": 3.49,
+          "file_retrieval": 0.27,
+          "decryption": 0.22,
+          "text_extraction": 4.18,
+          "preprocessing": 0.12,
+          "queue_wait": 0.01,
+          "model_load": 8.05,
+          "prompt_evaluation": 1422.88,
+          "token_generation": 1758.91,
+          "inference_http": 3207.13,
+          "output_parsing": 0.03,
+          "keyword_generation": 0.08,
+          "output_validation": 0.0,
+          "authorization_recheck": 8.3,
+          "notification_creation": 0.05,
+          "database_persistence": 22.8
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 549,
+          "model_input_characters": 549,
+          "input_tokens": 220,
+          "output_tokens": 70
+        }
+      },
+      "length": "standard",
+      "format": "bullet_points",
+      "summary": "- Project Cedar uses secure document sharing with encrypted files.\n- Owners grant reviewer permissions, but may revoke links.\n- The pilot involved 24 volunteers and 180 tasks over six weeks of use.\n- Most failures were due to expired permissions rather than encryption errors.",
+      "key_points": [
+        "Project Cedar is a secure document sharing prototype.",
+        "The pilot involved 24 volunteers, 180 tasks and six weeks of use.",
+        "A total of 162 tasks succeeded.",
+        "No independent security audit has been completed; the prototype is not certified for regulated medical records."
+      ],
+      "summary_id": 10,
+      "document": "cedar",
+      "critical_facts_covered": 5,
+      "critical_facts_total": 5
+    },
+    {
+      "seconds": 6.8876,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "956ec478860e401ea9d3cf9647196d64",
+        "operation": "summary_generation",
+        "total_ms": 3902.01,
+        "stages_ms": {
+          "background_wait": 3.86,
+          "database_queries": 175.48,
+          "authorization": 7.03,
+          "file_retrieval": 0.49,
+          "decryption": 0.43,
+          "text_extraction": 9.47,
+          "preprocessing": 0.11,
+          "queue_wait": 0.0,
+          "model_load": 17.7,
+          "prompt_evaluation": 1223.98,
+          "token_generation": 2329.75,
+          "inference_http": 3591.79,
+          "output_parsing": 0.04,
+          "keyword_generation": 0.07,
+          "output_validation": 0.0,
+          "authorization_recheck": 6.0,
+          "notification_creation": 0.03,
+          "database_persistence": 34.21
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 445,
+          "model_input_characters": 445,
+          "input_tokens": 202,
+          "output_tokens": 104
+        }
+      },
+      "length": "detailed",
+      "format": "bullet_points",
+      "summary": "- A botany study observed 48 plant species over 12 weeks.\n- Native mixed plantings attracted more pollinator species than monoculture plots.\n- Roots absorb water and nutrients, while leaves use sunlight for photosynthesis.\n- Flowers support pollination and seed production.\n- The results describe the observed plots only and do not establish effects in other climates.\n- The team recommends further replication before generalizing the findings.",
+      "key_points": [
+        "A botany study observed 48 plant species in six plots over 12 weeks.",
+        "Native mixed plantings attracted more pollinator species than monoculture plots.",
+        "Roots absorb water and nutrients, while leaves use sunlight for photosynthesis.",
+        "Flowers support pollination and seed production.",
+        "The results describe the observed plots only and do not establish effects in other climates.",
+        "The team recommends further replication before generalizing the findings."
+      ],
+      "summary_id": 11,
+      "document": "botany",
+      "critical_facts_covered": 4,
+      "critical_facts_total": 4
+    }
+  ],
+  "cached_summary": {
+    "seconds": 2.0533,
+    "error": false,
+    "provider": "ollama",
+    "model": "qwen2.5:0.5b",
+    "cached": true,
+    "inference_calls_this_request": 0,
+    "backend": {
+      "request_id": "b8cfd2b855d247cdab66cc47938b7b40",
+      "operation": "summary_generation",
+      "total_ms": 3407.35,
+      "stages_ms": {
+        "background_wait": 1.53,
+        "database_queries": 102.16,
+        "authorization": 3.49,
+        "file_retrieval": 0.27,
+        "decryption": 0.22,
+        "text_extraction": 4.18,
+        "preprocessing": 0.12,
+        "queue_wait": 0.01,
+        "model_load": 8.05,
+        "prompt_evaluation": 1422.88,
+        "token_generation": 1758.91,
+        "inference_http": 3207.13,
+        "output_parsing": 0.03,
+        "keyword_generation": 0.08,
+        "output_validation": 0.0,
+        "authorization_recheck": 8.3,
+        "notification_creation": 0.05,
+        "database_persistence": 22.8
+      },
+      "counters": {
+        "llm_calls": 1,
+        "database_queries": 23,
+        "extracted_characters": 549,
+        "model_input_characters": 549,
+        "input_tokens": 220,
+        "output_tokens": 70
+      }
+    },
+    "length": "standard",
+    "format": "bullet_points",
+    "summary": "- Project Cedar uses secure document sharing with encrypted files.\n- Owners grant reviewer permissions, but may revoke links.\n- The pilot involved 24 volunteers and 180 tasks over six weeks of use.\n- Most failures were due to expired permissions rather than encryption errors.",
+    "key_points": [
+      "Project Cedar is a secure document sharing prototype.",
+      "The pilot involved 24 volunteers, 180 tasks and six weeks of use.",
+      "A total of 162 tasks succeeded.",
+      "No independent security audit has been completed; the prototype is not certified for regulated medical records."
+    ],
+    "summary_id": 10
+  },
+  "concurrent": {
+    "assistant": {
+      "seconds": 0.2968,
+      "first_meaningful_seconds": 0.2961,
+      "delta_events": 1,
+      "error": false,
+      "route": "deterministic",
+      "backend": {
+        "request_id": "aed6ff932f9c4affb72318957a1be648",
+        "operation": "assistant",
+        "total_ms": 225.58,
+        "stages_ms": {
+          "database_queries": 130.87,
+          "validation_authorization_persistence": 98.99,
+          "database_operation": 18.59,
+          "persistence": 50.27
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 28
+        }
+      },
+      "conversation_id": 199,
+      "text": "I found 3 matching files. Showing 3."
+    },
+    "summary": {
+      "seconds": 3.194,
+      "error": false,
+      "provider": "ollama",
+      "model": "qwen2.5:0.5b",
+      "cached": false,
+      "inference_calls_this_request": 1,
+      "backend": {
+        "request_id": "7b89a76bdeda4b0b893623a9c0246012",
+        "operation": "summary_generation",
+        "total_ms": 2954.51,
+        "stages_ms": {
+          "background_wait": 1.34,
+          "database_queries": 115.07,
+          "authorization": 4.3,
+          "file_retrieval": 0.27,
+          "decryption": 0.18,
+          "text_extraction": 3.8,
+          "preprocessing": 0.07,
+          "queue_wait": 0.01,
+          "model_load": 6.38,
+          "prompt_evaluation": 689.23,
+          "token_generation": 2021.34,
+          "inference_http": 2734.33,
+          "output_parsing": 0.03,
+          "keyword_generation": 0.04,
+          "output_validation": 0.0,
+          "authorization_recheck": 7.1,
+          "notification_creation": 0.05,
+          "database_persistence": 28.89
+        },
+        "counters": {
+          "llm_calls": 1,
+          "database_queries": 23,
+          "extracted_characters": 445,
+          "model_input_characters": 445,
+          "input_tokens": 193,
+          "output_tokens": 74
+        }
+      },
+      "length": "short",
+      "format": "paragraph",
+      "summary": "A botany study observed 48 plant species over six weeks, with native mixed plantings attracting more pollinator species than monoculture plots. Roots absorb water and nutrients while leaves use sunlight for photosynthesis. Flowers support pollination and seed production. The results describe the observed plots only and do not establish effects in other climates.",
+      "key_points": [
+        "A botany study observed 48 plant species in six plots over 12 weeks.",
+        "The results describe the observed plots only and do not establish effects in other climates."
+      ],
+      "summary_id": 12
+    }
+  },
+  "statistics": {
+    "predefined": {
+      "n": 20,
+      "p50": 0.341,
+      "p95": 0.4286,
+      "max": 0.4645
+    },
+    "knowledge": {
+      "n": 3,
+      "p50": 0.3222,
+      "p95": 0.3401,
+      "max": 0.3401
+    },
+    "custom": {
+      "n": 6,
+      "p50": 2.7978,
+      "p95": 8.1924,
+      "max": 8.1924
+    },
+    "summaries": {
+      "n": 6,
+      "p50": 6.2131,
+      "p95": 7.752,
+      "max": 7.752
+    },
+    "genuine_custom_ai": {
+      "n": 4,
+      "p50": 3.149,
+      "p95": 8.1924,
+      "max": 8.1924
+    }
+  }
+}

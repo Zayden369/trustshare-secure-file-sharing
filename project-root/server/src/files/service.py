@@ -406,6 +406,12 @@ def delete_file(
 
     try:
         from src.entities.file_summary import FileSummary
+        from src.entities.summary_job import SummaryJob, SummaryRevision
+        summary_ids=db.query(FileSummary.id).filter(FileSummary.file_id==file.id)
+        # SQLite may run without FK cascades; clean leases and revisions before
+        # the parent rows so deleted IDs cannot leave stale cache metadata.
+        db.query(SummaryRevision).filter(SummaryRevision.summary_id.in_(summary_ids)).delete(synchronize_session=False)
+        db.query(SummaryJob).filter(SummaryJob.summary_id.in_(summary_ids)).delete(synchronize_session=False)
         db.query(FileSummary).filter(FileSummary.file_id == file.id).delete(
             synchronize_session=False
         )

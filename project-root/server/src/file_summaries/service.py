@@ -2,6 +2,7 @@ import hashlib
 import os
 import re
 import time
+from contextlib import nullcontext
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
@@ -50,11 +51,15 @@ def authorize_file(db: Session, file_id: int, user_id: int) -> File:
 
 
 def _load_plaintext(file: File) -> bytes:
+    from src.ai_metrics import current_trace
+    trace=current_trace.get()
     try:
-        encrypted = load_encrypted_file(file.stored_name)
+        with trace.stage('file_retrieval') if trace else nullcontext():
+            encrypted = load_encrypted_file(file.stored_name)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail="The stored document is missing. Upload the file again before generating a summary.") from exc
-    data = decrypt_bytes(encrypted, load_key(file.stored_name)) if file.encrypted else encrypted
+    with trace.stage('decryption') if trace else nullcontext():
+        data = decrypt_bytes(encrypted, load_key(file.stored_name)) if file.encrypted else encrypted
     checksum = hashlib.sha256(data).hexdigest()
     if file.hash_sha256 and checksum != file.hash_sha256:
         raise HTTPException(status_code=500, detail="File integrity verification failed.")
@@ -80,18 +85,27 @@ def _provider():
 
 
 def _run_provider(text: str, options: dict, fallback_text: str | None = None):
+    from src.ai_metrics import current_trace
+    from src.ai_scheduler import inference_gate
+    trace=current_trace.get()
     provider = None
     try:
         provider = _provider()
-        return provider.generate_summary(text, options), provider, None
+        gate=inference_gate.slot(timeout=30) if provider.name not in {'mock','extractive_fallback'} else nullcontext()
+        with gate:
+            if trace and getattr(trace,'on_inference_start',None):
+                trace.on_inference_start()
+            return provider.generate_summary(text, options), provider, None
     except ProviderUnavailable:
         if os.getenv("ENABLE_SUMMARY_FALLBACK", "true").lower() != "true" or (provider and provider.name == "extractive_fallback"):
             raise
         fallback = ExtractiveFallbackProvider()
-        return fallback.generate_summary(fallback_text if fallback_text is not None else text, options), fallback, "Configured AI provider was unavailable; an extractive fallback was used."
+        with trace.stage('extractive_fallback') if trace else nullcontext():
+            result=fallback.generate_summary(fallback_text if fallback_text is not None else text, options)
+        return result, fallback, "Configured AI provider was unavailable or its output failed validation; an extractive fallback was used."
 
 
-def _source_for_model(text: str) -> tuple[str, str | None]:
+def _source_for_model(text: str, character_limit=None) -> tuple[str, str | None]:
     """Bound CPU inference to one request while covering the document's span."""
     # Repeated headers or paragraphs consume CPU without adding facts. Keep
     # short fragments and the first occurrence of each complete long segment.
@@ -107,7 +121,8 @@ def _source_for_model(text: str) -> tuple[str, str | None]:
         unique.append(segment)
     if removed:
         text = "\n".join(unique)
-    limit = min(9000, max(3000, _int_env("SUMMARY_MODEL_INPUT_CHARACTERS", 7000)))
+    limit = (max(3000,character_limit) if character_limit is not None else
+             min(9000, max(3000, _int_env("SUMMARY_MODEL_INPUT_CHARACTERS", 7000))))
     if len(text) <= limit:
         return text, None
     first = int(limit * 0.36)
@@ -121,121 +136,63 @@ def _source_for_model(text: str) -> tuple[str, str | None]:
     return excerpt, "The summary uses excerpts from the start, middle, and end of this long document."
 
 
-def create_summary(db: Session, file_id: int, user_id: int, data: SummaryCreate) -> tuple[FileSummary, bool]:
-    file = authorize_file(db, file_id, user_id)
-    if data.file_version_id is not None:
-        raise HTTPException(status_code=400, detail="File version identifiers are not available in this project.")
-    max_bytes = _int_env("SUMMARY_MAX_FILE_SIZE_MB", 20) * 1024 * 1024
-    if file.size > max_bytes:
-        raise HTTPException(status_code=413, detail=f"File exceeds the {max_bytes // 1024 // 1024} MB summary limit.")
-    checksum = file.hash_sha256 or f"metadata-{file.id}-{file.version}-{file.size}"
-    query = db.query(FileSummary).filter(
-        FileSummary.file_id == file.id, FileSummary.source_file_version == (file.version or 1),
-        FileSummary.source_checksum == checksum, FileSummary.summary_length == data.summary_length,
-        FileSummary.output_language == data.output_language, FileSummary.output_format == data.output_format,
-    )
-    existing = query.first()
-    if existing and not data.force_regenerate:
-        if existing.status in {"pending", "processing"}:
-            raise HTTPException(status_code=409, detail="An identical summary is already being generated.")
-        if existing.status == "completed":
-            should_refresh_fallback = False
-            if existing.provider == "extractive_fallback":
-                try:
-                    provider = _provider()
-                    should_refresh_fallback = provider.name != "extractive_fallback" and provider.health_check()
-                except ProviderUnavailable:
-                    pass
-            if not should_refresh_fallback:
-                return existing, True
-    if existing:
-        existing.status, existing.error_message, existing.warning_message = "pending", None, None
-        existing.requested_by_user_id = user_id
-        summary = existing
-    else:
-        summary = FileSummary(
-            file_id=file.id, source_file_version=file.version or 1,
-            requested_by_user_id=user_id, status="pending", summary_length=data.summary_length,
-            output_language=data.output_language, output_format=data.output_format, source_checksum=checksum,
-        )
-        db.add(summary)
-    try:
-        db.commit(); db.refresh(summary)
-    except IntegrityError as exc:
-        db.rollback()
-        raise HTTPException(status_code=409, detail="An identical summary request already exists.") from exc
-    return summary, False
+def create_summary(db: Session, file_id: int, user_id: int, data: SummaryCreate):
+    from src.file_summaries.jobs import create_summary as create_job
+    return create_job(db,file_id,user_id,data)
 
 
-def process_summary(summary_id: int, variation: int = 0) -> None:
-    db = SessionLocal()
-    plaintext = None
-    try:
-        summary = db.query(FileSummary).filter(FileSummary.id == summary_id).first()
-        if not summary: return
-        summary.status = "processing"; db.commit()
-        file = db.query(File).filter(File.id == summary.file_id, File.is_deleted == False).first()
-        if not file: raise HTTPException(status_code=404, detail="File not found")
-        started = time.perf_counter()
-        plaintext = bytearray(_load_plaintext(file))
-        text = extract_text(file.original_name, bytes(plaintext))
-        max_chars = _int_env("SUMMARY_MAX_EXTRACTED_CHARACTERS", 120000)
-        warning = None
-        if len(text) > max_chars:
-            text = text[:max_chars]
-            warning = "Only part of the document was processed because the extracted-text limit was reached."
-        options = {
-            "summary_length": summary.summary_length,
-            "output_language": summary.output_language,
-            "output_format": summary.output_format,
-            "variation": variation,
-        }
-        source, excerpt_warning = _source_for_model(text)
-        result, used_provider, provider_warning = _run_provider(source, options, fallback_text=text)
-        summary.title = result.get("title") or f"Summary of {file.original_name}"
-        summary.summary_text = result["summary"]
-        summary.key_points = result.get("key_points", [])
-        summary.keywords = result.get("keywords", [])
-        summary.provider, summary.model_name = used_provider.name, used_provider.model_name
-        summary.extracted_character_count = len(text)
-        summary.processing_time_ms = int((time.perf_counter() - started) * 1000)
-        summary.warning_message = " ".join(filter(None, (warning, excerpt_warning if used_provider.name != "extractive_fallback" else None, provider_warning))) or None
-        summary.status = "completed"
-        summary.generated_at = datetime.now(timezone.utc)
-        create_activity(db, ActivityCreate(user_id=summary.requested_by_user_id, action="AI_SUMMARY_GENERATED", file_name=file.original_name, description=f"Generated an AI summary for {file.original_name}"))
-        db.add(Notification(user_id=summary.requested_by_user_id, type="summary", category="activity", title="File summary ready", message=f'Your summary for "{file.original_name}" is ready.', icon="sparkles"))
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        summary = db.query(FileSummary).filter(FileSummary.id == summary_id).first()
-        if summary:
-            summary.status = "failed"
-            if isinstance(exc, HTTPException):
-                detail = exc.detail
-                summary.error_message = detail.get("message", "Summary generation failed.") if isinstance(detail, dict) else str(detail)
-            elif isinstance(exc, ProviderUnavailable):
-                summary.error_message = "The AI summary provider is unavailable."
-            else:
-                summary.error_message = "Summary generation failed safely."
-            file = db.query(File).filter(File.id == summary.file_id).first()
-            create_activity(db, ActivityCreate(user_id=summary.requested_by_user_id, action="AI_SUMMARY_FAILED", file_name=file.original_name if file else None, description="File summary generation failed"))
-            db.commit()
-    finally:
-        if plaintext is not None:
-            plaintext[:] = b"\x00" * len(plaintext)
-        db.close()
+def process_summary(summary_id: int, variation: int = 0, queue_started=None):
+    from src.file_summaries.jobs import process_summary as process_job
+    return process_job(summary_id,variation,queue_started)
 
 
 def list_summaries(db: Session, file_id: int, user_id: int):
     authorize_file(db, file_id, user_id)
-    return db.query(FileSummary).filter(FileSummary.file_id == file_id).order_by(FileSummary.created_at.desc()).all()
+    from src.file_summaries.jobs import decorate
+    return [decorate(db,item) for item in db.query(FileSummary).filter(FileSummary.file_id == file_id).order_by(FileSummary.created_at.desc()).all()]
 
 
 def get_summary(db: Session, file_id: int, summary_id: int, user_id: int) -> FileSummary:
     authorize_file(db, file_id, user_id)
     summary = db.query(FileSummary).filter(FileSummary.id == summary_id, FileSummary.file_id == file_id).first()
     if not summary: raise HTTPException(status_code=404, detail="Summary not found")
-    return summary
+    from src.file_summaries.jobs import decorate
+    return decorate(db,summary)
+
+
+def summary_history(db: Session, file_id: int, summary_id: int, user_id: int):
+    """Earlier saved generations and other options for this authorized file."""
+    from sqlalchemy import func
+    from src.entities.summary_job import SummaryJob, SummaryRevision
+    from src.file_summaries.models import SummaryOut
+
+    current = get_summary(db, file_id, summary_id, user_id)
+    entries = {}
+    revisions = (db.query(SummaryRevision).join(FileSummary, SummaryRevision.summary_id == FileSummary.id)
+                 .filter(FileSummary.file_id == file_id)
+                 .order_by(SummaryRevision.created_at.desc(), SummaryRevision.generation_id.desc()).limit(20).all())
+    for revision in revisions:
+        if revision.generation_id != current.generation_id:
+            entries[revision.generation_id] = {'generation_id': revision.generation_id, 'result': revision.result}
+
+    others = (db.query(FileSummary, SummaryJob.generation_id)
+              .outerjoin(SummaryJob, SummaryJob.summary_id == FileSummary.id)
+              .filter(FileSummary.file_id == file_id, FileSummary.id != summary_id, FileSummary.status == 'completed')
+              .order_by(func.coalesce(FileSummary.generated_at, FileSummary.updated_at, FileSummary.created_at).desc(), FileSummary.id.desc())
+              .limit(20).all())
+    for summary, generation_id in others:
+        identity = generation_id or f'summary-{summary.id}'
+        entries[identity] = {'generation_id': identity, 'result': SummaryOut.model_validate(summary).model_dump(mode='json')}
+
+    def generated_time(entry):
+        result = entry['result']
+        value = result.get('generated_at') or result.get('updated_at') or result.get('created_at')
+        if not value:
+            return 0
+        moment = datetime.fromisoformat(value.replace('Z', '+00:00')) if isinstance(value, str) else value
+        return moment.replace(tzinfo=moment.tzinfo or timezone.utc).timestamp()
+
+    return sorted(entries.values(), key=lambda entry: (generated_time(entry), entry['generation_id']), reverse=True)[:20]
 
 
 def delete_summary(db: Session, file_id: int, summary_id: int, user_id: int):
@@ -245,4 +202,7 @@ def delete_summary(db: Session, file_id: int, summary_id: int, user_id: int):
         raise HTTPException(status_code=403, detail="You cannot delete this summary.")
     if summary.status in {"pending", "processing"}:
         raise HTTPException(status_code=409, detail="A running summary cannot be deleted.")
+    from src.entities.summary_job import SummaryJob, SummaryRevision
+    db.query(SummaryRevision).filter_by(summary_id=summary.id).delete(synchronize_session=False)
+    db.query(SummaryJob).filter_by(summary_id=summary.id).delete(synchronize_session=False)
     db.delete(summary); db.commit()

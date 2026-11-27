@@ -1,0 +1,20 @@
+[
+  {
+    "url": "http://127.0.0.1:8011",
+    "seconds": 0.0541,
+    "cached": true,
+    "provider": "ollama"
+  },
+  {
+    "url": "http://localhost:8011",
+    "seconds": 2.1155,
+    "cached": true,
+    "provider": "ollama"
+  },
+  {
+    "url": "http://127.0.0.1:8011",
+    "seconds": 0.0434,
+    "cached": true,
+    "provider": "ollama"
+  }
+]

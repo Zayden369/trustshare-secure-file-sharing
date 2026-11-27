@@ -3,7 +3,7 @@ Assistant Suggested Query Entity — TrustShare AI Assistant
 
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 
 from src.database.core import Base
@@ -46,3 +46,10 @@ class AssistantSuggestedQuery(Base):
         DateTime(timezone=True),
         server_default=func.now(),
     )
+
+
+class AssistantSuggestionIntent(Base):
+    """Optional admin-curated mappings for custom labels; operations stay in code."""
+    __tablename__='assistant_suggestion_intents'
+    suggestion_id=Column(Integer,ForeignKey('assistant_suggested_queries.id',ondelete='CASCADE'),primary_key=True)
+    intent_id=Column(String(64),nullable=False)

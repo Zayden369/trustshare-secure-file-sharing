@@ -1,3 +1,4 @@
+from src.ai_auth import get_ai_user
 """
 Assistant Public Controller — TrustShare AI Assistant
 
@@ -5,12 +6,14 @@ User-facing endpoints available to all authenticated users.
 """
 
 import logging
+import json
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from src.auth.dependencies import get_current_user
-from src.database.core import get_db
+from src.auth.dependencies import get_current_user, oauth2_scheme
+from src.database.core import get_db, SessionLocal
 from src.entities.user import User
 from src.entities.assistant_suggested_query import AssistantSuggestedQuery
 
@@ -33,7 +36,7 @@ router = APIRouter()
 @router.get("/status", response_model=AssistantStatusOut)
 def get_assistant_status(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Get current assistant status and UI config."""
     is_enabled = config_service.get_bool(db, "ENABLE_ASSISTANT", False)
@@ -64,16 +67,17 @@ def get_assistant_status(
         show_bubble=config_service.get_bool(db, "ENABLE_BUBBLE", True),
         max_message_length=config_service.get_int(db, "MAX_MESSAGE_LENGTH", 2000),
         message=message,
+        data_queries_available=is_enabled,
     )
 
 
 @router.get("/suggestions", response_model=list[SuggestedQueryOut])
 def get_suggested_queries(
     db: Session = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(get_ai_user),
 ):
     """Get all active suggested queries for the chat UI."""
-    return (
+    rows = (
         db.query(AssistantSuggestedQuery)
         .filter(AssistantSuggestedQuery.is_active == True)
         .order_by(
@@ -82,6 +86,11 @@ def get_suggested_queries(
         )
         .all()
     )
+    from src.assistant.intents import suggestion_intents
+    identifiers=suggestion_intents(db,rows)
+    return [SuggestedQueryOut.model_validate(row).model_copy(update={
+        'intent_id': identifiers[row.id],
+    }) for row in rows]
 
 
 # CHAT ENDPOINT
@@ -92,7 +101,8 @@ def chat(
     body: ChatRequest,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
+    token: str = Depends(oauth2_scheme),
 ):
     """
     Send a chat message and get an AI-generated response.
@@ -113,11 +123,19 @@ def chat(
             },
         )
 
+    def guard():
+        with SessionLocal() as auth_db:
+            get_current_user(token=token,db=auth_db)
+
     result = chat_service.process_chat(
         db=db,
         user=current_user,
         user_message=body.message,
         conversation_id=body.conversation_id,
+        intent_id=body.intent_id,
+        suggestion_id=body.suggestion_id,
+        request_id=body.request_id,
+        guard=guard,
     )
 
     return ChatResponse(
@@ -128,7 +146,50 @@ def chat(
         tokens_used=result.get("tokens_used"),
         model_used=result.get("model_used"),
         error=result.get("error", False),
+        request_id=result.get('request_id'),
+        route=result.get('route'),
+        performance=result.get('performance'),
     )
+
+
+@router.post('/chat/stream')
+def stream_chat(body: ChatRequest, request: Request, db: Session = Depends(get_db),
+                current_user: User = Depends(get_ai_user), token: str = Depends(oauth2_scheme)):
+    # Validate before response headers and retain the JSON endpoint's rate limit.
+    from src.assistant.intents import resolve
+    resolve(db,body.message,body.intent_id,body.suggestion_id)
+    if not config_service.get_bool(db,'ENABLE_ASSISTANT',False):
+        raise HTTPException(503,'AI Assistant is currently disabled.')
+    if len(body.message) > config_service.get_int(db,'MAX_MESSAGE_LENGTH',2000):
+        raise HTTPException(400,'Message exceeds the configured maximum.')
+    rl = check_rate_limit(str(current_user.id),'assistant_chat',db)
+    if not rl.get('allowed'):
+        raise HTTPException(429,{'message':'Rate limit exceeded. Please wait before sending more messages.', 'reset_in':rl.get('reset_in')})
+    user_id = current_user.id
+
+    def guard():
+        # Separate sessions also observe logout/revocation during a long stream.
+        with SessionLocal() as auth_db:
+            actor = get_current_user(token=token,db=auth_db)
+            if actor.id != user_id:
+                raise HTTPException(401,'Session changed. Please sign in again.')
+
+    async def events():
+        # FastAPI 0.110 releases dependency sessions before streaming finishes.
+        # This generator owns its session for the complete response lifetime.
+        with SessionLocal() as stream_db:
+            user = stream_db.get(User,user_id)
+            engine = chat_service.chat_events(stream_db,user,body.message,body.conversation_id,
+                body.intent_id,body.suggestion_id,body.request_id,guard=guard)
+            try:
+                async for event in engine:
+                    yield 'event: '+event['event']+'\ndata: '+json.dumps(event['data'],ensure_ascii=False,default=str)+'\n\n'
+            finally:
+                await engine.aclose()
+
+    return StreamingResponse(events(),media_type='text/event-stream',headers={
+        'Cache-Control':'no-cache, no-transform','X-Accel-Buffering':'no',
+    })
 
 
 # CONVERSATION HISTORY
@@ -137,7 +198,7 @@ def chat(
 @router.get("/conversations", response_model=list[ConversationOut])
 def list_conversations(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """List user's non-archived conversations."""
     convs = conversation_service.list_conversations(db, current_user.id)
@@ -160,7 +221,7 @@ def list_conversations(
 def get_conversation_messages(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Get all messages in a conversation."""
     conv = conversation_service.get_conversation(db, conversation_id, current_user.id)
@@ -192,7 +253,7 @@ def get_conversation_messages(
 def archive_conversation(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Archive (soft-delete) a conversation."""
     ok = conversation_service.archive_conversation(db, conversation_id, current_user.id)
@@ -213,7 +274,7 @@ def rename_conversation(
     conversation_id: int,
     body: RenameConversationRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     conv = conversation_service.get_conversation(db, conversation_id, current_user.id)
     if not conv:

@@ -41,6 +41,10 @@ class SummaryOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     cached: bool = False
+    stage: Optional[str] = None
+    performance: Optional[dict] = None
+    generation_policy: Optional[str] = None
+    generation_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

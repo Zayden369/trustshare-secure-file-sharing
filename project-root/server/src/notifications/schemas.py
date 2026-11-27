@@ -12,7 +12,8 @@ class NotificationOut(BaseModel):
     category: str
     title: str
     message: str
-    icon: str
+    # Existing rows and create_notification() allow an omitted icon.
+    icon: Optional[str] = None
     is_read: bool
     resource_id: Optional[int] = None
     resource_type: Optional[str] = None

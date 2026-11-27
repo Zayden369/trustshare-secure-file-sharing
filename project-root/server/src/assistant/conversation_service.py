@@ -38,6 +38,7 @@ def get_conversation(
         .filter(
             ChatConversation.id == conversation_id,
             ChatConversation.user_id == user_id,
+            ChatConversation.is_archived == False,
         )
         .first()
     )
@@ -70,6 +71,7 @@ def add_message(
     function_result: Optional[dict] = None,
     tokens_used: Optional[int] = None,
     model_used: Optional[str] = None,
+    commit: bool = True,
 ) -> ChatMessage:
 
     msg = ChatMessage(
@@ -91,8 +93,11 @@ def add_message(
     if conv:
         conv.message_count = (conv.message_count or 0) + 1
 
-    db.commit()
-    db.refresh(msg)
+    if commit:
+        db.commit()
+        db.refresh(msg)
+    else:
+        db.flush()
     return msg
 
 
@@ -103,12 +108,11 @@ def get_messages(
     query = (
         db.query(ChatMessage)
         .filter(ChatMessage.conversation_id == conversation_id)
-        .order_by(ChatMessage.id)
     )
     if limit:
         msgs = query.order_by(desc(ChatMessage.id)).limit(limit).all()
         return list(reversed(msgs))
-    return query.all()
+    return query.order_by(ChatMessage.id).all()
 
 
 def messages_to_llm_format(messages: list[ChatMessage]) -> list[dict]:

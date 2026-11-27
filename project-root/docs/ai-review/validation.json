@@ -1,0 +1,41 @@
+{
+  "backend": {
+    "passed": 147,
+    "warnings": 48
+  },
+  "postgresql_disposable_schemas": {
+    "passed": 7,
+    "warnings": 15
+  },
+  "affected_ai_after_deadline_seed": {
+    "passed": 29
+  },
+  "frontend_focused": {
+    "passed": 13,
+    "suites": 4
+  },
+  "frontend_full": {
+    "passed": 88,
+    "failed_tests": 9,
+    "failed_suites": 5,
+    "suites_total": 27
+  },
+  "frontend_untouched_base": {
+    "passed": 79,
+    "failed_tests": 9,
+    "failed_suites": 5,
+    "suites_total": 24
+  },
+  "same_failing_suites": [
+    "FileDragDrop",
+    "Notifications",
+    "ActivityPage",
+    "Sharing",
+    "NavbarNotifications (ESM suite loading)"
+  ],
+  "production_build": "passed with existing warnings; final main.7788cd43.js contains Source highlights",
+  "deployed": false,
+  "merged": false,
+  "browser_member_recovery_seconds": 3.42,
+  "browser_cached_seconds": 0.09
+}

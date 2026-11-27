@@ -172,7 +172,7 @@ def test_ollama_has_bounded_output_and_enforces_requested_layout(monkeypatch):
     def post(_url, **kwargs):
         requests.append(kwargs["json"])
         return Response()
-    monkeypatch.setattr(providers.httpx, "post", post)
+    monkeypatch.setattr(providers._http_client, "post", post)
     provider = OllamaProvider("http://localhost:11434", "test-model", 5)
     paragraph = provider.generate_summary("The contract is encrypted.", {"summary_length": "short", "output_language": "original", "output_format": "paragraph"})
     bullets = provider.generate_summary("The contract is encrypted.", {"summary_length": "detailed", "output_language": "original", "output_format": "bullet_points"})
@@ -191,7 +191,7 @@ def test_ollama_derives_metadata_from_single_generated_paragraph(monkeypatch):
         def raise_for_status(self): pass
         def json(self):
             return {"response": '{"summary":"Contracts are protected."}'}
-    monkeypatch.setattr(providers.httpx, "post", lambda *args, **kwargs: Response())
+    monkeypatch.setattr(providers._http_client, "post", lambda *args, **kwargs: Response())
     result = OllamaProvider("http://localhost:11434", "test-model", 5).generate_summary(
         "Contract documents are encrypted. Owners control recipient permissions.",
         {"summary_length": "short", "output_format": "paragraph", "output_language": "original"},
@@ -212,7 +212,7 @@ def test_ollama_rejects_truncated_response_and_honours_thread_setting(monkeypatc
     def post(*args, **kwargs):
         requests.append(kwargs["json"])
         return Response()
-    monkeypatch.setattr(providers.httpx, "post", post)
+    monkeypatch.setattr(providers._http_client, "post", post)
     monkeypatch.setenv("SUMMARY_OLLAMA_THREADS", "2")
     with pytest.raises(ProviderUnavailable):
         OllamaProvider("http://localhost:11434", "test-model", 5).generate_summary(

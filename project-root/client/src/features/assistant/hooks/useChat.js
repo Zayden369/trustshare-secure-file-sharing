@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { assistantAPI } from '../services/assistantAPI';
+import { emitAssistantEvent } from '../utils/assistantEvents';
+
+const requestId = () => window.crypto?.randomUUID?.().replaceAll('-', '') || `request_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
 export function useChat(initialConversationId = null) {
     const [conversationId, setConversationId] = useState(initialConversationId);
@@ -7,186 +10,136 @@ export function useChat(initialConversationId = null) {
     const [sending, setSending] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [error, setError] = useState(null);
-
-    const lastUserMessageRef = useRef(null);
-    const isMountedRef = useRef(true);
-    const isInitialLoadDoneRef = useRef(false);
+    const [stage, setStage] = useState('');
+    const conversation = useRef(initialConversationId);
+    const mounted = useRef(true);
+    const controller = useRef(null);
+    const epoch = useRef(0);
+    const busy = useRef(false);
+    const lastRequest = useRef(null);
 
     useEffect(() => {
-        isMountedRef.current = true;
-        return () => { isMountedRef.current = false; };
+        mounted.current = true;
+        return () => { mounted.current = false; epoch.current += 1; controller.current?.abort(); };
     }, []);
 
     useEffect(() => {
-        // Reset for new conversation
-        isInitialLoadDoneRef.current = false;
+        // A server-issued ID becoming a URL prop is the same active conversation.
+        if (initialConversationId === conversation.current && lastRequest.current) return undefined;
+        controller.current?.abort();
+        const version = ++epoch.current;
+        busy.current = false;
+        setSending(false); setError(null); setStage('');
+        conversation.current = initialConversationId;
         setConversationId(initialConversationId);
+        lastRequest.current = null;
+        setMessages([]);
+        if (!initialConversationId) { setLoadingHistory(false); return undefined; }
+        let cancelled = false;
+        setLoadingHistory(true);
+        assistantAPI.getMessages(initialConversationId).then(({ data }) => {
+            if (!cancelled && mounted.current && epoch.current === version) setMessages(data || []);
+        }).catch(err => {
+            if (!cancelled && mounted.current && epoch.current === version) setError(err?.response?.data?.detail || 'Unable to load this conversation.');
+        }).finally(() => {
+            if (!cancelled && mounted.current && epoch.current === version) setLoadingHistory(false);
+        });
+        return () => { cancelled = true; };
     }, [initialConversationId]);
 
-    useEffect(() => {
-        if (!conversationId) {
-            setMessages([]);
-            isInitialLoadDoneRef.current = false;
-            return;
-        }
-        if (isInitialLoadDoneRef.current) {
-            return;
-        }
-
-        let cancelled = false;
-        (async () => {
-            setLoadingHistory(true);
-            setError(null);
-            try {
-                const { data } = await assistantAPI.getMessages(conversationId);
-                if (!cancelled && isMountedRef.current) {
-                    setMessages(data || []);
-                    isInitialLoadDoneRef.current = true;
-                }
-            } catch (err) {
-                if (!cancelled && isMountedRef.current) {
-                    setError(err?.response?.data?.detail || err?.message || 'Failed to load');
-                }
-            } finally {
-                if (!cancelled && isMountedRef.current) {
-                    setLoadingHistory(false);
-                }
-            }
-        })();
-
-        return () => { cancelled = true; };
-    }, [conversationId]);
-
-    const _extractErrorMessage = (err) => {
-        const s = err?.response?.status;
-        const d = err?.response?.data?.detail;
-        if (s === 429) return "🚫 Too many requests. Wait a moment.";
-        if (s === 401) return '🔑 Session expired.';
-        if (s === 403) return "🔒 Permission denied.";
-        if (s >= 500) return '⚠️ Server error.';
-        if (err?.code === 'ERR_NETWORK') return '🌐 Network error.';
-        return d?.message || (typeof d === 'string' ? d : null) || err?.message || 'Failed.';
-    };
-
-    const sendMessage = useCallback(
-        async (text) => {
-            const trimmed = text.trim();
-            if (!trimmed || sending) return;
-
-            const sendConvId = conversationId;
-            lastUserMessageRef.current = trimmed;
-            setError(null);
-            setSending(true);
-
-            const userMsgId = `u-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            setMessages((prev) => [...prev, {
-                id: userMsgId,
-                role: 'user',
-                content: trimmed,
-                created_at: new Date().toISOString(),
-            }]);
-
-            try {
-                const { data } = await assistantAPI.sendMessage(trimmed, sendConvId);
-
-                if (!isMountedRef.current) return;
-
-                if (data.error) {
-                    setMessages((prev) => [...prev, {
-                        id: `e-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-                        role: 'assistant',
-                        content: data.message || 'Error',
-                        created_at: new Date().toISOString(),
-                        isError: true,
-                    }]);
-                    return;
-                }
-
-                if (data.conversation_id && data.conversation_id !== sendConvId) {
-                    isInitialLoadDoneRef.current = true;
-                    setConversationId(data.conversation_id);
-                }
-
-                const newMsgs = [];
-
-                if (data.function_calls && data.function_calls.length > 0) {
-                    data.function_calls.forEach((fc) => {
-                        newMsgs.push({
-                            id: `f-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-                            role: 'function',
-                            function_name: fc.name,
-                            function_result: fc.result,
-                            created_at: new Date().toISOString(),
-                        });
-                    });
-                }
-
-                newMsgs.push({
-                    id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-                    role: 'assistant',
-                    content: data.message,
-                    tokens_used: data.tokens_used,
-                    model_used: data.model_used,
-                    created_at: new Date().toISOString(),
-                });
-
-                setMessages((prev) => [...prev, ...newMsgs]);
-
-            } catch (err) {
-                if (!isMountedRef.current) return;
-                if (err.name === 'AbortError' || err.name === 'CanceledError') return;
-
-                setMessages((prev) => [...prev, {
-                    id: `e-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-                    role: 'assistant',
-                    content: _extractErrorMessage(err),
-                    created_at: new Date().toISOString(),
-                    isError: true,
-                }]);
-
-            } finally {
-                if (isMountedRef.current) setSending(false);
-            }
-        },
-        [conversationId, sending]
-    );
-
-    const regenerateLastMessage = useCallback(async () => {
-        if (!lastUserMessageRef.current) return;
-        setMessages((prev) => {
-            const msgs = [...prev];
-            while (msgs.length > 0 && msgs[msgs.length - 1].role !== 'user') msgs.pop();
-            return msgs;
+    const sendMessage = useCallback(async (text, metadata = {}) => {
+        const trimmed = text.trim();
+        if (!trimmed || busy.current) return;
+        busy.current = true;
+        const version = ++epoch.current;
+        const payload = metadata.retryPayload || {
+            message: trimmed, conversation_id: conversation.current || undefined,
+            intent_id: metadata.intent_id || undefined, suggestion_id: metadata.suggestion_id || undefined,
+            request_id: requestId(),
+        };
+        lastRequest.current = { payload, completed: false };
+        controller.current = new AbortController();
+        const signal = controller.current.signal;
+        const prefix = payload.request_id;
+        const userId = `u-${prefix}`;
+        const assistantId = `a-${prefix}`;
+        const valid = () => mounted.current && epoch.current === version;
+        let content = '';
+        let toolIndex = 0;
+        let terminalError = null;
+        setError(null); setSending(true); setStage('Connecting…');
+        setMessages(previous => {
+            const clean = previous.filter(item => !item.id?.toString().startsWith(`f-${prefix}-`) && item.id !== assistantId);
+            return clean.some(item => item.id === userId) ? clean : [...clean, { id: userId, role: 'user', content: trimmed, created_at: new Date().toISOString() }];
         });
-        await new Promise((r) => setTimeout(r, 50));
+        const updateAssistant = (textValue, extra = {}) => setMessages(previous => {
+            const row = { id: assistantId, role: 'assistant', content: textValue, created_at: new Date().toISOString(), ...extra };
+            return previous.some(item => item.id === assistantId)
+                ? previous.map(item => item.id === assistantId ? row : item) : [...previous, row];
+        });
+        try {
+            await assistantAPI.streamMessage(payload, { signal, onEvent: ({ event, data }) => {
+                if (!valid() || signal.aborted) return;
+                if (event === 'meta') {
+                    conversation.current = data.conversation_id;
+                    setConversationId(data.conversation_id);
+                } else if (event === 'delta') {
+                    content += data.text;
+                    updateAssistant(content, { streaming: true });
+                    setStage('Receiving response…');
+                } else if (event === 'status') {
+                    setStage(data.stage === 'generating' ? 'Generating response…' : 'Waiting for AI…');
+                } else if (event === 'tool_start') {
+                    setStage('Retrieving your authorized data…');
+                } else if (event === 'tool_result') {
+                    const row = { id: `f-${prefix}-${toolIndex++}`, role: 'function', function_name: data.name, function_result: data.result };
+                    setMessages(previous => [...previous, row]);
+                } else if (event === 'error') {
+                    terminalError = data;
+                } else if (event === 'done') {
+                    lastRequest.current.completed = true;
+                    emitAssistantEvent({ type: 'conversation_updated', conversationId: conversation.current });
+                    // Terminal results also rebuild cards for idempotent replay.
+                    const cards = (data.function_calls || []).map((call, index) => ({ id: `f-${prefix}-${index}`, role: 'function', function_name: call.name, function_result: call.result }));
+                    setMessages(previous => [...previous.filter(item => item.id !== assistantId && !item.id?.toString().startsWith(`f-${prefix}-`)), ...cards,
+                        { id: assistantId, role: 'assistant', content: data.message, tokens_used: data.tokens_used, model_used: data.model_used, created_at: new Date().toISOString() }]);
+                }
+            } });
+            if (terminalError) throw new Error(terminalError.message || 'The assistant could not complete this turn.');
+        } catch (err) {
+            if (!valid()) return;
+            if (signal.aborted) {
+                if (content) updateAssistant(content + '\n\nGeneration stopped.', { isError: true });
+            } else {
+                const detail = err?.response?.data?.detail;
+                const message = detail?.message || (typeof detail === 'string' ? detail : null) || err.message || 'Request interrupted. Retry to recover this turn.';
+                setError(message);
+                updateAssistant(content ? `${content}\n\n${message}` : message, { isError: true });
+            }
+        } finally {
+            if (valid()) { busy.current = false; setSending(false); setStage(''); }
+        }
+    }, []);
 
-        const text = lastUserMessageRef.current;
-        lastUserMessageRef.current = null;
-        await sendMessage(text);
+    const regenerateLastMessage = useCallback(() => {
+        const last = lastRequest.current;
+        if (!last || busy.current) return undefined;
+        return sendMessage(last.payload.message, last.completed
+            ? { intent_id: last.payload.intent_id, suggestion_id: last.payload.suggestion_id }
+            : { retryPayload: last.payload });
     }, [sendMessage]);
 
     const stopGenerating = useCallback(() => {
-        setSending(false);
+        controller.current?.abort();
+        setStage('Stopping generation…');
     }, []);
 
     const resetChat = useCallback(() => {
-        setConversationId(null);
-        setMessages([]);
-        setError(null);
-        lastUserMessageRef.current = null;
-        isInitialLoadDoneRef.current = false;
+        controller.current?.abort(); epoch.current += 1; busy.current = false;
+        conversation.current = null; lastRequest.current = null;
+        setConversationId(null); setMessages([]); setError(null); setSending(false); setStage('');
     }, []);
 
-    return {
-        messages,
-        sending,
-        loadingHistory,
-        error,
-        sendMessage,
-        regenerateLastMessage,
-        stopGenerating,
-        resetChat,
-        conversationId,
-        canRegenerate: !!lastUserMessageRef.current && !sending,
-    };
+    return { messages, sending, loadingHistory, error, stage, sendMessage, regenerateLastMessage,
+        stopGenerating, resetChat, conversationId, canRegenerate: !!lastRequest.current && !sending };
 }

@@ -213,10 +213,13 @@ def get_all_by_category(db: Session, category: str) -> list[dict]:
 def is_assistant_configured(db: Session) -> bool:
     """
     Check if assistant is ready to use.
-    Requires: enabled flag ON and API key set.
+    Requires enabled state and provider-specific configuration.
     """
     if not get_bool(db, "ENABLE_ASSISTANT", False):
         return False
+
+    if get_str(db, 'LLM_PROVIDER', 'groq').strip().lower() == 'ollama':
+        return bool(get_str(db, 'LLM_BASE_URL', '').strip())
 
     api_key = get(db, "LLM_API_KEY")
     return bool(api_key)

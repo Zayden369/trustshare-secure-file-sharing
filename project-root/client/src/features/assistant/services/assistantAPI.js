@@ -19,6 +19,51 @@ const sendMessage = (message, conversationId = null) => {
     return api.post(`${BASE}/chat`, payload);
 };
 
+// The fetch adapter retains the shared JWT/refresh interceptors while exposing
+// the actual response stream in browsers. Never replay a completed text buffer.
+const streamMessage = async (payload, { signal, onEvent }) => {
+    let response;
+    try {
+        response = await api.post(`${BASE}/chat/stream`, payload, {
+            adapter: 'fetch', responseType: 'stream', signal, timeout: 130000,
+            headers: { Accept: 'text/event-stream' },
+        });
+    } catch (error) {
+        if (error.response?.data?.getReader) {
+            try { error.response.data = JSON.parse(await new Response(error.response.data).text()); } catch { /* retain safe HTTP status */ }
+        }
+        throw error;
+    }
+    const reader = response.data.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let completed = false;
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer = (buffer + decoder.decode(value, { stream: true })).replace(/\r\n/g, '\n');
+            if (buffer.length > 262144) throw new Error('Assistant response frame was too large.');
+            let boundary;
+            while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+                const frame = buffer.slice(0, boundary);
+                buffer = buffer.slice(boundary + 2);
+                const lines = frame.split('\n');
+                const type = lines.find(line => line.startsWith('event:'))?.slice(6).trim();
+                const data = lines.filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
+                if (!type || !data) continue;
+                const event = { event: type, data: JSON.parse(data) };
+                onEvent(event);
+                if (type === 'done' || type === 'error') completed = true;
+            }
+        }
+        if (!completed && !signal?.aborted) throw new Error('The connection ended before the response completed. Retry to recover this turn.');
+    } finally {
+        await reader.cancel().catch(() => {});
+        reader.releaseLock();
+    }
+};
+
 const listConversations = () => api.get(`${BASE}/conversations`);
 
 const getMessages = (conversationId) =>
@@ -79,6 +124,7 @@ export const assistantAPI = {
     getStatus,
     getSuggestions,
     sendMessage,
+    streamMessage,
     listConversations,
     getMessages,
     archiveConversation,
