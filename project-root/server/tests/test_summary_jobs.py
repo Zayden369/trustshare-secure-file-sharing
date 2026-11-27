@@ -228,3 +228,87 @@ def test_standard_support_retains_measured_result_and_audit_caveat():
     result=ExtractiveFallbackProvider().generate_summary(text,{'summary_length':'standard','output_format':'paragraph'})
     points=' '.join(result['key_points'])
     assert all(term in points for term in ['24','180','162','audit','not certified'])
+
+
+def test_legacy_cache_is_rebuilt_and_old_result_remains_in_history(db, document):
+    user, file, _ = document
+    summary, _ = service.create_summary(db, file.id, user.id, SummaryCreate())
+    summary.status = 'completed'; summary.summary_text = 'Earlier saved summary.'
+    db.delete(db.get(SummaryJob, summary.id)); db.commit()
+    assert service.get_summary(db, file.id, summary.id, user.id).is_stale
+    returned, cached = service.create_summary(db, file.id, user.id, SummaryCreate())
+    assert not cached and returned.status == 'pending'
+    old = db.query(SummaryRevision).filter_by(summary_id=summary.id).one()
+    assert old.result['summary_text'] == 'Earlier saved summary.'
+    service.process_summary(summary.id); db.expire_all()
+    assert not service.get_summary(db, file.id, summary.id, user.id).is_stale
+
+
+@pytest.mark.parametrize('format,field',[('paragraph','sentences'),('bullet_points','key_points')])
+def test_native_schema_requires_different_depth_for_all_lengths(format, field):
+    from src.file_summaries.providers import _ollama_request, _parse_ollama_result
+    source=' '.join(f'The synthetic section {i} records a different verified finding and provides its original context without making unsupported claims.' for i in range(8))
+    for length, target in [('short',2),('standard',4),('detailed',6)]:
+        _, schema = _ollama_request(source, {'summary_length':length,'output_format':format})
+        assert schema['required'] == [field]
+        assert schema['properties'][field]['minItems'] == schema['properties'][field]['maxItems'] == target
+        import json
+        items=[f'The synthetic section {i} records a different verified finding and provides its original context without making unsupported claims.' for i in range(target)]
+        result=_parse_ollama_result(json.dumps({field:items}),source,{'summary_length':length,'output_format':format})
+        assert result['summary'] == ' '.join(items)
+        with pytest.raises(ProviderUnavailable):
+            _parse_ollama_result(json.dumps({field:[items[0]]*target}),source,{'summary_length':length,'output_format':format})
+        with pytest.raises(ProviderUnavailable):
+            _parse_ollama_result(json.dumps({field:['A heading']*target}),source,{'summary_length':length,'output_format':format})
+
+
+def test_quantities_keep_units_and_positive_counts_are_not_negated():
+    from src.file_summaries.providers import _validate_source_fidelity
+    source='Reporting period: last 30 days. Failed login attempts: 3. Blocked attacks: 0. Activity count: 3.'
+    with pytest.raises(ProviderUnavailable):
+        _validate_source_fidelity(source,{'summary':'The report covers 3 days.'})
+    with pytest.raises(ProviderUnavailable):
+        _validate_source_fidelity(source,{'summary':'There were no failed login attempts.'})
+    _validate_source_fidelity(source,{'summary':'The report covers 30 days with 3 failed login attempts and no blocked attacks.'})
+
+
+def test_short_labelled_metrics_are_not_discarded():
+    from src.file_summaries.providers import _sentences, _depth_target
+    source='Security score: 92\nFailed logins: 3\nBlocked attacks: 0\nMFA: 40%\nUploads: 12\nDownloads: 18'
+    assert len(_sentences(source)) == 6
+    assert _depth_target(source,'detailed') == 6
+    assert _depth_target('One source fact is available.','detailed') == 1
+
+
+def test_native_items_cannot_add_nested_bullets_to_the_requested_count():
+    import json
+    from src.file_summaries.providers import _parse_ollama_result, _format_result
+    source='The synthetic report recorded 24 successful logins during the reporting period. The report is not an independent security audit.'
+    raw={'key_points':['- The report recorded 24 successful logins.\n- The reporting period is covered.', '2. The report is not an independent security audit.']}
+    options={'summary_length':'short','output_format':'bullet_points'}
+    result=_format_result(_parse_ollama_result(json.dumps(raw),source,options),options)
+    assert len(result['summary'].splitlines()) == 2
+    assert all(line.startswith('- ') for line in result['summary'].splitlines())
+
+
+def test_source_qualification_cannot_be_reversed():
+    from src.file_summaries.providers import _validate_source_fidelity
+    source='This report is not an independent security audit and does not prove that undetected attacks never occurred.'
+    with pytest.raises(ProviderUnavailable):
+        _validate_source_fidelity(source,{'summary':'This report is an independent security audit.'})
+    _validate_source_fidelity(source,{'summary':'This report is not an independent security audit.'})
+
+
+def test_model_cannot_reuse_the_entire_answer_for_different_depth(db, document, monkeypatch):
+    from types import SimpleNamespace
+    user, file, _ = document
+    repeated='Project Cedar stores encrypted files and owners control reviewer permissions.'
+    monkeypatch.setattr(service,'_run_provider',lambda *a,**k: ({'summary':repeated,'key_points':[]},SimpleNamespace(name='ollama',model_name='synthetic'),None))
+    short,_=service.create_summary(db,file.id,user.id,SummaryCreate(summary_length='short'))
+    service.process_summary(short.id);db.expire_all()
+    standard,_=service.create_summary(db,file.id,user.id,SummaryCreate(summary_length='standard'))
+    service.process_summary(standard.id);db.expire_all()
+    assert standard.status == 'completed'
+    assert standard.provider == 'extractive_fallback'
+    assert standard.summary_text != short.summary_text
+    assert 'repeated another length' in standard.warning_message

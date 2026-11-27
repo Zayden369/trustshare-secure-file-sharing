@@ -45,6 +45,7 @@ class SummaryOut(BaseModel):
     performance: Optional[dict] = None
     generation_policy: Optional[str] = None
     generation_id: Optional[str] = None
+    is_stale: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

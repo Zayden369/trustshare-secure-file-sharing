@@ -95,7 +95,8 @@ def _run_provider(text: str, options: dict, fallback_text: str | None = None):
         with gate:
             if trace and getattr(trace,'on_inference_start',None):
                 trace.on_inference_start()
-            return provider.generate_summary(text, options), provider, None
+            result = provider.generate_summary(text, options)
+            return result, provider, result.get('warning')
     except ProviderUnavailable:
         if os.getenv("ENABLE_SUMMARY_FALLBACK", "true").lower() != "true" or (provider and provider.name == "extractive_fallback"):
             raise
@@ -103,6 +104,34 @@ def _run_provider(text: str, options: dict, fallback_text: str | None = None):
         with trace.stage('extractive_fallback') if trace else nullcontext():
             result=fallback.generate_summary(fallback_text if fallback_text is not None else text, options)
         return result, fallback, "Configured AI provider was unavailable or its output failed validation; an extractive fallback was used."
+
+
+def _respect_depth(db, summary, result, provider, warning, source, options, fallback_text):
+    """Never accept a full reused answer for a materially different depth."""
+    from src.entities.summary_job import SummaryJob
+    from src.file_summaries.jobs import policy
+    from src.file_summaries.providers import _depth_target
+
+    if provider.name == 'extractive_fallback':
+        return result, provider, warning
+    others = (db.query(FileSummary).join(SummaryJob, SummaryJob.summary_id == FileSummary.id)
+              .filter(FileSummary.file_id == summary.file_id,
+                      FileSummary.source_file_version == summary.source_file_version,
+                      FileSummary.source_checksum == summary.source_checksum,
+                      FileSummary.output_format == summary.output_format,
+                      FileSummary.output_language == summary.output_language,
+                      FileSummary.summary_length != summary.summary_length,
+                      FileSummary.status == 'completed', SummaryJob.policy == policy()).all())
+    identity = lambda text: re.sub(r'\W+', '', text.casefold())
+    duplicate = any(_depth_target(source, previous.summary_length) != _depth_target(source, summary.summary_length)
+                    and identity(previous.summary_text or '') == identity(result['summary']) for previous in others)
+    if duplicate:
+        if os.getenv('ENABLE_SUMMARY_FALLBACK', 'true').lower() != 'true':
+            raise ProviderUnavailable('The model reused another summary depth')
+        provider = ExtractiveFallbackProvider()
+        result = provider.generate_summary(fallback_text, options)
+        warning = 'The model repeated another length option. A source-based extractive summary was used for the requested depth.'
+    return result, provider, warning
 
 
 def _source_for_model(text: str, character_limit=None) -> tuple[str, str | None]:
@@ -165,6 +194,7 @@ def summary_history(db: Session, file_id: int, summary_id: int, user_id: int):
     from sqlalchemy import func
     from src.entities.summary_job import SummaryJob, SummaryRevision
     from src.file_summaries.models import SummaryOut
+    from src.file_summaries.jobs import policy
 
     current = get_summary(db, file_id, summary_id, user_id)
     entries = {}
@@ -173,16 +203,16 @@ def summary_history(db: Session, file_id: int, summary_id: int, user_id: int):
                  .order_by(SummaryRevision.created_at.desc(), SummaryRevision.generation_id.desc()).limit(20).all())
     for revision in revisions:
         if revision.generation_id != current.generation_id:
-            entries[revision.generation_id] = {'generation_id': revision.generation_id, 'result': revision.result}
+            entries[revision.generation_id] = {'generation_id': revision.generation_id, 'result': {**revision.result, 'is_stale': revision.policy != policy()}}
 
-    others = (db.query(FileSummary, SummaryJob.generation_id)
+    others = (db.query(FileSummary, SummaryJob.generation_id, SummaryJob.policy)
               .outerjoin(SummaryJob, SummaryJob.summary_id == FileSummary.id)
               .filter(FileSummary.file_id == file_id, FileSummary.id != summary_id, FileSummary.status == 'completed')
               .order_by(func.coalesce(FileSummary.generated_at, FileSummary.updated_at, FileSummary.created_at).desc(), FileSummary.id.desc())
               .limit(20).all())
-    for summary, generation_id in others:
+    for summary, generation_id, generation_policy in others:
         identity = generation_id or f'summary-{summary.id}'
-        entries[identity] = {'generation_id': identity, 'result': SummaryOut.model_validate(summary).model_dump(mode='json')}
+        entries[identity] = {'generation_id': identity, 'result': {**SummaryOut.model_validate(summary).model_dump(mode='json'), 'is_stale': generation_policy != policy()}}
 
     def generated_time(entry):
         result = entry['result']
