@@ -14,6 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_CONFIGS = [
+    {
+        "config_key": "AI_REQUEST_DEADLINE_SECONDS",
+        "config_value": "75",
+        "config_type": "integer",
+        "description": "Overall custom AI turn deadline, including queue and tools (clamped to 10-120 seconds)",
+        "is_secret": False,
+        "is_editable": True,
+        "category": "llm",
+        "display_order": 8,
+    },
     # LLM Provider Configs
     {
         "config_key": "LLM_PROVIDER",

@@ -80,6 +80,17 @@ def test_dynamic_suggestion_alias_is_validated_and_ambiguous_text_uses_ai(db,act
         intents.resolve(db,'Show my active sessions',suggestion_id=row.id)
 
 
+def test_admin_curated_custom_suggestion_has_a_stable_safe_intent(db,actor,monkeypatch):
+    from src.entities.assistant_suggested_query import AssistantSuggestionIntent
+    row=AssistantSuggestedQuery(query_text='My remaining workspace capacity',category='storage',is_active=True)
+    db.add(row);db.flush();db.add(AssistantSuggestionIntent(suggestion_id=row.id,intent_id='storage.overview'));db.commit()
+    monkeypatch.setattr(chat_service,'LLMClient',forbid_llm)
+    result=chat_service.process_chat(db,actor,row.query_text,intent_id='storage.overview',suggestion_id=row.id)
+    assert result['route']=='deterministic'
+    assert result['function_calls'][0]['name']=='get_storage_info'
+    assert intents.resolve(db,row.query_text).id=='storage.overview'
+
+
 def test_permissions_and_feature_flags_apply_to_fast_path(db,actor,monkeypatch):
     row=db.query(AssistantFunction).filter_by(function_name='get_storage_info').one()
     row.requires_admin=True;db.commit()
@@ -181,3 +192,73 @@ def test_duplicate_tool_calls_are_stopped(db,actor,monkeypatch):
 def test_model_payload_redacts_sensitive_fields_and_bounds_data():
     value=chat_service._model_result({'email':'private@test.com','files':[{'name':'a'*1000,'token':'secret'}]*100})
     assert 'secret' not in str(value) and 'private@test.com' not in str(value)
+
+
+def test_revoked_session_stops_reply_before_persistence(db,actor,monkeypatch):
+    from fastapi import HTTPException
+    monkeypatch.setattr(chat_service,'LLMClient',FakeClient)
+    checks=[]
+    def guard():
+        checks.append(1)
+        if len(checks)>=3:raise HTTPException(401,'Session revoked.')
+    result=chat_service.process_chat(db,actor,'Explain a checksum.',request_id=uuid.uuid4().hex,guard=guard)
+    assert result['error'] and result['status_code']==401
+    assert db.query(ChatMessage).filter_by(conversation_id=result['conversation_id'],role='assistant').count()==0
+
+
+def test_superseded_worker_cannot_complete_or_fail_new_retry(db,actor):
+    from fastapi import HTTPException
+    from src.ai_metrics import traced
+    request=uuid.uuid4().hex
+    old,conv,*_=chat_service._prepare(db,actor,'Explain a checksum.',None,None,None,request)
+    old_lease=old.metrics['lease']
+    old.status='failed';db.commit()
+    newer,*_=chat_service._prepare(db,actor,'Explain a checksum.',None,None,None,request)
+    new_lease=newer.metrics['lease']
+    assert old_lease!=new_lease
+    with traced('test') as trace:
+        with pytest.raises(HTTPException):
+            chat_service._complete(db,newer,'Stale result',[],None,0,'inference',False,trace,old_lease)
+        chat_service._fail_turn(db,request,old_lease,'failed',trace)
+        db.expire_all()
+        assert db.get(ChatTurn,request).status=='processing'
+        chat_service._complete(db,db.get(ChatTurn,request),'Current result',[],None,0,'inference',False,trace,new_lease)
+    assert db.query(ChatMessage).filter_by(conversation_id=conv.id,role='assistant').one().content=='Current result'
+
+
+def test_negative_admin_limit_cannot_expand_result_set(db,actor,monkeypatch):
+    monkeypatch.setattr(config_service,'get_int',lambda *args:-5)
+    result=functions.execute_function('list_files',{},db,actor)
+    assert len(result['files'])<=1
+
+
+def test_ai_http_endpoints_require_auth(client):
+    for path in ['/api/assistant/chat','/api/assistant/chat/stream']:
+        assert client.post(path,json={'message':'Show my recent files'}).status_code==401
+    assert client.get('/api/assistant/suggestions').status_code==401
+
+
+def test_stream_rate_limit_is_checked_before_opening_stream(db,actor,monkeypatch):
+    from fastapi import HTTPException
+    from src.assistant import controller
+    from src.assistant.models import ChatRequest
+    monkeypatch.setattr(controller,'check_rate_limit',lambda *args:{'allowed':False,'reset_in':30})
+    with pytest.raises(HTTPException) as error:
+        controller.stream_chat(ChatRequest(message='Show my recent files'),None,db,actor,'unused')
+    assert error.value.status_code==429
+
+
+def test_generic_explanations_do_not_receive_unrelated_product_policy(db,actor):
+    from src.assistant import knowledge
+    assert knowledge.model_context(db,actor,'Explain why revoking a link cannot erase a downloaded copy.')==''
+    assert 'not end-to-end' in knowledge.model_context(db,actor,'Explain how TrustShare encryption protects uploads.')
+
+
+def test_member_cannot_map_admin_suggestions(client,db,actor):
+    from src.api import app
+    from src.auth.dependencies import get_current_user
+    app.dependency_overrides[get_current_user]=lambda:actor
+    try:
+        response=client.patch('/api/assistant/admin/suggestions/1/intent',json={'intent_id':'storage.overview'})
+        assert response.status_code==403
+    finally:app.dependency_overrides.pop(get_current_user,None)

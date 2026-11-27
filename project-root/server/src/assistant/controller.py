@@ -1,3 +1,4 @@
+from src.ai_auth import get_ai_user
 """
 Assistant Public Controller — TrustShare AI Assistant
 
@@ -35,7 +36,7 @@ router = APIRouter()
 @router.get("/status", response_model=AssistantStatusOut)
 def get_assistant_status(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Get current assistant status and UI config."""
     is_enabled = config_service.get_bool(db, "ENABLE_ASSISTANT", False)
@@ -73,7 +74,7 @@ def get_assistant_status(
 @router.get("/suggestions", response_model=list[SuggestedQueryOut])
 def get_suggested_queries(
     db: Session = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(get_ai_user),
 ):
     """Get all active suggested queries for the chat UI."""
     rows = (
@@ -85,9 +86,10 @@ def get_suggested_queries(
         )
         .all()
     )
-    from src.assistant.intents import BY_TEXT, normalize
+    from src.assistant.intents import suggestion_intents
+    identifiers=suggestion_intents(db,rows)
     return [SuggestedQueryOut.model_validate(row).model_copy(update={
-        'intent_id': BY_TEXT[normalize(row.query_text)].id if normalize(row.query_text) in BY_TEXT else None,
+        'intent_id': identifiers[row.id],
     }) for row in rows]
 
 
@@ -99,7 +101,8 @@ def chat(
     body: ChatRequest,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
+    token: str = Depends(oauth2_scheme),
 ):
     """
     Send a chat message and get an AI-generated response.
@@ -120,6 +123,10 @@ def chat(
             },
         )
 
+    def guard():
+        with SessionLocal() as auth_db:
+            get_current_user(token=token,db=auth_db)
+
     result = chat_service.process_chat(
         db=db,
         user=current_user,
@@ -128,6 +135,7 @@ def chat(
         intent_id=body.intent_id,
         suggestion_id=body.suggestion_id,
         request_id=body.request_id,
+        guard=guard,
     )
 
     return ChatResponse(
@@ -146,7 +154,7 @@ def chat(
 
 @router.post('/chat/stream')
 def stream_chat(body: ChatRequest, request: Request, db: Session = Depends(get_db),
-                current_user: User = Depends(get_current_user), token: str = Depends(oauth2_scheme)):
+                current_user: User = Depends(get_ai_user), token: str = Depends(oauth2_scheme)):
     # Validate before response headers and retain the JSON endpoint's rate limit.
     from src.assistant.intents import resolve
     resolve(db,body.message,body.intent_id,body.suggestion_id)
@@ -190,7 +198,7 @@ def stream_chat(body: ChatRequest, request: Request, db: Session = Depends(get_d
 @router.get("/conversations", response_model=list[ConversationOut])
 def list_conversations(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """List user's non-archived conversations."""
     convs = conversation_service.list_conversations(db, current_user.id)
@@ -213,7 +221,7 @@ def list_conversations(
 def get_conversation_messages(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Get all messages in a conversation."""
     conv = conversation_service.get_conversation(db, conversation_id, current_user.id)
@@ -245,7 +253,7 @@ def get_conversation_messages(
 def archive_conversation(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     """Archive (soft-delete) a conversation."""
     ok = conversation_service.archive_conversation(db, conversation_id, current_user.id)
@@ -266,7 +274,7 @@ def rename_conversation(
     conversation_id: int,
     body: RenameConversationRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ):
     conv = conversation_service.get_conversation(db, conversation_id, current_user.id)
     if not conv:

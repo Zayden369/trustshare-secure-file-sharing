@@ -150,7 +150,7 @@ class LLMClient:
             )
 
         except httpx.ConnectError as e:
-            logger.error(f"Cannot reach {self.provider}: {e}")
+            logger.error("Cannot reach %s (%s)", self.provider, type(e).__name__)
             if self.provider == "ollama":
                 raise LLMAPIError(
                     "Cannot reach Ollama. Make sure Ollama is running: "
@@ -165,8 +165,7 @@ class LLMClient:
 
         except Exception as e:
             logger.error(
-                f"Unexpected {self.provider} error: {type(e).__name__}: {e}",
-                exc_info=True,
+                "Unexpected %s error: %s", self.provider, type(e).__name__,
             )
             raise LLMAPIError(f"Unexpected error: {type(e).__name__}")
 

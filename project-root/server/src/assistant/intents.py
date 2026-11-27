@@ -4,7 +4,7 @@ import unicodedata
 from dataclasses import dataclass
 
 from fastapi import HTTPException
-from src.entities.assistant_suggested_query import AssistantSuggestedQuery
+from src.entities.assistant_suggested_query import AssistantSuggestedQuery, AssistantSuggestionIntent
 
 
 def normalize(text):
@@ -45,9 +45,28 @@ def resolve(db, text, intent_id=None, suggestion_id=None):
         ).first()
         if not row or normalize(row.query_text) != normalize(text):
             raise HTTPException(400, "This suggestion is no longer available. Refresh the suggestions.")
+        mapping=db.get(AssistantSuggestionIntent,row.id)
+        if mapping and mapping.intent_id in BY_ID:
+            if intent and intent.id!=mapping.intent_id:
+                raise HTTPException(400,'This suggestion has a conflicting intent mapping.')
+            intent=BY_ID[mapping.intent_id]
+    elif not intent:
+        # Only exact admin-curated labels qualify. Conflicting labels remain AI.
+        matches={mapping.intent_id for row,mapping in db.query(AssistantSuggestedQuery,AssistantSuggestionIntent)
+                 .join(AssistantSuggestionIntent,AssistantSuggestionIntent.suggestion_id==AssistantSuggestedQuery.id)
+                 .filter(AssistantSuggestedQuery.is_active==True).limit(200).all()
+                 if normalize(row.query_text)==normalize(text) and mapping.intent_id in BY_ID}
+        if len(matches)==1:intent=BY_ID[matches.pop()]
     if intent_id is not None and (intent_id not in BY_ID or not intent or intent.id != intent_id):
         raise HTTPException(400, "Intent does not match the requested question.")
     return intent
+
+
+def suggestion_intents(db,rows):
+    mappings={row.suggestion_id:row.intent_id for row in db.query(AssistantSuggestionIntent)
+              .filter(AssistantSuggestionIntent.suggestion_id.in_([item.id for item in rows])).all()}
+    return {row.id:(BY_TEXT[normalize(row.query_text)].id if normalize(row.query_text) in BY_TEXT else
+                    mappings.get(row.id) if mappings.get(row.id) in BY_ID else None) for row in rows}
 
 
 def response_text(intent, data):

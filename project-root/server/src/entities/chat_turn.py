@@ -8,7 +8,7 @@ class ChatTurn(Base):
     __tablename__ = "assistant_chat_turns"
     __table_args__ = (
         Index("uq_assistant_running_conversation", "conversation_id", unique=True,
-              sqlite_where=text("status = 'processing'"), postgres_where=text("status = 'processing'")),
+              sqlite_where=text("status = 'processing'"), postgresql_where=text("status = 'processing'")),
     )
     request_id = Column(String(64), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)

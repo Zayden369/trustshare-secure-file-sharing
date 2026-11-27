@@ -39,6 +39,8 @@ def create_app() -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
     )
+    from src.ai_metrics import AIMetricsMiddleware
+    app.add_middleware(AIMetricsMiddleware)
 
     # ── HTTPS Redirect Middleware (production only) ────────────────────────────
     # PSD 4.ii: HTTPS/TLS Communication

@@ -42,7 +42,7 @@ const streamMessage = async (payload, { signal, onEvent }) => {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
+            buffer = (buffer + decoder.decode(value, { stream: true })).replace(/\r\n/g, '\n');
             if (buffer.length > 262144) throw new Error('Assistant response frame was too large.');
             let boundary;
             while ((boundary = buffer.indexOf('\n\n')) !== -1) {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { assistantAPI } from '../services/assistantAPI';
+import { emitAssistantEvent } from '../utils/assistantEvents';
 
-const requestId = () => globalThis.crypto?.randomUUID?.().replaceAll('-', '') || `request_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+const requestId = () => window.crypto?.randomUUID?.().replaceAll('-', '') || `request_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
 export function useChat(initialConversationId = null) {
     const [conversationId, setConversationId] = useState(initialConversationId);
@@ -97,6 +98,7 @@ export function useChat(initialConversationId = null) {
                     terminalError = data;
                 } else if (event === 'done') {
                     lastRequest.current.completed = true;
+                    emitAssistantEvent({ type: 'conversation_updated', conversationId: conversation.current });
                     // Terminal results also rebuild cards for idempotent replay.
                     const cards = (data.function_calls || []).map((call, index) => ({ id: `f-${prefix}-${index}`, role: 'function', function_name: call.name, function_result: call.result }));
                     setMessages(previous => [...previous.filter(item => item.id !== assistantId && !item.id?.toString().startsWith(`f-${prefix}-`)), ...cards,

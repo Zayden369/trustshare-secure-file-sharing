@@ -33,6 +33,36 @@ from src.assistant.models import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class SuggestionIntentRequest(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    intent_id: Optional[str]=Field(default=None,max_length=64)
+
+
+@router.patch('/suggestions/{suggestion_id}/intent')
+def set_suggestion_intent(suggestion_id:int,body:SuggestionIntentRequest,
+                          db:Session=Depends(get_db),_admin:User=Depends(require_admin)):
+    from src.entities.assistant_suggested_query import AssistantSuggestedQuery, AssistantSuggestionIntent
+    from src.assistant.intents import BY_ID, BY_TEXT, normalize
+    suggestion=db.get(AssistantSuggestedQuery,suggestion_id)
+    if not suggestion:raise HTTPException(404,'Suggestion not found.')
+    if body.intent_id is not None and body.intent_id not in BY_ID:
+        raise HTTPException(400,'Only a registered read-only intent can be selected.')
+    canonical=BY_TEXT.get(normalize(suggestion.query_text))
+    if body.intent_id and canonical and canonical.id!=body.intent_id:
+        raise HTTPException(400,'The mapping conflicts with this known question.')
+    mapping=db.get(AssistantSuggestionIntent,suggestion_id)
+    if body.intent_id is None:
+        if mapping:db.delete(mapping)
+    elif mapping:
+        mapping.intent_id=body.intent_id
+    else:db.add(AssistantSuggestionIntent(suggestion_id=suggestion_id,intent_id=body.intent_id))
+    db.commit()
+    return {'suggestion_id':suggestion_id,'intent_id':body.intent_id}
+
 # ── Live Model Fetcher (all providers, cached 1hr, safe fallback) ─────────
 _live_models_cache: dict = {}
 _LIVE_MODELS_CACHE_TTL_SECONDS = 3600  # 1 hour

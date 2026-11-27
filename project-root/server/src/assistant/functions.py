@@ -103,7 +103,7 @@ def list_files(db: Session, user: User, args: dict) -> dict:
 
     default_limit = config_service.get_int(db, "DEFAULT_FUNCTION_LIMIT", 10)
     max_limit = config_service.get_int(db, "MAX_FUNCTION_LIMIT", 50)
-    limit = min(args.get("limit", default_limit), max_limit)
+    limit = max(1, min(args.get("limit", default_limit), max(1, max_limit), 50))
 
     query = db.query(File).filter(
         File.owner_id == user.id,
@@ -172,7 +172,7 @@ def search_files(db: Session, user: User, args: dict) -> dict:
 
     default_limit = config_service.get_int(db, "DEFAULT_FUNCTION_LIMIT", 10)
     max_limit = config_service.get_int(db, "MAX_FUNCTION_LIMIT", 50)
-    limit = min(args.get("limit", default_limit), max_limit)
+    limit = max(1, min(args.get("limit", default_limit), max(1, max_limit), 50))
 
     if not query_text:
         return {"total_matched": 0, "shown": 0, "files": [], "query": query_text}
@@ -184,7 +184,7 @@ def search_files(db: Session, user: User, args: dict) -> dict:
         .filter(
             File.owner_id == user.id,
             File.is_deleted == False,
-            func.lower(File.original_name).like(func.lower(like_pattern)),
+            func.lower(File.original_name).contains(query_text.lower(), autoescape=True),
         )
     )
     total = query.count()
@@ -212,13 +212,13 @@ def get_storage_info(db: Session, user: User, args: dict) -> dict:
     """Get storage usage summary."""
     used = user.storage_used or 0
     quota = user.storage_quota or 0
-    remaining = max(0, quota - used) if quota else None
+    remaining = max(0, quota - used)
     percent = round((used / quota * 100), 1) if quota else None
 
     return {
         "used": _format_size(used),
         "used_bytes": used,
-        "quota": _format_size(quota) if quota else "Unlimited",
+        "quota": _format_size(quota),
         "quota_bytes": quota,
         "remaining": _format_size(remaining) if remaining is not None else "Unlimited",
         "remaining_bytes": remaining,
@@ -452,7 +452,7 @@ def get_notifications(db: Session, user: User, args: dict) -> dict:
 
     default_limit = config_service.get_int(db, "DEFAULT_FUNCTION_LIMIT", 10)
     max_limit = config_service.get_int(db, "MAX_FUNCTION_LIMIT", 50)
-    limit = min(args.get("limit", default_limit), max_limit)
+    limit = max(1, min(args.get("limit", default_limit), max(1, max_limit), 50))
 
     query = db.query(Notification).filter(Notification.user_id == user.id)
     if unread_only:
