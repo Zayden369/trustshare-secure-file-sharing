@@ -1,10 +1,16 @@
 import json
 import os
 import re
+import time
+import atexit
+from contextlib import nullcontext
 from abc import ABC, abstractmethod
 from collections import Counter
 
 import httpx
+
+_http_client=httpx.Client(limits=httpx.Limits(max_connections=4,max_keepalive_connections=2))
+atexit.register(_http_client.close)
 
 
 class ProviderUnavailable(RuntimeError):
@@ -55,11 +61,17 @@ def _parse_json(value: str, *, allow_points_only: bool = False) -> dict:
         result = json.loads(match.group(0))
     except json.JSONDecodeError as exc:
         raise ProviderUnavailable("Provider returned invalid JSON") from exc
+    if not isinstance(result,dict):
+        raise ProviderUnavailable('Provider returned a non-object summary')
+    for field in ['key_points','keywords']:
+        value=result.get(field,[])
+        if not isinstance(value,list) or any(not isinstance(item,str) for item in value):
+            raise ProviderUnavailable('Provider returned invalid summary metadata')
     if allow_points_only and not str(result.get("summary", "")).strip():
         points = result.get("key_points", [])
         if isinstance(points, list):
             result["summary"] = "\n".join(f"- {point}" for point in points if isinstance(point, str) and point.strip())
-    if not str(result.get("summary", "")).strip():
+    if not isinstance(result.get('summary'),str) or not result['summary'].strip():
         raise ProviderUnavailable("Provider returned an empty summary")
     return {
         "title": str(result.get("title", "Document summary"))[:255],
@@ -118,8 +130,12 @@ class OllamaProvider(SummaryProvider):
 
     def health_check(self) -> bool:
         try:
-            return httpx.get(f"{self.base_url}/api/tags", timeout=3).is_success
-        except httpx.HTTPError:
+            response=_http_client.get(f"{self.base_url}/api/tags", timeout=0.5)
+            if not response.is_success:
+                return False
+            expected=self.model_name if ':' in self.model_name else self.model_name+':latest'
+            return any(item.get('name')==expected or item.get('model')==expected for item in response.json().get('models',[]))
+        except (httpx.HTTPError,ValueError):
             return False
 
     def generate_summary(self, text: str, options: dict) -> dict:
@@ -137,8 +153,13 @@ class OllamaProvider(SummaryProvider):
             threads = 0
         if 1 <= threads <= 64:
             inference_options["num_thread"] = threads
+        from src.ai_metrics import current_trace, record_inference
+        trace=current_trace.get()
+        if trace:
+            trace.counters['llm_calls']+=1
+        started=time.perf_counter()
         try:
-            response = httpx.post(
+            response = _http_client.post(
                 f"{self.base_url}/api/generate",
                 json={
                     "model": self.model_name,
@@ -152,15 +173,22 @@ class OllamaProvider(SummaryProvider):
             )
             response.raise_for_status()
             payload = response.json()
+            record_inference(payload,(time.perf_counter()-started)*1000,count_call=False)
             if payload.get("done_reason") == "length":
                 raise ProviderUnavailable("Ollama reached the summary output limit")
-            result = _parse_json(payload.get("response", ""), allow_points_only=options.get("output_format") == "bullet_points")
+            with trace.stage('output_parsing') if trace else nullcontext():
+                result = _parse_json(payload.get("response", ""), allow_points_only=options.get("output_format") == "bullet_points")
+            _validate_source_fidelity(text, result)
+            # Render the requested model-generated layout first. Supporting
+            # highlights then provide separate verbatim source evidence for
+            # both paragraph and bullet outputs; never relabel extraction as AI.
             if not result["key_points"]:
-                # Supporting points remain verbatim source evidence even when
-                # a small model writes a particularly compressed paragraph.
                 result["key_points"] = ExtractiveFallbackProvider().generate_summary(text, options)["key_points"]
-            result["keywords"] = _keywords(text)[:5]
-            return _format_result(result, options)
+            with trace.stage('keyword_generation') if trace else nullcontext():
+                result["keywords"] = _keywords(text)[:5]
+            formatted = _format_result(result, options)
+            formatted['key_points'] = ExtractiveFallbackProvider().generate_summary(text, options)['key_points']
+            return formatted
         except (httpx.HTTPError, ValueError) as exc:
             raise ProviderUnavailable("Ollama is unavailable") from exc
 
@@ -177,15 +205,24 @@ class HuggingFaceProvider(SummaryProvider):
     def generate_summary(self, text: str, options: dict) -> dict:
         if not self.health_check():
             raise ProviderUnavailable("Hugging Face is not configured")
+        from src.ai_metrics import current_trace, record_inference
+        trace=current_trace.get()
+        if trace:trace.counters['llm_calls']+=1
+        started=time.perf_counter()
         try:
-            response = httpx.post(
+            response = _http_client.post(
                 "https://router.huggingface.co/v1/chat/completions",
                 headers={"Authorization": f"Bearer {self.token}"},
                 json={"model": self.model_name, "messages": [{"role": "user", "content": _prompt(text, options)}], "temperature": 0.35},
                 timeout=self.timeout,
             )
             response.raise_for_status()
-            return _format_result(_parse_json(response.json()["choices"][0]["message"]["content"]), options)
+            data=response.json();usage=data.get('usage',{})
+            record_inference({'prompt_eval_count':usage.get('prompt_tokens',0),'eval_count':usage.get('completion_tokens',0)},
+                             (time.perf_counter()-started)*1000,count_call=False)
+            result = _parse_json(data["choices"][0]["message"]["content"])
+            _validate_source_fidelity(text, result)
+            return _format_result(result, options)
         except (httpx.HTTPError, KeyError, IndexError, ValueError) as exc:
             raise ProviderUnavailable("Hugging Face is unavailable") from exc
 
@@ -196,13 +233,32 @@ class MockSummaryProvider(SummaryProvider):
     def health_check(self) -> bool: return True
 
     def generate_summary(self, text: str, options: dict) -> dict:
-        sentences = _sentences(text)
+        sentences = list(dict.fromkeys(_sentences(text)))
         chosen = sentences[: min(3, len(sentences))]
         return {"title": "Test summary", "summary": " ".join(chosen), "key_points": chosen, "keywords": _keywords(text)}
 
 
+def _validate_source_fidelity(source: str, result: dict):
+    """Conservative checks, not a claim of semantic fact verification."""
+    generated = result['summary'] + '\n' + '\n'.join(result.get('key_points', []))
+    # Ignore numbered-list markers; reject invented quantities rather than
+    # silently correcting a model's assertion.
+    generated = re.sub(r'(?m)^\s*\d+[.)]\s+', '', generated)
+    numbers = lambda text: set(re.findall(r'(?<!\w)\d+(?:[.,]\d+)*(?!\w)', text))
+    if numbers(generated) - numbers(source):
+        raise ProviderUnavailable('Generated quantities were not grounded in the source')
+    scripts = [(0x0900, 0x097F), (0x4E00, 0x9FFF), (0x0400, 0x04FF), (0x0600, 0x06FF)]
+    source_letters = sum(char.isalpha() for char in source)
+    output_letters = max(1, sum(char.isalpha() for char in generated))
+    for start, end in scripts:
+        count = lambda text: sum(start <= ord(char) <= end for char in text if char.isalpha())
+        if source_letters > 20 and count(source) / source_letters > 0.6 and count(generated) / output_letters < 0.3:
+            raise ProviderUnavailable('Generated language did not match the source')
+
+
 def _sentences(text: str) -> list[str]:
-    return [part.strip() for part in re.split(r"(?<=[.!?])\s+|\n+", text) if len(part.strip()) > 20]
+    return [part.strip() for part in re.split(r"(?<=[.!?。！？।])\s+|\n+", text)
+            if len(part.strip()) > 20 or ('|' in part and len(part.strip()) > 2)]
 
 
 def _keywords(text: str) -> list[str]:
@@ -217,16 +273,29 @@ class ExtractiveFallbackProvider(SummaryProvider):
     def health_check(self) -> bool: return True
 
     def generate_summary(self, text: str, options: dict) -> dict:
-        sentences = _sentences(text)
+        sentences = list(dict.fromkeys(_sentences(text)))
         if not sentences:
             sentences = [text]
         counts = Counter(re.findall(r"[A-Za-z][A-Za-z-]{3,}", text.lower()))
-        ranked = sorted(enumerate(sentences), key=lambda item: sum(counts[w] for w in re.findall(r"[A-Za-z][A-Za-z-]{3,}", item[1].lower())) / max(1, len(item[1])), reverse=True)
-        target = {"short": 2, "standard": 4, "detailed": 7}[options["summary_length"]]
+        def caveats(sentence):
+            return len(re.findall(r"\b(no|not|unless|only|limitation|limitations|failed|however|uncertain)\b",sentence,re.I))
+        def score(item):
+            words=re.findall(r"[A-Za-z][A-Za-z-]{3,}",item[1].lower())
+            frequency=sum(counts[word] for word in words)/max(1,len(words))
+            numbers=min(3,len(re.findall(r"\b\d+(?:\.\d+)?\b",item[1])))
+            return frequency+numbers*3+min(3,caveats(item[1]))*2
+        ranked = sorted(enumerate(sentences), key=score, reverse=True)
+        target = {"short": 2, "standard": 4, "detailed": 6}[options["summary_length"]]
         variation = int(options.get("variation", 0))
-        offset = variation % len(ranked)
-        varied_ranked = ranked[offset:] + ranked[:offset]
-        selected_with_positions = varied_ranked[:min(target, len(varied_ranked))]
+        # Preserve the subject and strongest source facts across regenerations;
+        # variation changes presentation, not which critical facts survive.
+        selected_with_positions = [(0,sentences[0])]
+        qualified=[item for item in ranked if item[0]!=0 and caveats(item[1])]
+        if target >= 4 and qualified:
+            selected_with_positions.append(max(qualified,key=lambda item:(
+                2*len(re.findall(r'\b(no|not|unless|limitation|limitations|uncertain)\b',item[1],re.I))+caveats(item[1]),score(item))))
+        selected_ids={item[0] for item in selected_with_positions}
+        selected_with_positions += [item for item in ranked if item[0] not in selected_ids][:max(0,target-len(selected_with_positions))]
         selected = [sentence for _, sentence in sorted(selected_with_positions)]
         if variation and len(selected) > 1:
             rotation = variation % len(selected)
