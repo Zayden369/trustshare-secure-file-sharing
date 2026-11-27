@@ -1,5 +1,18 @@
 export const fraction = value => Math.max(0, Math.min(1, value));
 
+export const INTRO_DEADLINE = 20000;
+export const INTRO_TOUR_DURATION = 19000;
+
+export function viewportTour(pageHeight, viewportHeight) {
+  const maximum = Math.max(0, pageHeight - viewportHeight);
+  const stride = Math.max(240, viewportHeight) * .72;
+  const positions = [0];
+  while (positions[positions.length - 1] < maximum) positions.push(Math.min(maximum, positions[positions.length - 1] + stride));
+  const slot = INTRO_TOUR_DURATION / positions.length;
+  const travel = Math.min(360, slot * .28);
+  return {positions, travel, hold:slot - travel};
+}
+
 // Independent timelines: activation is monotonic, including regions passed in one scroll.
 export function activateRegions(regions, scrollTop, viewportHeight, bottom, time) {
   regions.forEach(region => {

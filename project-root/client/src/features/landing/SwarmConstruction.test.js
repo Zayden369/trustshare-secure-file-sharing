@@ -34,6 +34,18 @@ test('reduced motion presents the complete interface immediately',()=>{
   useReducedMotion.mockReturnValue(true);render(<SwarmConstruction/>);
   expect(screen.getByRole('status')).toHaveTextContent('Workspace assembled');
 });
+
+test('the homepage tour shares its window budget and can finish or replay the nested scene',()=>{
+  const {container}=render(<div className="m-home" data-construction-window-ms="600"><SwarmConstruction/></div>);
+  const page=container.querySelector('.m-home');
+  act(()=>observe([{isIntersecting:true}]));
+  act(()=>jest.advanceTimersByTime(600));
+  expect(screen.getByRole('status')).toHaveTextContent('Workspace assembled');
+  act(()=>page.dispatchEvent(new Event('trustshare:replay-construction')));
+  expect(screen.getByRole('status')).toHaveTextContent('Constructing');
+  act(()=>page.dispatchEvent(new Event('trustshare:finish-construction')));
+  expect(screen.getByRole('status')).toHaveTextContent('Workspace assembled');
+});
 test('consecutive replays keep one cursor set and each deadline',()=>{
   const {container}=render(<SwarmConstruction/>);
   act(()=>observe([{isIntersecting:true}]));

@@ -1,6 +1,14 @@
-import {activateRegions,advanceConstruction} from './pageConstructionSchedule';
+import {activateRegions,advanceConstruction,viewportTour,INTRO_DEADLINE} from './pageConstructionSchedule';
 import {cinematicFrame} from './cinematicSchedule';
 const region=(top,id)=>({top,started:null,tasks:[{id,progress:0,weight:2,duration:1000,delay:0}]});
+
+test.each([[10000,900],[16000,640],[25000,400]])('viewport tour covers %i pixels within twenty seconds', (pageHeight,viewportHeight)=>{
+  const tour=viewportTour(pageHeight,viewportHeight);
+  expect(tour.positions[0]).toBe(0);
+  expect(tour.positions.at(-1)).toBe(pageHeight-viewportHeight);
+  expect(tour.positions.every((position,index)=>!index || position-tour.positions[index-1]<=viewportHeight)).toBe(true);
+  expect(tour.positions.length*tour.hold+(tour.positions.length-1)*tour.travel).toBeLessThan(INTRO_DEADLINE);
+});
 test('fast scrolling activates passed regions without falsely completing work',()=>{
   const regions=[region(0,'hero'),region(2000,'middle'),region(8000,'footer')];
   activateRegions(regions,0,800,false,0);

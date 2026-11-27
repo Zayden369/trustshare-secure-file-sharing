@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {RotateCcw} from 'lucide-react';
 import {useReducedMotion} from 'framer-motion';
 import {CONSTRUCTION_DURATION,AGENT_LABELS,constructionFrame} from './constructionSchedule';
@@ -10,11 +10,20 @@ export default function SwarmConstruction({agentCount}) {
   const reduced=useReducedMotion();
   const [done,setDone]=useState(false);
   const [run,setRun]=useState(0);
-  const replay=()=>{if(!done)return;started.current=null;completed.current=false;setDone(false);stage.current.dataset.complete='false';delete root.current.dataset.completedAt;stage.current.querySelectorAll('[data-build]').forEach(el=>el.style.setProperty('--build','0'));setRun(value=>value+1);};
+  const reset=useCallback(()=>{started.current=null;completed.current=false;setDone(false);stage.current.dataset.complete='false';delete root.current.dataset.completedAt;delete root.current.dataset.constructionState;stage.current.querySelectorAll('[data-build]').forEach(el=>el.style.setProperty('--build','0'));setRun(value=>value+1);},[]);
+  const replay=()=>{if(done)reset();};
+  useEffect(()=>{
+    const page=root.current.closest('.m-home');
+    if(!page)return;
+    const finish=()=>skipRef.current?.();
+    page.addEventListener('trustshare:finish-construction',finish);
+    page.addEventListener('trustshare:replay-construction',reset);
+    return()=>{page.removeEventListener('trustshare:finish-construction',finish);page.removeEventListener('trustshare:replay-construction',reset);};
+  },[reset]);
   useEffect(()=>{
     const node=root.current,scene=stage.current;
     if(!node||!scene)return;
-    let raf=0,timer=0,visible=false,disposed=false;
+    let raf=0,timer=0,visible=false,disposed=false,duration=CONSTRUCTION_DURATION;
     let size={width:scene.clientWidth,height:scene.clientHeight};
     const resize=typeof ResizeObserver==='undefined'?null:new ResizeObserver(entries=>{
       const rect=entries[0].contentRect;size={width:rect.width,height:rect.height};
@@ -30,8 +39,8 @@ export default function SwarmConstruction({agentCount}) {
     const paint=()=>{
       if(disposed||completed.current)return;
       const elapsed=Date.now()-started.current;
-      if(elapsed>=CONSTRUCTION_DURATION){finish();return;}
-      const frame=constructionFrame(elapsed,count);
+      if(elapsed>=duration){finish();return;}
+      const frame=constructionFrame(elapsed*CONSTRUCTION_DURATION/duration,count);
       parts.forEach(el=>{const task=frame.tasks.find(t=>t.id===el.dataset.build);el.style.setProperty('--build',String(task?.progress??1));});
       cursors.forEach((el,i)=>{const a=frame.agents[i];el.style.opacity=String(a?.opacity||0);if(!a)return;
         el.style.transform=`translate3d(${a.x*size.width/100-2}px,${a.y*size.height/100-2}px,0)`;el.dataset.working=String(a.working);});
@@ -39,12 +48,12 @@ export default function SwarmConstruction({agentCount}) {
       if(visible&&!document.hidden)raf=requestAnimationFrame(paint);
     };
     const resume=()=>{cancelAnimationFrame(raf);if(started.current&&!completed.current)paint();};
-    const activate=()=>{if(completed.current)return;if(started.current===null){started.current=Date.now();node.dataset.activatedAt=String(started.current);}
-      node.dataset.constructionState='building';clearTimeout(timer);timer=setTimeout(finish,Math.max(0,CONSTRUCTION_DURATION-(Date.now()-started.current)));paint();};
+    const activate=()=>{if(completed.current)return;if(started.current===null){duration=Number(node.closest('.m-home')?.dataset.constructionWindowMs)||CONSTRUCTION_DURATION;started.current=Date.now();node.dataset.activatedAt=String(started.current);}
+      node.dataset.constructionState='building';clearTimeout(timer);timer=setTimeout(finish,Math.max(0,duration-(Date.now()-started.current)));paint();};
     if(reduced||typeof IntersectionObserver==='undefined'){finish();resize?.disconnect();return()=>{skipRef.current=null;};}
     if(completed.current){finish();resize?.disconnect();return()=>{skipRef.current=null;};}
     const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){activate();resume();}else cancelAnimationFrame(raf);},{threshold:.12});
-    observer.observe(node);document.addEventListener('visibilitychange',resume);
+    observer.observe(scene);document.addEventListener('visibilitychange',resume);
     return()=>{disposed=true;observer.disconnect();resize?.disconnect();clearTimeout(timer);cancelAnimationFrame(raf);document.removeEventListener('visibilitychange',resume);skipRef.current=null;};
   },[reduced,agentCount,run]);
   return <section className="construction" ref={root} id="construction" aria-labelledby="construction-heading">
