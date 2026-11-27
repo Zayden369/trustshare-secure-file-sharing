@@ -166,21 +166,23 @@ def test_ollama_has_bounded_output_and_enforces_requested_layout(monkeypatch):
     from src.file_summaries import providers
     requests = []
     class Response:
+        def __init__(self, field): self.field = field
         def raise_for_status(self): pass
         def json(self):
-            return {"response": json.dumps({"title": "Test", "summary": "The contract is encrypted.", "key_points": ["The contract is encrypted.", "Only owners can share it."], "keywords": []})}
+            return {"response": json.dumps({self.field: ["The contract is encrypted.", "Only owners can share it."]})}
     def post(_url, **kwargs):
         requests.append(kwargs["json"])
-        return Response()
+        return Response(kwargs['json']['format']['required'][0])
     monkeypatch.setattr(providers._http_client, "post", post)
     provider = OllamaProvider("http://localhost:11434", "test-model", 5)
-    paragraph = provider.generate_summary("The contract is encrypted.", {"summary_length": "short", "output_language": "original", "output_format": "paragraph"})
-    bullets = provider.generate_summary("The contract is encrypted.", {"summary_length": "detailed", "output_language": "original", "output_format": "bullet_points"})
-    assert paragraph["summary"] == "The contract is encrypted."
+    source = 'The contract is encrypted. Only owners can share it.'
+    paragraph = provider.generate_summary(source, {"summary_length": "short", "output_language": "original", "output_format": "paragraph"})
+    bullets = provider.generate_summary(source, {"summary_length": "detailed", "output_language": "original", "output_format": "bullet_points"})
+    assert paragraph["summary"] == "The contract is encrypted. Only owners can share it."
     assert bullets["summary"].startswith("- The contract") and "\n- Only owners" in bullets["summary"]
     assert requests[0]["options"]["num_predict"] < requests[1]["options"]["num_predict"]
     assert requests[1]["keep_alive"] == "30m"
-    assert requests[0]["format"]["required"] == ["summary"]
+    assert requests[0]["format"]["required"] == ["sentences"]
     assert requests[1]["format"]["required"] == ["key_points"]
     assert "second copy" in requests[1]["prompt"]
 
@@ -190,14 +192,14 @@ def test_ollama_derives_metadata_from_single_generated_paragraph(monkeypatch):
     class Response:
         def raise_for_status(self): pass
         def json(self):
-            return {"response": '{"summary":"Contracts are protected."}'}
+            return {"response": '{"sentences":["Contracts are protected.","Owners control recipient permissions."]}'}
     monkeypatch.setattr(providers._http_client, "post", lambda *args, **kwargs: Response())
     result = OllamaProvider("http://localhost:11434", "test-model", 5).generate_summary(
         "Contract documents are encrypted. Owners control recipient permissions.",
         {"summary_length": "short", "output_format": "paragraph", "output_language": "original"},
     )
     assert result["key_points"] == ["Contract documents are encrypted.", "Owners control recipient permissions."]
-    assert result["summary"] == "Contracts are protected."
+    assert result["summary"] == "Contracts are protected. Owners control recipient permissions."
     assert "contract" in result["keywords"]
     assert result["title"] == "Document summary"
 

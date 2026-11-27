@@ -51,6 +51,7 @@ export default function FileSummaryPanel({ file, onClose }) {
           <div className="summary-result">
             <div className="summary-meta"><span>{summary.cached ? `Cached · ${summary.provider || 'summary'}` : summary.provider}</span><span>{summary.summary_length} · {summary.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'}</span><span>Version {summary.source_file_version}</span><span>{new Date(summary.generated_at || summary.updated_at).toLocaleString()}</span>{elapsedMs != null && <span>{summary.cached ? 'Fetched' : 'Received'} in {(elapsedMs / 1000).toFixed(2)}s</span>}</div>
             {summary.warning_message && <div className="summary-warning">Warning: {summary.warning_message}</div>}
+            {summary.is_stale && <div className="summary-warning" role="status">Saved with earlier summary settings. Regenerate to apply the current length and detail settings.</div>}
             <h3>{summary.title}</h3>
             <SummaryContent summary={summary} />
             {!!summary.key_points?.length && <details className="summary-source-highlights"><summary>View source highlights</summary><p className="summary-text">{summary.key_points.join(' ')}</p></details>}
@@ -61,7 +62,7 @@ export default function FileSummaryPanel({ file, onClose }) {
               {historyLoading && <p role="status">Loading earlier summaries…</p>}
               {historyError && <div role="alert"><p>{historyError}</p><button className="btn btn-secondary btn-sm" onClick={loadRevisions}>Retry history</button></div>}
               {!historyLoading && !historyError && !revisions.length && <p className="summary-text">No earlier summaries yet. Saved results appear here after you generate another summary or regenerate this one.</p>}
-              {!historyLoading && !historyError && revisions.map(revision => <details key={revision.generation_id}><summary>{revision.result.summary_length} · {revision.result.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'} · Version {revision.result.source_file_version} · {revision.result.provider} · {new Date(revision.result.generated_at || revision.result.updated_at).toLocaleString()}</summary>{revision.result.warning_message && <p className="summary-warning">Warning: {revision.result.warning_message}</p>}<SummaryContent summary={revision.result} /></details>)}
+              {!historyLoading && !historyError && revisions.map(revision => <details key={revision.generation_id}><summary>{revision.result.summary_length} · {revision.result.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'} · Version {revision.result.source_file_version} · {revision.result.provider} · {new Date(revision.result.generated_at || revision.result.updated_at).toLocaleString()}{revision.result.is_stale ? ' · Earlier settings' : ''}</summary>{revision.result.warning_message && <p className="summary-warning">Warning: {revision.result.warning_message}</p>}<SummaryContent summary={revision.result} /></details>)}
             </section>}
           </div>
         )}

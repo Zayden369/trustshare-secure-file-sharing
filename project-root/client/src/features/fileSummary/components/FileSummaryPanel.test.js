@@ -67,6 +67,13 @@ test('saved bullet summaries retain their format inside history', () => {
   expect(screen.getAllByRole('listitem')).toHaveLength(2);
 });
 
+test('old-policy saved results are visibly marked for regeneration', () => {
+  useFileSummary.mockReturnValue({ summary: { status: 'completed', title: 'Saved', summary_text: 'Older paragraph.', output_format: 'paragraph', is_stale: true }, loading: false, error: '' });
+  render(<FileSummaryPanel file={{ id: 7 }} onClose={jest.fn()} />);
+  expect(screen.getByRole('status')).toHaveTextContent('Saved with earlier summary settings');
+  expect(screen.getByRole('button', { name: 'Regenerate' })).toBeEnabled();
+});
+
 test('shows the live retry countdown and disables retry until it expires', () => {
   useFileSummary.mockReturnValue({
     summary: null, loading: false, error: 'Too many summary requests.', retryAfter: 26,

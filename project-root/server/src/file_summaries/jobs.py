@@ -29,7 +29,7 @@ def aware(value):
 def policy():
     values = {key:os.getenv(key,'') for key in ['AI_SUMMARY_PROVIDER','SUMMARY_OLLAMA_MODEL','OLLAMA_MODEL',
         'HF_SUMMARY_MODEL','SUMMARY_MODEL_REVISION','SUMMARY_MODEL_INPUT_CHARACTERS','SUMMARY_MAX_EXTRACTED_CHARACTERS']}
-    values['implementation'] = 'summary-policy-v5'
+    values['implementation'] = 'summary-depth-v6'
     return hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest()
 
 
@@ -52,6 +52,7 @@ def decorate(db, summary):
     summary.performance=job.metrics if job else None
     summary.generation_policy=job.policy if job else 'legacy'
     summary.generation_id=job.generation_id if job else None
+    summary.is_stale=summary.status=='completed' and (job is None or job.policy!=policy())
     return summary
 
 
@@ -83,7 +84,7 @@ def create_summary(db,file_id,user_id,data):
         if summary and summary.status in {'pending','processing'}:
             raise HTTPException(409,{'message':'An identical summary is already being generated.','summary_id':summary.id})
         if summary and summary.status=='completed' and not data.force_regenerate:
-            policy_valid=job is None or job.policy==current_policy
+            policy_valid=job is not None and job.policy==current_policy
             refresh=False
             if summary.provider=='extractive_fallback' and (not job or not job.provider_retry_at or aware(job.provider_retry_at)<=now()):
                 try:
@@ -199,6 +200,9 @@ def process_summary(summary_id,variation=0,queue_started=None):
                 checksum=file.hash_sha256 or f'metadata-{file.id}-{file.version}-{file.size}'
                 if (file.version or 1)!=summary.source_file_version or checksum!=summary.source_checksum:
                     raise HTTPException(409,'The file changed during generation. Generate a summary for its current version.')
+            with trace.stage('depth_validation'):
+                result,provider,warning=service._respect_depth(db,summary,result,provider,warning,source,options,fallback_text)
+                trace.counters['summary_content_units']=result.get('content_unit_count',len(result.get('key_points',[])))
             with trace.stage('database_persistence'):
                 summary.title=result.get('title') or 'Document summary'
                 summary.summary_text=result['summary']
