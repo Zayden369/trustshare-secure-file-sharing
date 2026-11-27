@@ -160,6 +160,41 @@ def get_summary(db: Session, file_id: int, summary_id: int, user_id: int) -> Fil
     return decorate(db,summary)
 
 
+def summary_history(db: Session, file_id: int, summary_id: int, user_id: int):
+    """Earlier saved generations and other options for this authorized file."""
+    from sqlalchemy import func
+    from src.entities.summary_job import SummaryJob, SummaryRevision
+    from src.file_summaries.models import SummaryOut
+
+    current = get_summary(db, file_id, summary_id, user_id)
+    entries = {}
+    revisions = (db.query(SummaryRevision).join(FileSummary, SummaryRevision.summary_id == FileSummary.id)
+                 .filter(FileSummary.file_id == file_id)
+                 .order_by(SummaryRevision.created_at.desc(), SummaryRevision.generation_id.desc()).limit(20).all())
+    for revision in revisions:
+        if revision.generation_id != current.generation_id:
+            entries[revision.generation_id] = {'generation_id': revision.generation_id, 'result': revision.result}
+
+    others = (db.query(FileSummary, SummaryJob.generation_id)
+              .outerjoin(SummaryJob, SummaryJob.summary_id == FileSummary.id)
+              .filter(FileSummary.file_id == file_id, FileSummary.id != summary_id, FileSummary.status == 'completed')
+              .order_by(func.coalesce(FileSummary.generated_at, FileSummary.updated_at, FileSummary.created_at).desc(), FileSummary.id.desc())
+              .limit(20).all())
+    for summary, generation_id in others:
+        identity = generation_id or f'summary-{summary.id}'
+        entries[identity] = {'generation_id': identity, 'result': SummaryOut.model_validate(summary).model_dump(mode='json')}
+
+    def generated_time(entry):
+        result = entry['result']
+        value = result.get('generated_at') or result.get('updated_at') or result.get('created_at')
+        if not value:
+            return 0
+        moment = datetime.fromisoformat(value.replace('Z', '+00:00')) if isinstance(value, str) else value
+        return moment.replace(tzinfo=moment.tzinfo or timezone.utc).timestamp()
+
+    return sorted(entries.values(), key=lambda entry: (generated_time(entry), entry['generation_id']), reverse=True)[:20]
+
+
 def delete_summary(db: Session, file_id: int, summary_id: int, user_id: int):
     file = authorize_file(db, file_id, user_id)
     summary = get_summary(db, file_id, summary_id, user_id)

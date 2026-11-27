@@ -17,6 +17,38 @@ from src.file_summaries.text_extraction import extract_text
 TEXT='Project Cedar stores encrypted files. Owners control reviewer permissions. Audit events track downloads. The pilot involved 24 volunteers. No independent certification is claimed.'
 
 
+def test_history_combines_other_options_and_saved_generations_without_current_or_other_files(db, document):
+    user, file, _ = document
+    paragraph, _ = service.create_summary(db, file.id, user.id, SummaryCreate())
+    service.process_summary(paragraph.id); db.expire_all()
+    old_generation = db.get(SummaryJob, paragraph.id).generation_id
+    bullets, _ = service.create_summary(db, file.id, user.id, SummaryCreate(summary_length='short', output_format='bullet_points'))
+    service.process_summary(bullets.id); db.expire_all()
+    another_file = File(owner_id=user.id, original_name='other.txt', stored_name=uuid.uuid4().hex, size=len(TEXT), encrypted=False, version=1)
+    db.add(another_file); db.commit()
+    unrelated, _ = service.create_summary(db, another_file.id, user.id, SummaryCreate())
+    service.process_summary(unrelated.id); db.expire_all()
+    paragraph, _ = service.create_summary(db, file.id, user.id, SummaryCreate(force_regenerate=True))
+    service.process_summary(paragraph.id); db.expire_all()
+    history = service.summary_history(db, file.id, paragraph.id, user.id)
+    assert len(history) == 2
+    assert {entry['generation_id'] for entry in history} == {old_generation, db.get(SummaryJob, bullets.id).generation_id}
+    assert {entry['result']['output_format'] for entry in history} == {'paragraph', 'bullet_points'}
+    assert all(entry['result']['file_id'] == file.id for entry in history)
+
+
+def test_history_empty_and_unauthorized_access(db, document):
+    user, file, _ = document
+    summary, _ = service.create_summary(db, file.id, user.id, SummaryCreate())
+    service.process_summary(summary.id); db.expire_all()
+    assert service.summary_history(db, file.id, summary.id, user.id) == []
+    stranger = User(name='Unrelated', email=uuid.uuid4().hex+'@example.com', hashed_password='unused')
+    db.add(stranger); db.commit()
+    with pytest.raises(HTTPException) as error:
+        service.summary_history(db, file.id, summary.id, stranger.id)
+    assert error.value.status_code == 403
+
+
 @pytest.fixture
 def document(db,monkeypatch):
     user=User(name='Synthetic summary user',email=uuid.uuid4().hex+'@test.com',hashed_password='unused')

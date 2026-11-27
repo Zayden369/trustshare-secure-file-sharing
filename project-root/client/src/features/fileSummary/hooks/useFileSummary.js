@@ -8,6 +8,9 @@ export default function useFileSummary(fileId) {
   const [error, setError] = useState('');
   const [retryAfter, setRetryAfter] = useState(0);
   const [revisions, setRevisions] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
   const [elapsedMs, setElapsedMs] = useState(null);
   const timer = useRef(null);
   const version = useRef(0);
@@ -38,7 +41,7 @@ export default function useFileSummary(fileId) {
 
   useEffect(() => {
     stop(); const expected = ++version.current;
-    setSummary(null); setError(''); setRevisions([]); setElapsedMs(null); setLoading(true);
+    setSummary(null); setError(''); setRevisions([]); setHistoryOpen(false); setHistoryLoading(false); setHistoryError(''); setElapsedMs(null); setLoading(true);
     started.current = performance.now();
     fileSummaryAPI.latest(fileId).then(({ data }) => {
       if (!accept(data.status === 'completed' ? { ...data, cached: true } : data, expected)) return;
@@ -53,7 +56,7 @@ export default function useFileSummary(fileId) {
 
   const request = useCallback(async (operation) => {
     stop(); const expected = ++version.current;
-    setError(''); setRetryAfter(0); setRevisions([]); setLoading(true); setElapsedMs(null);
+    setError(''); setRetryAfter(0); setRevisions([]); setHistoryOpen(false); setHistoryLoading(false); setHistoryError(''); setLoading(true); setElapsedMs(null);
     started.current = performance.now();
     try {
       const { data } = await operation();
@@ -73,22 +76,26 @@ export default function useFileSummary(fileId) {
   }, [accept, poll, stop]);
   const generate = useCallback(options => request(() => fileSummaryAPI.create(fileId, options)), [fileId, request]);
   const regenerate = useCallback(() => summary && request(() => fileSummaryAPI.regenerate(fileId, summary.id)), [fileId, request, summary]);
-  const changeOptions = useCallback(() => { stop(); version.current += 1; setSummary(null); setError(''); setLoading(false); setRevisions([]); }, [stop]);
+  const changeOptions = useCallback(() => { stop(); version.current += 1; setSummary(null); setError(''); setLoading(false); setRevisions([]); setHistoryOpen(false); setHistoryLoading(false); setHistoryError(''); }, [stop]);
   const loadRevisions = useCallback(async () => {
     if (!summary) return;
     const expected = version.current;
+    setHistoryOpen(true); setHistoryLoading(true); setHistoryError('');
     try {
       const { data } = await fileSummaryAPI.revisions(fileId, summary.id);
       if (version.current === expected) setRevisions(data.revisions || []);
     } catch {
-      if (version.current === expected) setError('Earlier summaries could not be retrieved.');
+      if (version.current === expected) setHistoryError('Earlier summaries could not be retrieved. Please retry.');
+    } finally {
+      if (version.current === expected) setHistoryLoading(false);
     }
   }, [fileId, summary]);
+  const closeHistory = useCallback(() => setHistoryOpen(false), []);
 
   useEffect(() => {
     if (retryAfter <= 0) return undefined;
     const countdown = setTimeout(() => setRetryAfter(value => Math.max(0, value - 1)), 1000);
     return () => clearTimeout(countdown);
   }, [retryAfter]);
-  return { summary, loading, error, retryAfter, generate, regenerate, changeOptions, revisions, loadRevisions, elapsedMs };
+  return { summary, loading, error, retryAfter, generate, regenerate, changeOptions, revisions, loadRevisions, historyOpen, historyLoading, historyError, closeHistory, elapsedMs };
 }

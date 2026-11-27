@@ -1,5 +1,11 @@
 # AI architecture implementation and review report
 
+## Follow-up: summary layout and saved history
+
+The local review follow-up makes paragraph output render and copy only the selected paragraph; source highlights remain available in a collapsed disclosure and are shown as prose. Bullet output retains its list format. Earlier summaries now combines other saved options for the same authorized file with prior regeneration snapshots, excludes the selected current generation, and shows the latest 20 results with format/version/date labels. Saved paragraphs and bullets retain their own layout when expanded. Loading, empty, retryable-error and hide states are explicit; stale responses cannot appear after switching files.
+
+Validation: **52 summary backend tests and 11 summary frontend tests passed**, and the production frontend build passed with existing warnings. The ChatGPT browser verified the user's existing paragraph view and opened both saved formats; a separate synthetic document verified cached layout/history without generating new AI output. No model, prompt, stored summary text, authentication setting or production deployment was changed by this follow-up.
+
 27 November 2026. This phase is **for review only**: it has not been merged or deployed. The public deployment, its database, authentication configuration and instance size have not been replaced. Brief EC2 experiments ran candidate Python in a separate process with synthetic data and a new SQLite database under `/tmp`; they did not start a listener or change production code/configuration. The original dirty working tree was preserved.
 
 ## 1. Branch and commits

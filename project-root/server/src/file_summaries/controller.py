@@ -71,10 +71,7 @@ def regenerate(file_id: int, summary_id: int, background_tasks: BackgroundTasks,
 
 @router.get('/{file_id}/summaries/{summary_id}/revisions')
 def revisions(file_id: int, summary_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_ai_user)):
-    from src.entities.summary_job import SummaryRevision
-    service.get_summary(db,file_id,summary_id,current_user.id)
-    rows=db.query(SummaryRevision).filter_by(summary_id=summary_id).order_by(SummaryRevision.created_at.desc()).limit(20).all()
-    return {'revisions':[{'generation_id':row.generation_id,'result':row.result} for row in rows]}
+    return {'revisions': service.summary_history(db, file_id, summary_id, current_user.id)}
 
 
 @router.delete("/{file_id}/summaries/{summary_id}", status_code=204)

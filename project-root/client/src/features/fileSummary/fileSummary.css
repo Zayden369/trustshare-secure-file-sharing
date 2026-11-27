@@ -20,3 +20,8 @@ body.light .summary-options select option {
 
 .summary-main-bullets { margin-top: 0; line-height: 1.7; }
 .summary-actions { flex-wrap: wrap; }
+.summary-source-highlights, .summary-history { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+.summary-source-highlights > summary, .summary-history details > summary { cursor: pointer; color: var(--text-primary); font-size: .85rem; font-weight: 600; }
+.summary-source-highlights .summary-text, .summary-history details .summary-text { margin-top: 12px; }
+.summary-history details { padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.summary-history h4 { margin-top: 0; }

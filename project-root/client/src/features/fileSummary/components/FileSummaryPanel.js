@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useFileSummary from '../hooks/useFileSummary';
 import '../fileSummary.css';
+
+function SummaryContent({ summary }) {
+  if (summary.output_format === 'bullet_points') {
+    const items = (summary.summary_text || '').split(/\n+/).map(line => line.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
+    return <ul className="summary-main-bullets" aria-label="Summary">{items.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul>;
+  }
+  return <p className="summary-text">{summary.summary_text}</p>;
+}
 
 export default function FileSummaryPanel({ file, onClose }) {
   const [options, setOptions] = useState({ summary_length: 'standard', output_language: 'original', output_format: 'paragraph', force_regenerate: false });
   const [copied, setCopied] = useState(false);
-  const { summary, loading, error, retryAfter = 0, generate, regenerate, changeOptions, revisions = [], loadRevisions, elapsedMs } = useFileSummary(file.id || file.file_id);
+  const { summary, loading, error, retryAfter = 0, generate, regenerate, changeOptions, revisions = [], loadRevisions, historyOpen, historyLoading, historyError, closeHistory, elapsedMs } = useFileSummary(file.id || file.file_id);
+  const historyPanel = useRef(null);
+  useEffect(() => {
+    if (historyOpen) historyPanel.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [historyOpen, historyLoading]);
   const stages = { queued: 'Queued for processing.', reading: 'Reading the encrypted file.', extracting: 'Extracting document text.', waiting_for_inference: 'Waiting for the inference worker.', generating: 'Generating the summary from document text.' };
-  const isBulletSummary = summary?.output_format === 'bullet_points';
-  const bulletItems = isBulletSummary
-    ? (summary.summary_text?.split(/\n+/).map(line => line.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean) || [])
-    : [];
 
   const copy = async () => {
-    const value = [summary?.summary_text, ...(summary?.key_points || []).map(point => `- ${point}`)].filter(Boolean).join('\n\n');
-    await navigator.clipboard.writeText(value);
+    await navigator.clipboard.writeText(summary?.summary_text || '');
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
@@ -45,11 +52,17 @@ export default function FileSummaryPanel({ file, onClose }) {
             <div className="summary-meta"><span>{summary.cached ? `Cached · ${summary.provider || 'summary'}` : summary.provider}</span><span>{summary.summary_length} · {summary.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'}</span><span>Version {summary.source_file_version}</span><span>{new Date(summary.generated_at || summary.updated_at).toLocaleString()}</span>{elapsedMs != null && <span>{summary.cached ? 'Fetched' : 'Received'} in {(elapsedMs / 1000).toFixed(2)}s</span>}</div>
             {summary.warning_message && <div className="summary-warning">Warning: {summary.warning_message}</div>}
             <h3>{summary.title}</h3>
-            {isBulletSummary ? <ul className="summary-main-bullets" aria-label="Summary">{bulletItems.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul> : <p className="summary-text">{summary.summary_text}</p>}
-            {!!summary.key_points?.length && <><h4>{summary.provider === 'ollama' ? 'Source highlights' : 'Key points'}</h4><ul>{summary.key_points.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}</ul></>}
+            <SummaryContent summary={summary} />
+            {!!summary.key_points?.length && <details className="summary-source-highlights"><summary>View source highlights</summary><p className="summary-text">{summary.key_points.join(' ')}</p></details>}
             {!!summary.keywords?.length && <div className="summary-keywords">{summary.keywords.map(word => <span key={word}>{word}</span>)}</div>}
-            <div className="summary-actions"><button className="btn btn-secondary btn-sm" onClick={copy}>{copied ? 'Copied' : 'Copy summary'}</button><button className="btn btn-secondary btn-sm" onClick={() => { setOptions({ summary_length: summary.summary_length, output_language: summary.output_language, output_format: summary.output_format, force_regenerate: false }); changeOptions(); }}>Change options</button><button className="btn btn-primary btn-sm" onClick={regenerate}>Regenerate</button><button className="btn btn-secondary btn-sm" onClick={loadRevisions}>Earlier summaries</button></div>
-            {revisions.map(revision => <details key={revision.generation_id}><summary>{revision.result.summary_length} · {revision.result.provider} · {new Date(revision.result.generated_at || revision.result.updated_at).toLocaleString()}</summary><p className="summary-text">{revision.result.summary_text}</p></details>)}
+            <div className="summary-actions"><button className="btn btn-secondary btn-sm" onClick={copy}>{copied ? 'Copied' : 'Copy summary'}</button><button className="btn btn-secondary btn-sm" onClick={() => { setOptions({ summary_length: summary.summary_length, output_language: summary.output_language, output_format: summary.output_format, force_regenerate: false }); changeOptions(); }}>Change options</button><button className="btn btn-primary btn-sm" onClick={regenerate}>Regenerate</button><button className="btn btn-secondary btn-sm" aria-expanded={!!historyOpen} aria-controls="summary-history" disabled={historyLoading} onClick={historyOpen ? closeHistory : loadRevisions}>{historyLoading ? 'Loading history…' : historyOpen ? 'Hide earlier summaries' : 'Earlier summaries'}</button></div>
+            {historyOpen && <section className="summary-history" id="summary-history" aria-label="Earlier summaries" ref={historyPanel}>
+              <h4>Earlier summaries</h4>
+              {historyLoading && <p role="status">Loading earlier summaries…</p>}
+              {historyError && <div role="alert"><p>{historyError}</p><button className="btn btn-secondary btn-sm" onClick={loadRevisions}>Retry history</button></div>}
+              {!historyLoading && !historyError && !revisions.length && <p className="summary-text">No earlier summaries yet. Saved results appear here after you generate another summary or regenerate this one.</p>}
+              {!historyLoading && !historyError && revisions.map(revision => <details key={revision.generation_id}><summary>{revision.result.summary_length} · {revision.result.output_format === 'bullet_points' ? 'Bullet points' : 'Paragraph'} · Version {revision.result.source_file_version} · {revision.result.provider} · {new Date(revision.result.generated_at || revision.result.updated_at).toLocaleString()}</summary>{revision.result.warning_message && <p className="summary-warning">Warning: {revision.result.warning_message}</p>}<SummaryContent summary={revision.result} /></details>)}
+            </section>}
           </div>
         )}
       </section>

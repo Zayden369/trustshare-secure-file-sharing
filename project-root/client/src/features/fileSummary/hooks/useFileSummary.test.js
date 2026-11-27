@@ -34,3 +34,40 @@ test('duplicate generation reconnects to the existing job', async () => {
   expect(result.current.error).toBe('');
   expect(fileSummaryAPI.get).toHaveBeenCalledWith(7, 9);
 });
+
+test('history exposes loading, empty results and independent retryable errors', async () => {
+  let finish;
+  fileSummaryAPI.latest.mockResolvedValue({ data: { id: 1, status: 'completed' } });
+  fileSummaryAPI.revisions.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  const { result } = renderHook(() => useFileSummary(7));
+  await waitFor(() => expect(result.current.summary?.id).toBe(1));
+  let request;
+  act(() => { request = result.current.loadRevisions(); });
+  expect(result.current.historyOpen).toBe(true);
+  expect(result.current.historyLoading).toBe(true);
+  await act(async () => { finish({ data: { revisions: [] } }); await request; });
+  expect(result.current.historyLoading).toBe(false);
+  expect(result.current.revisions).toEqual([]);
+  fileSummaryAPI.revisions.mockRejectedValueOnce(new Error('Network error'));
+  await act(async () => { await result.current.loadRevisions(); });
+  expect(result.current.historyError).toContain('Please retry');
+  expect(result.current.error).toBe('');
+  expect(result.current.summary.id).toBe(1);
+  act(() => result.current.closeHistory());
+  expect(result.current.historyOpen).toBe(false);
+});
+
+test('history from a previous file cannot appear for the next file', async () => {
+  let finish;
+  fileSummaryAPI.latest.mockResolvedValueOnce({ data: { id: 1, status: 'completed' } }).mockResolvedValueOnce({ data: { id: 2, status: 'completed' } });
+  fileSummaryAPI.revisions.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  const { result, rerender } = renderHook(({ id }) => useFileSummary(id), { initialProps: { id: 7 } });
+  await waitFor(() => expect(result.current.summary?.id).toBe(1));
+  let request;
+  act(() => { request = result.current.loadRevisions(); });
+  rerender({ id: 8 });
+  await waitFor(() => expect(result.current.summary?.id).toBe(2));
+  await act(async () => { finish({ data: { revisions: [{ generation_id: 'old-file' }] } }); await request; });
+  expect(result.current.revisions).toEqual([]);
+  expect(result.current.historyOpen).toBe(false);
+});
