@@ -1,0 +1,624 @@
+{
+  "scope": "Isolated synthetic engine, excludes HTTP/JWT/upload/extraction",
+  "predefined": [
+    {
+      "intent": "files.recent",
+      "seconds": 0.053237541986163706,
+      "error": false,
+      "performance": {
+        "request_id": "f485b7024504438295ce67a5d8c7c0d8",
+        "operation": "assistant",
+        "total_ms": 52.21,
+        "stages_ms": {
+          "database_queries": 2.84,
+          "validation_authorization_persistence": 30.09,
+          "database_operation": 8.29,
+          "persistence": 12.75
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 26
+        }
+      }
+    },
+    {
+      "intent": "files.pdf_month",
+      "seconds": 0.046352484001545236,
+      "error": false,
+      "performance": {
+        "request_id": "22e65dc955594d67bda36472dfdf084d",
+        "operation": "assistant",
+        "total_ms": 45.41,
+        "stages_ms": {
+          "database_queries": 2.25,
+          "validation_authorization_persistence": 18.26,
+          "database_operation": 15.31,
+          "persistence": 11.33
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "files.largest",
+      "seconds": 0.034659914002986625,
+      "error": false,
+      "performance": {
+        "request_id": "c88be9e457e749c2b8f9d992aa987086",
+        "operation": "assistant",
+        "total_ms": 34.07,
+        "stages_ms": {
+          "database_queries": 1.79,
+          "validation_authorization_persistence": 18.87,
+          "database_operation": 3.48,
+          "persistence": 11.21
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "storage.overview",
+      "seconds": 0.03250605100765824,
+      "error": false,
+      "performance": {
+        "request_id": "e29521a8bf064209b2df242cfb156ff3",
+        "operation": "assistant",
+        "total_ms": 31.67,
+        "stages_ms": {
+          "database_queries": 1.54,
+          "validation_authorization_persistence": 18.77,
+          "database_operation": 1.22,
+          "persistence": 11.15
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      }
+    },
+    {
+      "intent": "storage.breakdown",
+      "seconds": 0.03544741799123585,
+      "error": false,
+      "performance": {
+        "request_id": "bf8193a4423148b89223a6f3db16daff",
+        "operation": "assistant",
+        "total_ms": 34.76,
+        "stages_ms": {
+          "database_queries": 1.68,
+          "validation_authorization_persistence": 18.51,
+          "database_operation": 4.91,
+          "persistence": 10.8
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "shares.files",
+      "seconds": 0.03981324497726746,
+      "error": false,
+      "performance": {
+        "request_id": "b526727768104e908ba5beecc9644f90",
+        "operation": "assistant",
+        "total_ms": 39.14,
+        "stages_ms": {
+          "database_queries": 2.15,
+          "validation_authorization_persistence": 19.27,
+          "database_operation": 8.42,
+          "persistence": 10.93
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "shares.active_links",
+      "seconds": 0.035429135983577,
+      "error": false,
+      "performance": {
+        "request_id": "5011423a60864a69a3c5996bd01d3a34",
+        "operation": "assistant",
+        "total_ms": 34.54,
+        "stages_ms": {
+          "database_queries": 1.78,
+          "validation_authorization_persistence": 18.28,
+          "database_operation": 4.68,
+          "persistence": 10.9
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "account.sessions",
+      "seconds": 0.09289272001478821,
+      "error": false,
+      "performance": {
+        "request_id": "0ed323a500144c7f9cff054318c820a2",
+        "operation": "assistant",
+        "total_ms": 92.3,
+        "stages_ms": {
+          "database_queries": 1.94,
+          "validation_authorization_persistence": 19.21,
+          "database_operation": 60.76,
+          "persistence": 11.69
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "account.notifications",
+      "seconds": 0.03829737097839825,
+      "error": false,
+      "performance": {
+        "request_id": "8ee1b50ca0a540bcbfcf7c8c6628805a",
+        "operation": "assistant",
+        "total_ms": 37.4,
+        "stages_ms": {
+          "database_queries": 1.99,
+          "validation_authorization_persistence": 18.56,
+          "database_operation": 6.87,
+          "persistence": 11.35
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "account.profile",
+      "seconds": 0.04035014001419768,
+      "error": false,
+      "performance": {
+        "request_id": "c6e8acc42e9744468e15027d2207f9d2",
+        "operation": "assistant",
+        "total_ms": 39.5,
+        "stages_ms": {
+          "database_queries": 1.89,
+          "validation_authorization_persistence": 25.33,
+          "database_operation": 1.33,
+          "persistence": 12.25
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      }
+    },
+    {
+      "intent": "files.recent",
+      "seconds": 0.037173538003116846,
+      "error": false,
+      "performance": {
+        "request_id": "f72a36f19de0470c885a0ce7d1305531",
+        "operation": "assistant",
+        "total_ms": 36.42,
+        "stages_ms": {
+          "database_queries": 1.87,
+          "validation_authorization_persistence": 20.0,
+          "database_operation": 2.7,
+          "persistence": 13.07
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "files.pdf_month",
+      "seconds": 0.03632564999861643,
+      "error": false,
+      "performance": {
+        "request_id": "b671841af3dc4511bfc8a2658eb6ca46",
+        "operation": "assistant",
+        "total_ms": 35.51,
+        "stages_ms": {
+          "database_queries": 1.73,
+          "validation_authorization_persistence": 19.27,
+          "database_operation": 4.07,
+          "persistence": 11.67
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "files.largest",
+      "seconds": 0.031687008013250306,
+      "error": false,
+      "performance": {
+        "request_id": "d9fb397933bf4be886186bf5db11744f",
+        "operation": "assistant",
+        "total_ms": 31.12,
+        "stages_ms": {
+          "database_queries": 1.54,
+          "validation_authorization_persistence": 17.65,
+          "database_operation": 2.43,
+          "persistence": 10.51
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "storage.overview",
+      "seconds": 0.032489170000189915,
+      "error": false,
+      "performance": {
+        "request_id": "a3a04f1ec19a41d98e01bb4ef63c1e68",
+        "operation": "assistant",
+        "total_ms": 31.61,
+        "stages_ms": {
+          "database_queries": 1.47,
+          "validation_authorization_persistence": 18.04,
+          "database_operation": 0.99,
+          "persistence": 12.04
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      }
+    },
+    {
+      "intent": "storage.breakdown",
+      "seconds": 0.0406954109785147,
+      "error": false,
+      "performance": {
+        "request_id": "c93332cf1b09426bb4194d6e24ed436d",
+        "operation": "assistant",
+        "total_ms": 40.0,
+        "stages_ms": {
+          "database_queries": 2.06,
+          "validation_authorization_persistence": 24.24,
+          "database_operation": 2.62,
+          "persistence": 12.39
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "shares.files",
+      "seconds": 0.04078466899227351,
+      "error": false,
+      "performance": {
+        "request_id": "02871a30c0d842d2883138991f397e4e",
+        "operation": "assistant",
+        "total_ms": 40.19,
+        "stages_ms": {
+          "database_queries": 4.09,
+          "validation_authorization_persistence": 26.46,
+          "database_operation": 2.5,
+          "persistence": 10.71
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "shares.active_links",
+      "seconds": 0.03300923001370393,
+      "error": false,
+      "performance": {
+        "request_id": "3aafd487f8fc47ea8b0727d859370460",
+        "operation": "assistant",
+        "total_ms": 32.21,
+        "stages_ms": {
+          "database_queries": 1.57,
+          "validation_authorization_persistence": 18.86,
+          "database_operation": 2.3,
+          "persistence": 10.52
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "account.sessions",
+      "seconds": 0.03256059097475372,
+      "error": false,
+      "performance": {
+        "request_id": "247338f1973140ccbfc22604b7900d50",
+        "operation": "assistant",
+        "total_ms": 31.68,
+        "stages_ms": {
+          "database_queries": 1.58,
+          "validation_authorization_persistence": 18.53,
+          "database_operation": 1.79,
+          "persistence": 10.82
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 24
+        }
+      }
+    },
+    {
+      "intent": "account.notifications",
+      "seconds": 0.03545520597253926,
+      "error": false,
+      "performance": {
+        "request_id": "5db711d3a3c14059b58178ee424190ff",
+        "operation": "assistant",
+        "total_ms": 34.79,
+        "stages_ms": {
+          "database_queries": 1.76,
+          "validation_authorization_persistence": 21.04,
+          "database_operation": 2.24,
+          "persistence": 10.93
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 25
+        }
+      }
+    },
+    {
+      "intent": "account.profile",
+      "seconds": 0.03158895700471476,
+      "error": false,
+      "performance": {
+        "request_id": "442530d8671e4b298882fe2de9dbd84b",
+        "operation": "assistant",
+        "total_ms": 30.87,
+        "stages_ms": {
+          "database_queries": 1.48,
+          "validation_authorization_persistence": 18.48,
+          "database_operation": 1.08,
+          "persistence": 10.77
+        },
+        "counters": {
+          "llm_calls": 0,
+          "database_queries": 23
+        }
+      }
+    }
+  ],
+  "custom": [
+    {
+      "message": "Explain what a checksum does in two concise sentences.",
+      "seconds": 7.847877702006372,
+      "first_meaningful_seconds": 1.025764648016775,
+      "result": {
+        "conversation_id": 21,
+        "message": "A checksum is a quick way to verify the integrity of a file by calculating a hash value, which is a unique identifier, and comparing it to the original hash value stored in the file. If the values match, the file has not been altered; if they don't, the file has been corrupted.",
+        "function_calls": [],
+        "is_new_conversation": true,
+        "tokens_used": 201,
+        "model_used": "qwen2.5:1.5b",
+        "error": false,
+        "request_id": "f788b7ecc2254bffab457ac9de924c82",
+        "route": "inference",
+        "performance": {
+          "request_id": "bc5f8c3a945e41beb8910d2ec9ac5750",
+          "operation": "assistant",
+          "total_ms": 7847.06,
+          "stages_ms": {
+            "database_queries": 2.28,
+            "validation_authorization_persistence": 20.39,
+            "queue_wait": 0.01,
+            "first_token": 991.76,
+            "first_meaningful": 1025.72,
+            "model_load": 2.86,
+            "prompt_evaluation": 925.69,
+            "token_generation": 6806.12,
+            "inference_http": 7796.61,
+            "persistence": 16.04
+          },
+          "counters": {
+            "llm_calls": 1,
+            "database_queries": 22,
+            "input_tokens": 139,
+            "output_tokens": 62
+          }
+        }
+      }
+    },
+    {
+      "message": "Explain why revoking a link cannot erase an already downloaded copy. Keep it concise.",
+      "seconds": 10.147159810003359,
+      "first_meaningful_seconds": 7.867985059012426,
+      "result": {
+        "conversation_id": 22,
+        "message": "Revoke a link to prevent others from accessing the file, but an already downloaded copy remains intact.",
+        "function_calls": [],
+        "is_new_conversation": true,
+        "tokens_used": 410,
+        "model_used": "qwen2.5:1.5b",
+        "error": false,
+        "request_id": "54c1d1438d2f4ae898380570c13fdc2a",
+        "route": "inference",
+        "performance": {
+          "request_id": "37ac479062954800b3dbdaad607666a2",
+          "operation": "assistant",
+          "total_ms": 10146.41,
+          "stages_ms": {
+            "database_queries": 2.17,
+            "validation_authorization_persistence": 22.51,
+            "queue_wait": 0.01,
+            "first_token": 7831.1,
+            "first_meaningful": 7867.94,
+            "model_load": 1.37,
+            "prompt_evaluation": 7818.66,
+            "token_generation": 2267.96,
+            "inference_http": 10097.87,
+            "persistence": 11.04
+          },
+          "counters": {
+            "llm_calls": 1,
+            "database_queries": 22,
+            "input_tokens": 389,
+            "output_tokens": 21
+          }
+        }
+      }
+    },
+    {
+      "message": "Compare my file sizes and storage usage using the available tools.",
+      "seconds": 14.068034930998692,
+      "first_meaningful_seconds": null,
+      "result": {
+        "error": true,
+        "message": "AI selected invalid operation arguments. Please rephrase.",
+        "request_id": "f804c87f32124176ac01b1ef951302ef",
+        "conversation_id": 23,
+        "status_code": 503
+      }
+    }
+  ],
+  "summaries": [
+    {
+      "length": "short",
+      "seconds": 3.1635721900092904,
+      "provider": "ollama",
+      "warning": null,
+      "result": {
+        "title": "Document summary",
+        "summary": "Cedar Project enrolled 24 volunteers and reviewed their work, with a total of 162 completed tasks in six weeks. The files were stored securely on the server before being uploaded to the project's website.",
+        "key_points": [
+          "Project Cedar enrolled 24 volunteers.",
+          "Reviewers completed 162 of 180 tasks over six weeks."
+        ],
+        "keywords": [
+          "project",
+          "cedar",
+          "enrolled",
+          "volunteers",
+          "reviewers"
+        ]
+      },
+      "performance": {
+        "request_id": "bc72ee4afef341cbb929d55a43fb7d1f",
+        "operation": "synthetic_summary",
+        "total_ms": 3163.58,
+        "stages_ms": {
+          "queue_wait": 0.01,
+          "model_load": 2.36,
+          "prompt_evaluation": 90.85,
+          "token_generation": 3048.18,
+          "inference_http": 3158.01,
+          "output_parsing": 0.15,
+          "keyword_generation": 0.05
+        },
+        "counters": {
+          "llm_calls": 1,
+          "input_tokens": 159,
+          "output_tokens": 52
+        }
+      }
+    },
+    {
+      "length": "standard",
+      "seconds": 3.2028496430139057,
+      "provider": "ollama",
+      "warning": null,
+      "result": {
+        "title": "Document summary",
+        "summary": "Cedar Project enrolled 24 volunteers and reviewed their work, with a total of 162 completed tasks in six weeks. The files were stored securely on the server but owners can revoke access to link them.",
+        "key_points": [
+          "Project Cedar enrolled 24 volunteers.",
+          "Reviewers completed 162 of 180 tasks over six weeks.",
+          "Files are encrypted on the server before storage.",
+          "No independent security audit or certification is claimed."
+        ],
+        "keywords": [
+          "project",
+          "cedar",
+          "enrolled",
+          "volunteers",
+          "reviewers"
+        ]
+      },
+      "performance": {
+        "request_id": "6f4db3d4df434b4bbe8e6ab540204c6f",
+        "operation": "synthetic_summary",
+        "total_ms": 3202.86,
+        "stages_ms": {
+          "queue_wait": 0.01,
+          "model_load": 1.7,
+          "prompt_evaluation": 59.73,
+          "token_generation": 3121.82,
+          "inference_http": 3201.5,
+          "output_parsing": 0.03,
+          "keyword_generation": 0.04
+        },
+        "counters": {
+          "llm_calls": 1,
+          "input_tokens": 160,
+          "output_tokens": 52
+        }
+      }
+    },
+    {
+      "length": "detailed",
+      "seconds": 3.7662112260004506,
+      "provider": "ollama",
+      "warning": null,
+      "result": {
+        "title": "Document summary",
+        "summary": "Cedar Project enrolled 24 volunteers and reviewed their work, with a total of 162 completed tasks in six weeks. The files were stored securely on the server before being uploaded to the cloud storage service. No independent security audit or certification is claimed.",
+        "key_points": [
+          "Project Cedar enrolled 24 volunteers.",
+          "Reviewers completed 162 of 180 tasks over six weeks.",
+          "Files are encrypted on the server before storage.",
+          "Owners may revoke links.",
+          "No independent security audit or certification is claimed."
+        ],
+        "keywords": [
+          "project",
+          "cedar",
+          "enrolled",
+          "volunteers",
+          "reviewers"
+        ]
+      },
+      "performance": {
+        "request_id": "d14efe90409d4025af52d323971a85a3",
+        "operation": "synthetic_summary",
+        "total_ms": 3766.22,
+        "stages_ms": {
+          "queue_wait": 0.0,
+          "model_load": 1.69,
+          "prompt_evaluation": 61.05,
+          "token_generation": 3687.57,
+          "inference_http": 3765.19,
+          "output_parsing": 0.04,
+          "keyword_generation": 0.04
+        },
+        "counters": {
+          "llm_calls": 1,
+          "input_tokens": 161,
+          "output_tokens": 61
+        }
+      }
+    }
+  ]
+}

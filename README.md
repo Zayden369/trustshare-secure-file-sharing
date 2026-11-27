@@ -21,6 +21,10 @@ OAuth provider buttons are environment-dependent; the hosted deployment currentl
 
 ![TrustShare AI file summary](project-root/docs/screenshots/ai-summary.png)
 
+## AI architecture review
+
+The development phase adds authorized fast answers, genuine token streaming, cancellation and recoverable summary jobs. See the [implementation report](project-root/docs/AI_PERFORMANCE_IMPLEMENTATION_REPORT.md) for benchmarks, quality limitations, tests and local reproduction. This phase is not a production deployment.
+
 ## About the project
 
 TrustShare is a secure collaboration platform for uploading, encrypting, organizing, sharing, and auditing files. The React client provides a responsive user experience while the FastAPI service handles authentication, authorization, file encryption, sharing policies, analytics, and persistence in PostgreSQL.
