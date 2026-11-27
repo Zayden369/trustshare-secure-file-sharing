@@ -6,4 +6,4 @@
 - [Complete implementation report](AI_PERFORMANCE_IMPLEMENTATION_REPORT.md)
 - [Synthetic benchmark and screenshot artifacts](ai-review/)
 
-This phase is unmerged and undeployed. The PR's current head includes subsequent documentation-only review-link updates; inspect its commit list or run `git rev-parse HEAD` for the exact checkout tip. No auto-merge or deployment has been enabled.
+This branch was initially published as an unmerged, undeployed review. The user subsequently authorized merging and deployment on 27 November 2026; the PR state and deployed release record show current status. The PR's current head includes subsequent documentation-only review-link updates; inspect its commit list or run `git rev-parse HEAD` for the exact checkout tip. No auto-merge or deployment has been enabled.

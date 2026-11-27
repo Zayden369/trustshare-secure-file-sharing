@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+import pytest
+
 from src.api import app
 from src.auth.dependencies import get_current_user
 from src.entities.notification import Notification
@@ -40,7 +42,11 @@ def test_create_notification_uses_callers_transaction(db):
     assert db.query(Notification).filter_by(user_id=user.id).count() == 0
 
 
-def test_notification_api_lists_only_current_users_rows_and_marks_read(client, db):
+@pytest.mark.parametrize("icon", [None, "shield"])
+@pytest.mark.parametrize("trailing_slash", ["", "/"])
+def test_notification_api_lists_only_current_users_rows_and_marks_read(
+    client, db, icon, trailing_slash
+):
     current_user = _user(db, "Current")
     other_user = _user(db, "Other")
     current = Notification(
@@ -49,6 +55,7 @@ def test_notification_api_lists_only_current_users_rows_and_marks_read(client, d
         category="security",
         title="New login to your account",
         message="Current user only",
+        icon=icon,
         is_read=False,
     )
     db.add_all([
@@ -66,15 +73,17 @@ def test_notification_api_lists_only_current_users_rows_and_marks_read(client, d
     _authenticate_as(current_user)
 
     try:
-        response = client.get("/api/notifications/")
-        mark_response = client.patch(f"/api/notifications/{current.id}/read")
+        response = client.get(f"/api/notifications{trailing_slash}")
+        mark_response = client.patch(f"/api/notifications/{current.id}/read{trailing_slash}")
     finally:
         app.dependency_overrides.pop(get_current_user, None)
 
     assert response.status_code == 200
     assert [item["title"] for item in response.json()] == ["New login to your account"]
+    assert response.json()[0]["icon"] == icon
     assert mark_response.status_code == 200
     assert mark_response.json()["is_read"] is True
+    assert mark_response.json()["icon"] == icon
 
 
 def test_notification_api_rejects_cross_user_update_and_delete(client, db):

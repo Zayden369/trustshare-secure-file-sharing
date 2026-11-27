@@ -1,5 +1,7 @@
 # AI architecture implementation and review report
 
+Release authorization was received on 27 November 2026. The review-only statements and measurements below describe the initial validation stage; current merge status is recorded in PR #8 and the deployed release record. A pre-release source comparison also preserved the existing nullable-notification-icon fix; its API/ownership tests and provider-readiness checks passed (11 tests), alongside the final 149-test backend and 17-test focused frontend gates.
+
 ## Follow-up: summary layout and saved history
 
 The local review follow-up makes paragraph output render and copy only the selected paragraph; source highlights remain available in a collapsed disclosure and are shown as prose. Bullet output retains its list format. Earlier summaries now combines other saved options for the same authorized file with prior regeneration snapshots, excludes the selected current generation, and shows the latest 20 results with format/version/date labels. Saved paragraphs and bullets retain their own layout when expanded. Loading, empty, retryable-error and hide states are explicit; stale responses cannot appear after switching files.

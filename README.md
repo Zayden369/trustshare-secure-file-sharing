@@ -23,7 +23,7 @@ OAuth provider buttons are environment-dependent; the hosted deployment currentl
 
 ## AI architecture review
 
-The development phase adds authorized fast answers, genuine token streaming, cancellation and recoverable summary jobs. See the [implementation report](project-root/docs/AI_PERFORMANCE_IMPLEMENTATION_REPORT.md) for benchmarks, quality limitations, tests and local reproduction. This phase is not a production deployment.
+The development phase adds authorized fast answers, genuine token streaming, cancellation and recoverable summary jobs. See the [implementation report](project-root/docs/AI_PERFORMANCE_IMPLEMENTATION_REPORT.md) for benchmarks, quality limitations, tests and local reproduction. The report preserves the initial review evidence and known limitations; the linked pull request records subsequent release status.
 
 ## About the project
 
